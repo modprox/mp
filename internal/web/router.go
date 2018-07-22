@@ -7,9 +7,9 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/modprox/libmodprox/webutil"
 	"github.com/modprox/modprox-registry/internal/repositories"
 	"github.com/modprox/modprox-registry/internal/repositories/repository"
-	"github.com/modprox/libmodprox/webutil"
 )
 
 const (
@@ -21,7 +21,7 @@ func NewRouter(store repositories.Store) http.Handler {
 	router := mux.NewRouter()
 
 	router.Handle("/v1/registry/list", registryList(store)).Methods(get)
-	router.Handle("/v1/registry/append", registryAdd(store)).Methods(post)
+	router.Handle("/v1/registry/append", registryAppend(store)).Methods(post)
 
 	return router
 }
@@ -37,7 +37,7 @@ func registryList(store repositories.Store) http.HandlerFunc {
 	}
 }
 
-func registryAdd(store repositories.Store) http.HandlerFunc {
+func registryAppend(store repositories.Store) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		var wantToAdd []repository.Module
@@ -47,12 +47,12 @@ func registryAdd(store repositories.Store) http.HandlerFunc {
 			return
 		}
 
-		if err := store.Append(wantToAdd); err != nil {
+		itemsAdded, err := store.Append(wantToAdd)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		itemsAdded := len(wantToAdd)
 		msg := fmt.Sprintf("added %d submitted items", itemsAdded)
 		webutil.WriteJSON(w, msg)
 	}

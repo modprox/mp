@@ -16,7 +16,7 @@ func Connect(config mysql.Config) (*sql.DB, error) {
 
 type Store interface {
 	List() ([]repository.Module, error)
-	Append([]repository.Module) error
+	Append([]repository.Module) (int, error)
 }
 
 func New(db *sql.DB) (Store, error) {
@@ -58,37 +58,46 @@ func (s *store) List() ([]repository.Module, error) {
 	return infos, nil
 }
 
-func (s *store) Append(infos []repository.Module) error {
+func (s *store) Append(infos []repository.Module) (int, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer tx.Rollback()
 
+	numAdded := 0
 	for _, info := range infos {
-		if err := s.add(tx, info); err != nil {
-			return err
+		if added, err := s.maybeAdd(tx, info); err != nil {
+			return 0, err
+		} else if added {
+			numAdded++
 		}
 	}
 
-	return tx.Commit()
+	return numAdded, tx.Commit()
 }
 
-func (s *store) add(tx *sql.Tx, info repository.Module) error {
-	result, err := tx.Stmt(s.statements[insertRegistryInfo]).Exec(info.Source)
+func (s *store) maybeAdd(tx *sql.Tx, info repository.Module) (bool, error) {
+	result, err := tx.Stmt(s.statements[insertRegistryInfo]).Exec(info.Source, info.Version)
 	if err != nil {
-		return err
+		return false, err
 	}
-	return affectedN(result, 1)
+	return maybeAffectedN(result, 1)
 }
 
-func affectedN(result sql.Result, n int) error {
+func maybeAffectedN(result sql.Result, n int) (bool, error) {
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return false, err
 	}
-	if rowsAffected != int64(n) {
-		return errors.Errorf("expected affect %d rows, actually affected %d", n, rowsAffected)
+
+	if rowsAffected == 0 {
+		return false, nil
 	}
-	return nil
+
+	if rowsAffected == int64(n) {
+		return true, nil
+	}
+
+	return false, errors.Errorf("expected to affect %d rows, actually affected %d", n, rowsAffected)
 }

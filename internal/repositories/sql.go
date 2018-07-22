@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"database/sql"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -17,7 +19,7 @@ func load(db *sql.DB) (statements, error) {
 	for id, text := range sqlText {
 		stmt, err := db.Prepare(text)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "bad sql statement: %q", text)
 		}
 		loaded[id] = stmt
 	}
@@ -27,7 +29,7 @@ func load(db *sql.DB) (statements, error) {
 
 var (
 	sqlText = map[int]string{
-		selectAllRegistryInfos: `select (source, version) from registry`,
-		insertRegistryInfo:     `insert into registry (source, version) values (?, ?)`,
+		selectAllRegistryInfos: `select source, version from registry`,
+		insertRegistryInfo:     `insert into registry (source, version) values (?, ?) on duplicate key update source=source`,
 	}
 )
