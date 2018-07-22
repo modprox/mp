@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  mysql:
+    image: mysql/mysql-server:5.7
+    container_name: modprox-mysql
+    ports:
+      - "3306:3306"
+    tmpfs:
+      - /var/lib/mysql
+      - /tmp
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=passw0rd
+      - MYSQL_DATABASE=modproxdb
+      - MYSQL_USER=docker
+      - MYSQL_PASSWORD=docker
+    entrypoint:
+      - /entrypoint.sh
+      - mysqld
