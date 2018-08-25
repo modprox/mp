@@ -4,5 +4,23 @@
     <div class="bigheader">
         <h1>Module Registry</h1>
     </div>
+    <div>
+        <table>
+            {{range .Modules}}
+            <tr>
+                <td class="modtd">
+                    <a href="{{.WebURL}}">
+                        <span class="modname">{{.Module.Source}}</span>
+                    </a>
+                </td>
+                <td class="modtd">
+                    <a href="{{.TagURL}}">
+                        <span class="modtag">{{.Module.Version}}</span>
+                    </a>
+                </td>
+            </tr>
+            {{end}}
+        </table>
+    </div>
 </div>
 {{end}}
