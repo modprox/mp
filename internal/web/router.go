@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -20,15 +21,17 @@ const (
 func NewRouter(store repositories.Store) http.Handler {
 	router := mux.NewRouter()
 
-	router.Handle("/v1/registry/list", registryList(store)).Methods(get)
-	router.Handle("/v1/registry/append", registryAppend(store)).Methods(post)
+	router.Handle("/v1/registry/sources/list", registryList(store)).Methods(get)
+	router.Handle("/v1/registry/sources/new", registryAdd(store)).Methods(post)
 
 	return router
 }
 
 func registryList(store repositories.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		repos, err := store.List()
+		log.Println("[api] registry list endpoint")
+
+		repos, err := store.ListSources()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -37,8 +40,7 @@ func registryList(store repositories.Store) http.HandlerFunc {
 	}
 }
 
-func registryAppend(store repositories.Store) http.HandlerFunc {
-
+func registryAdd(store repositories.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var wantToAdd []repository.Module
 
