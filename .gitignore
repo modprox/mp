@@ -1,3 +1,4 @@
 modprox-registry
 **/cover.out
 
+go.sum
