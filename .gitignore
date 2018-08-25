@@ -1,4 +1,4 @@
 modprox-registry
 **/cover.out
-
+**/generated.go
 go.sum

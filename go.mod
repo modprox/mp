@@ -6,7 +6,10 @@ require (
 	github.com/gorilla/mux v1.6.2
 	github.com/modprox/libmodprox v0.0.0
 	github.com/pkg/errors v0.8.0
+	github.com/shoenig/petrify/v4 v4.0.1
 	google.golang.org/appengine v1.1.0 // indirect
 )
 
 replace github.com/modprox/libmodprox => ../libmodprox
+
+replace github.com/shoenig/petrify => ../petrify

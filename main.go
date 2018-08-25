@@ -10,6 +10,9 @@ import (
 	"github.com/modprox/modprox-registry/internal/web"
 )
 
+// generate webpage statics
+//go:generate petrify -o static/generated.go -pkg static static/...
+
 func main() {
 	dsn := mysqlDSN()
 	db, err := repositories.Connect(dsn)
