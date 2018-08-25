@@ -1,0 +1,6 @@
+{
+  "registries": [
+    {"address":"localhost", "port":8000}
+  ],
+  "registry_poll_frequency_s": 20
+}
