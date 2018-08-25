@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 
 	"github.com/modprox/modprox-registry/internal/repositories/repository"
 )
@@ -15,7 +16,7 @@ func Connect(config mysql.Config) (*sql.DB, error) {
 
 type Store interface {
 	ListSources() ([]repository.Module, error)
-	Append([]repository.Module) (int, error)
+	Add([]repository.Module) (int, int, error)
 }
 
 func New(db *sql.DB) (Store, error) {
@@ -86,48 +87,68 @@ func (s *store) ListSources() ([]repository.Module, error) {
 	return modules, nil
 }
 
-func (s *store) Append(infos []repository.Module) (int, error) {
-	return 0, nil
-	//tx, err := s.db.Begin()
-	//if err != nil {
-	//	return 0, err
-	//}
-	//defer tx.Rollback()
-	//
-	//numAdded := 0
-	//for _, info := range infos {
-	//	if added, err := s.maybeAdd(tx, info); err != nil {
-	//		return 0, err
-	//	} else if added {
-	//		numAdded++
-	//	}
-	//}
-	//
-	//return numAdded, tx.Commit()
+func (s *store) Add(modules []repository.Module) (int, int, error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return 0, 0, err
+	}
+	defer tx.Rollback()
+
+	sourcesAdded := 0
+	tagsAdded := 0
+	for _, module := range modules {
+		sourceID, addedSource, err := s.maybeAddSource(tx, module.Source)
+		if err != nil {
+			return 0, 0, err
+		} else if addedSource {
+			sourcesAdded++
+		}
+
+		addedTag, err := s.maybeAddTag(tx, sourceID, module.Version)
+		if err != nil {
+			return 0, 0, err
+		} else if addedTag {
+			tagsAdded++
+		}
+	}
+
+	return sourcesAdded, tagsAdded, tx.Commit()
 }
 
-//
-//func (s *store) maybeAdd(tx *sql.Tx, info repository.Module) (bool, error) {
-//	result, err := tx.Stmt(s.statements[insertRegistryInfo]).Exec(info.Source, info.Version)
-//	if err != nil {
-//		return false, err
-//	}
-//	return maybeAffectedN(result, 1)
-//}
-//
-//func maybeAffectedN(result sql.Result, n int) (bool, error) {
-//	rowsAffected, err := result.RowsAffected()
-//	if err != nil {
-//		return false, err
-//	}
-//
-//	if rowsAffected == 0 {
-//		return false, nil
-//	}
-//
-//	if rowsAffected == int64(n) {
-//		return true, nil
-//	}
-//
-//	return false, errors.Errorf("expected to affect %d rows, actually affected %d", n, rowsAffected)
-//}
+func (s *store) maybeAddTag(tx *sql.Tx, sourceID int64, version string) (bool, error) {
+	result, err := tx.Stmt(s.statements[insertTagSQL]).Exec(version, sourceID)
+	if err != nil {
+		return false, err
+	}
+	return maybeAffectedN(result, 1)
+}
+
+func (s *store) maybeAddSource(tx *sql.Tx, source string) (int64, bool, error) {
+	result, err := tx.Stmt(s.statements[insertSourceSQL]).Exec(source)
+	if err != nil {
+		return 0, false, err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, false, err
+	}
+	added, err := maybeAffectedN(result, 1)
+	return id, added, err
+}
+
+func maybeAffectedN(result sql.Result, n int) (bool, error) {
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected == 0 {
+		return false, nil
+	}
+
+	if rowsAffected == int64(n) {
+		return true, nil
+	}
+
+	return false, errors.Errorf("expected to affect %d rows, actually affected %d", n, rowsAffected)
+}
