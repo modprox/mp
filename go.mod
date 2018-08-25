@@ -11,5 +11,3 @@ require (
 )
 
 replace github.com/modprox/libmodprox => ../libmodprox
-
-replace github.com/shoenig/petrify => ../petrify

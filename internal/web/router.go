@@ -32,6 +32,8 @@ func NewRouter(store repositories.Store) http.Handler {
 	// website
 	router.Handle("/static/css/{*}", http.StripPrefix("/static/", staticFiles)).Methods(get)
 	// router.Handle("/static/imgs/{*}", http.StripPrefix("/static/", staticFiles)).Methods(get)
+
+	router.Handle("/new", newNewHandler(store)).Methods(get, post)
 	router.Handle("/", newHomepageHandler(store)).Methods(get)
 	return router
 }
