@@ -18,28 +18,28 @@ type linkable struct {
 	TagURL string
 }
 
-type homepage struct {
+type homePage struct {
 	Modules []linkable
 }
 
-func newHomepageHandler(store repositories.Store) http.Handler {
+func newHomeHandler(store repositories.Store) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
 		"static/html/home.html",
 	)
-	return &homepageHandler{
+	return &homeHandler{
 		html:  html,
 		store: store,
 	}
 }
 
-type homepageHandler struct {
+type homeHandler struct {
 	html  *template.Template
 	store repositories.Store
 }
 
-func (h *homepageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Println("[web] serving up the homepage")
 
 	modules, err := h.store.ListSources()
@@ -48,7 +48,7 @@ func (h *homepageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Println("[web] failed to list sources:", err)
 	}
 
-	page := homepage{Modules: linkables(modules)}
+	page := homePage{Modules: linkables(modules)}
 
 	if err := h.html.Execute(w, page); err != nil {
 		log.Panicf("failed to execute homepage template: %v", err)

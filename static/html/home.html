@@ -1,21 +1,23 @@
 {{define "body"}}
 <div class="container">
-    <br/><br/>
+    <br/><br/><br/>
     <div class="bigheader">
-        <h1>Module Registry</h1>
+        <h1>List Module Registry</h1>
     </div>
+    <hr/>
     <div>
-        <table>
+        <table class="list-mods">
             {{range .Modules}}
             <tr>
-                <td class="modtd">
+                <td>
                     <a href="{{.WebURL}}">
-                        <span class="modname">{{.Module.Source}}</span>
+                        <span class="mod-text">{{.Module.Source}}</span>
                     </a>
                 </td>
-                <td class="modtd">
+                <td>@</td>
+                <td>
                     <a href="{{.TagURL}}">
-                        <span class="modtag">{{.Module.Version}}</span>
+                        <span class="mod-tag">{{.Module.Version}}</span>
                     </a>
                 </td>
             </tr>

@@ -1,24 +1,71 @@
+/* ----- bootstrap stuff ----- */
 .container {
     margin-left: 80px
 }
+
+.navbar {
+    background-color: #660066;
+}
+
+/*
+.navbar-inverse .navbar-header {
+    background-color: purple;
+}
+*/
+
+.navbar-inverse .navbar-brand {
+    color: white;
+}
+
+.navbar-inverse .navbar-brand:hover {
+    color: yellow;
+}
+
+.navbar-inverse .navbar-nav>li>a {
+    color: white;
+}
+
+.navbar-inverse .navbar-nav>li>a:hover {
+    color: yellow;
+}
+
+/* ----- modprox stuff ------- */
 
 .bigheader {
     padding-left: 50px;
     alignment: center;
 }
 
-.modtd {
+.list-mods tr td {
     padding-right: 20px;
 }
 
-.modtd a {
+.list-mods tr td a {
     color: black;
 }
 
-.modname {
-    font-size: x-large;
+.mod-tag {
+    font-size: medium;
+    font-weight: bold;
+    font-family: monospace;
 }
 
-.modtag {
-    font-size: small;
+.mod-text {
+    font-size: large;
+    font-weight: bold;
+    font-family: monospace;
+}
+
+.mod-ok {
+    color: green;
+    font-weight: bold;
+}
+
+.mod-bad {
+    color: darkred;
+    font-weight: bold;
+}
+
+.mod-tbl tr td {
+    padding-right: 20px;
 }
