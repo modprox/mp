@@ -4,9 +4,10 @@ import (
 	"time"
 
 	"github.com/modprox/libmodprox/clients/registry"
-
 	"github.com/modprox/libmodprox/loggy"
+	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
+
 	"github.com/shoenig/toolkit"
 )
 
@@ -52,15 +53,12 @@ func (w *reloadWorker) Start() {
 func (w *reloadWorker) loop() error {
 	w.log.Infof("worker loop starting")
 
-	mods, err := w.registryClient.ModInfos()
+	mods, err := w.acquireMods()
 	if err != nil {
 		return err
 	}
-	w.log.Infof("acquired %d mods from registry", len(mods))
 
-	for _, mod := range mods {
-		w.log.Tracef("- %s @ %s", mod.Source, mod.Version)
-	}
+	_ = mods
 
 	// we have a list of modules already downloaded to fs
 	// we have a list of modules from registry that we want
@@ -71,4 +69,18 @@ func (w *reloadWorker) loop() error {
 	// then DL and save modules we do want
 	// also, take into account redirects and such
 	return nil
+}
+
+func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
+	mods, err := w.registryClient.ModInfos()
+	if err != nil {
+		return nil, err
+	}
+	w.log.Infof("acquired %d mods from registry", len(mods))
+
+	for _, mod := range mods {
+		w.log.Tracef("- %s @ %s", mod.Source, mod.Version)
+	}
+
+	return mods, nil
 }
