@@ -1,0 +1,10 @@
+{
+  "persistent_index": {
+    "mysql": {
+      "user": "docker",
+      "password": "docker",
+      "address": "localhost:3306",
+      "database": "modproxdb"
+    }
+  }
+}

@@ -10,8 +10,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-registry/internal/repositories"
-	"github.com/modprox/modprox-registry/internal/repositories/repository"
 	"github.com/modprox/modprox-registry/static"
 )
 
@@ -89,7 +89,7 @@ func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
 }
 
 func (h *newHandler) storeNewMods(mods []Parsed) (int, int, error) {
-	ableToAdd := make([]repository.Module, 0, len(mods))
+	ableToAdd := make([]repository.ModInfo, 0, len(mods))
 	for _, parsed := range mods {
 		if parsed.Err == nil {
 			ableToAdd = append(ableToAdd, parsed.Module)
@@ -105,7 +105,7 @@ func (h *newHandler) storeNewMods(mods []Parsed) (int, int, error) {
 
 type Parsed struct {
 	Text   string
-	Module repository.Module
+	Module repository.ModInfo
 	Err    error
 }
 
@@ -142,7 +142,7 @@ func parseLine(line string) Parsed {
 	}
 	return Parsed{
 		Text: line,
-		Module: repository.Module{
+		Module: repository.ModInfo{
 			Source:  strings.TrimRight(groups[1], "/"),
 			Version: groups[2],
 		},

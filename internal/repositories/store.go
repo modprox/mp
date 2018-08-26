@@ -4,9 +4,8 @@ import (
 	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/modprox/libmodprox/repository"
 	"github.com/pkg/errors"
-
-	"github.com/modprox/modprox-registry/internal/repositories/repository"
 )
 
 func Connect(config mysql.Config) (*sql.DB, error) {
@@ -15,8 +14,8 @@ func Connect(config mysql.Config) (*sql.DB, error) {
 }
 
 type Store interface {
-	ListSources() ([]repository.Module, error)
-	Add([]repository.Module) (int, int, error)
+	ListSources() ([]repository.ModInfo, error)
+	Add([]repository.ModInfo) (int, int, error)
 }
 
 func New(db *sql.DB) (Store, error) {
@@ -53,14 +52,14 @@ type scanRow struct {
 	tagsTableRow
 }
 
-func (s *store) ListSources() ([]repository.Module, error) {
+func (s *store) ListSources() ([]repository.ModInfo, error) {
 	rows, err := s.statements[selectSourcesScanSQL].Query()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	modules := make([]repository.Module, 0, 10)
+	modules := make([]repository.ModInfo, 0, 10)
 	for rows.Next() {
 		var row scanRow
 		if err := rows.Scan(
@@ -74,7 +73,7 @@ func (s *store) ListSources() ([]repository.Module, error) {
 		); err != nil {
 			return nil, err
 		}
-		modules = append(modules, repository.Module{
+		modules = append(modules, repository.ModInfo{
 			Source:  row.source,
 			Version: row.tag,
 		})
@@ -87,7 +86,7 @@ func (s *store) ListSources() ([]repository.Module, error) {
 	return modules, nil
 }
 
-func (s *store) Add(modules []repository.Module) (int, int, error) {
+func (s *store) Add(modules []repository.ModInfo) (int, int, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return 0, 0, err

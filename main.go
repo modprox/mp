@@ -1,45 +1,33 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"os"
 
-	"github.com/go-sql-driver/mysql"
-
-	"github.com/modprox/modprox-registry/internal/repositories"
-	"github.com/modprox/modprox-registry/internal/web"
+	"github.com/modprox/libmodprox/configutil"
+	"github.com/modprox/libmodprox/loggy"
+	"github.com/modprox/modprox-registry/internal/service"
 )
 
 // generate webpage statics
 //go:generate petrify -o static/generated.go -pkg static static/...
 
 func main() {
-	dsn := mysqlDSN()
-	db, err := repositories.Connect(dsn)
+	log := loggy.New("modprox-registry")
+	log.Infof("--- starting up ---")
+
+	configFilename, err := configutil.GetConfigFilename(os.Args)
 	if err != nil {
-		log.Fatalf("failed to connect to mysql database: %v", err)
+		log.Errorf("failed to startup: %v", err)
+		os.Exit(1)
 	}
-	log.Printf("database connected to: %v", dsn.Addr)
+	log.Infof("loading configuration from: %s", configFilename)
 
-	store, err := repositories.New(db)
-	if err != nil {
-		log.Fatalf("failed to create registry database: %v", err)
+	var config service.Configuration
+	if err := configutil.LoadConfig(configFilename, &config); err != nil {
+		log.Errorf("failed to startup: %v", err)
+		os.Exit(1)
 	}
-	log.Printf("repository store established")
+	log.Tracef("starting with configuration: %s", config)
 
-	router := web.NewRouter(store)
-	log.Printf("will now serve on :8000")
-	if err := http.ListenAndServe(":8000", router); err != nil {
-		log.Fatalf("failed to listen and serve forever %v", err)
-	}
-}
-
-func mysqlDSN() mysql.Config {
-	return mysql.Config{
-		User:                 "docker",
-		Passwd:               "docker",
-		Addr:                 "localhost:3306",
-		DBName:               "modproxdb",
-		AllowNativePasswords: true,
-	}
+	service.NewRegistry(config).Run()
 }

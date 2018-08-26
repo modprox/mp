@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/libmodprox/webutil"
 	"github.com/modprox/modprox-registry/internal/repositories"
-	"github.com/modprox/modprox-registry/internal/repositories/repository"
 )
 
 func registryList(store repositories.Store) http.HandlerFunc {
@@ -26,7 +26,7 @@ func registryList(store repositories.Store) http.HandlerFunc {
 
 func registryAdd(store repositories.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var wantToAdd []repository.Module
+		var wantToAdd []repository.ModInfo
 
 		if err := json.NewDecoder(r.Body).Decode(&wantToAdd); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

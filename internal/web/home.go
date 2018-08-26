@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-registry/internal/repositories"
-	"github.com/modprox/modprox-registry/internal/repositories/repository"
 	"github.com/modprox/modprox-registry/static"
 )
 
 type linkable struct {
-	Module repository.Module
+	Module repository.ModInfo
 	WebURL string
 	TagURL string
 }
@@ -55,7 +55,7 @@ func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func linkables(modules []repository.Module) []linkable {
+func linkables(modules []repository.ModInfo) []linkable {
 	l := make([]linkable, 0, len(modules))
 	for _, module := range modules {
 		webURL, tagURL := urlInfo(module)
@@ -68,7 +68,7 @@ func linkables(modules []repository.Module) []linkable {
 	return l
 }
 
-func urlInfo(module repository.Module) (string, string) {
+func urlInfo(module repository.ModInfo) (string, string) {
 	if strings.HasPrefix(module.Source, "github") {
 		webURL := fmt.Sprintf("https://%s", module.Source)
 		tagURL := fmt.Sprintf("https://%s/releases/tag/%s", module.Source, module.Version)
