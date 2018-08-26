@@ -4,7 +4,8 @@
       "user": "docker",
       "password": "docker",
       "address": "localhost:3306",
-      "database": "modproxdb"
+      "database": "modproxdb",
+      "allow_native_passwords": true
     }
   }
 }

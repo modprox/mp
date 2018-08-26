@@ -14,8 +14,11 @@ type initer func(*Registry) error
 func initStore(r *Registry) error {
 	dsn := r.config.Index.MySQL
 	db, err := repositories.Connect(mysql.Config{
-		// todo
-		Addr: dsn.Address,
+		User:                 dsn.User,
+		Passwd:               dsn.Password,
+		Addr:                 dsn.Address,
+		DBName:               dsn.Database,
+		AllowNativePasswords: dsn.AllowNativePasswords,
 	})
 	if err != nil {
 		return errors.Wrap(err, "failed to connect to mysql")

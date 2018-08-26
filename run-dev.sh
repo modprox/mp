@@ -5,5 +5,5 @@ set -euo pipefail
 go clean
 go generate
 go build
-./modprox-registry
+./modprox-registry ./hack/configs/local.json
 
