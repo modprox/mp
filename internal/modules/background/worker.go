@@ -1,12 +1,11 @@
 package background
 
 import (
-	"log"
 	"time"
 
-	"github.com/shoenig/toolkit"
-
+	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
+	"github.com/shoenig/toolkit"
 )
 
 type Options struct {
@@ -17,22 +16,24 @@ type Reloader interface {
 	Start()
 }
 
-type worker struct {
+type reloadWorker struct {
 	options Options
 	store   store.Store
+	log     loggy.Logger
 }
 
 func NewReloader(options Options, store store.Store) Reloader {
-	return &worker{
+	return &reloadWorker{
 		options: options,
 		store:   store,
+		log:     loggy.New("reload-worker"),
 	}
 }
 
-func (w *worker) Start() {
+func (w *reloadWorker) Start() {
 	go toolkit.Interval(w.options.Frequency, func() error {
 		if err := w.loop(); err != nil {
-			log.Println("worker loop iteration had error:", err)
+			w.log.Errorf("worker loop iteration had error: %v", err)
 			// never return an error, which would stop the worker
 			// instead, we remain hopeful the next iteration will work
 		}
@@ -40,8 +41,8 @@ func (w *worker) Start() {
 	})
 }
 
-func (w *worker) loop() error {
-	log.Println("worker loop starting")
+func (w *reloadWorker) loop() error {
+	w.log.Infof("worker loop starting")
 	// we have a list of modules already downloaded to fs
 	// we have a list of modules from registry that we want
 	// do a diff, finding:

@@ -3,8 +3,9 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
+
+	"github.com/modprox/libmodprox/loggy"
 
 	"github.com/pkg/errors"
 
@@ -12,19 +13,22 @@ import (
 )
 
 func main() {
-	log.Println("starting the modprox-proxy service")
+	log := loggy.New("modprox-proxy")
+	log.Infof("--- starting up ---")
 
 	configFilename, err := getConfigFilename(os.Args)
 	if err != nil {
-		log.Fatal("modprox-proxy failed to startup:", err)
+		log.Errorf("failed to startup: %v", err)
+		os.Exit(1)
 	}
+	log.Infof("loading configuration from: %s", configFilename)
 
 	config, err := loadConfig(configFilename)
 	if err != nil {
-		log.Fatal("modprox-proxy failed to startup:", err)
+		log.Errorf("failed to startup: %v", err)
+		os.Exit(1)
 	}
-
-	log.Println("modprox-proxy starting with configuration:\n", config)
+	log.Infof("starting with configuration: %s", config)
 
 	service.NewProxy(config).Run()
 }

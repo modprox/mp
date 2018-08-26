@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -34,7 +33,8 @@ func initReloader(p *Proxy) error {
 func initWebserver(p *Proxy) error {
 	go func(r http.Handler) {
 		if err := http.ListenAndServe(":9000", r); err != nil {
-			log.Fatalf("failed to listen and serve forever %v", err)
+			p.log.Errorf("failed to listen and serve forever %v", err)
+			panic(err)
 		}
 	}(web.NewRouter())
 	return nil
