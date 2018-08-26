@@ -2,24 +2,35 @@ package service
 
 import (
 	"log"
-	"net/http"
 
-	"github.com/modprox/modprox-proxy/internal/web"
+	"github.com/modprox/modprox-proxy/internal/modules/background"
+	"github.com/modprox/modprox-proxy/internal/modules/store"
 )
 
 type Proxy struct {
-	config Configuration
+	config   Configuration
+	store    store.Store
+	reloader background.Reloader
 }
 
 func NewProxy(config Configuration) *Proxy {
-	return &Proxy{
-		config: config,
+	p := &Proxy{config: config}
+
+	for _, i := range []initer{
+		initStore,
+		initReloader,
+		initWebserver,
+	} {
+		if err := i(p); err != nil {
+			log.Fatal("failed to initialize proxy:", err)
+		}
 	}
+
+	return p
 }
 
-func (p *Proxy) Start() {
-	router := web.NewRouter()
-	if err := http.ListenAndServe(":9000", router); err != nil {
-		log.Fatalf("failed to listen and serve forever %v", err)
+func (p *Proxy) Run() {
+	select {
+	// intentionally left blank
 	}
 }

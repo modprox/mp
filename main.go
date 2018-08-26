@@ -26,9 +26,7 @@ func main() {
 
 	log.Println("modprox-proxy starting with configuration:\n", config)
 
-	proxy := service.NewProxy(config)
-
-	proxy.Start()
+	service.NewProxy(config).Run()
 }
 
 func getConfigFilename(args []string) (string, error) {

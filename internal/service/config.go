@@ -2,11 +2,13 @@ package service
 
 import (
 	"encoding/json"
+
+	"github.com/modprox/libmodprox/netutil"
 )
 
 type Configuration struct {
-	Registries  []Registry `json:"registries"`
-	PollRegFreq int        `json:"registry_poll_frequency_s"`
+	Registries  []netutil.Service `json:"registries"`
+	PollRegFreq int               `json:"registry_poll_frequency_s"`
 }
 
 func (c Configuration) String() string {
@@ -15,9 +17,4 @@ func (c Configuration) String() string {
 		panic(err)
 	}
 	return string(bs)
-}
-
-type Registry struct {
-	Address string `json:"address"`
-	Port    int    `json:"port"`
 }
