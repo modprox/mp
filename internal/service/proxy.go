@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/modprox/libmodprox/loggy"
-
 	"github.com/modprox/modprox-proxy/internal/modules/background"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
 )
@@ -20,12 +19,12 @@ func NewProxy(config Configuration) *Proxy {
 		log:    loggy.New("proxy-service"),
 	}
 
-	for _, i := range []initer{
+	for _, f := range []initer{
 		initStore,
 		initReloader,
 		initWebserver,
 	} {
-		if err := i(p); err != nil {
+		if err := f(p); err != nil {
 			p.log.Errorf("failed to initialize proxy: %v", err)
 			panic(err)
 		}
