@@ -1,8 +1,7 @@
 package service
 
 import (
-	"encoding/json"
-
+	"github.com/modprox/libmodprox/configutil"
 	"github.com/modprox/libmodprox/netutil"
 )
 
@@ -12,9 +11,5 @@ type Configuration struct {
 }
 
 func (c Configuration) String() string {
-	bs, err := json.MarshalIndent(c, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-	return string(bs)
+	return configutil.Format(c)
 }

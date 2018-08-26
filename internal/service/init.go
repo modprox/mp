@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/modprox-proxy/internal/modules/background"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
 	"github.com/modprox/modprox-proxy/internal/web"
@@ -18,12 +19,21 @@ func initStore(p *Proxy) error {
 	return nil
 }
 
+func initRegistryClient(p *Proxy) error {
+	p.registryClient = registry.NewClient(registry.Options{
+		Timeout:   10 * time.Second,
+		Addresses: p.config.Registries,
+	})
+	return nil
+}
+
 func initReloader(p *Proxy) error {
 	pollFreq := time.Duration(p.config.PollRegFreq) * time.Second
 	p.reloader = background.NewReloader(
 		background.Options{
 			Frequency: pollFreq,
 		},
+		p.registryClient,
 		p.store,
 	)
 	p.reloader.Start()
