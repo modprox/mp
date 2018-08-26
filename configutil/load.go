@@ -9,7 +9,7 @@ import (
 
 func GetConfigFilename(args []string) (string, error) {
 	if len(args) != 2 {
-		return "", errors.Errorf("expected 1 argument, got %d", len(args))
+		return "", errors.Errorf("expected 1 argument, got %d", len(args)-1)
 	}
 
 	return args[1], nil
