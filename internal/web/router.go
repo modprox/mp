@@ -34,6 +34,7 @@ func NewRouter(store repositories.Store) http.Handler {
 	// router.Handle("/static/imgs/{*}", http.StripPrefix("/static/", staticFiles)).Methods(get)
 
 	router.Handle("/new", newAddHandler(store)).Methods(get, post)
+	router.Handle("/configure/redirects", newRedirectsHandler(store)).Methods(get)
 	router.Handle("/", newHomeHandler(store)).Methods(get)
 	return router
 }

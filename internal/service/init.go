@@ -4,9 +4,10 @@ import (
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
+
 	"github.com/modprox/modprox-registry/internal/repositories"
 	"github.com/modprox/modprox-registry/internal/web"
-	"github.com/pkg/errors"
 )
 
 type initer func(*Registry) error

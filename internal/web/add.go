@@ -3,13 +3,12 @@ package web
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"regexp"
 	"strings"
 
+	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-registry/internal/repositories"
 	"github.com/modprox/modprox-registry/static"
@@ -22,6 +21,7 @@ type newPage struct {
 type newHandler struct {
 	html  *template.Template
 	store repositories.Store
+	log   loggy.Logger
 }
 
 func newAddHandler(store repositories.Store) http.Handler {
@@ -34,11 +34,12 @@ func newAddHandler(store repositories.Store) http.Handler {
 	return &newHandler{
 		html:  html,
 		store: store,
+		log:   loggy.New("add-module-handler"),
 	}
 }
 
 func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println("[web] add-module page", r.Method)
+	h.log.Tracef("loaded page %v", r.Method)
 
 	var (
 		code int
@@ -54,13 +55,13 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		log.Println("[web] failed to serve add-module page:", err)
+		h.log.Tracef("failed to serve add-module page: %v", err)
 		http.Error(w, err.Error(), code)
 		return
 	}
 
 	if err := h.html.Execute(w, page); err != nil {
-		log.Panic("[web] failed to serve add-module page:", err)
+		h.log.Tracef("failed to serve add-module page: %v", err)
 	}
 }
 
@@ -81,7 +82,7 @@ func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
 		return http.StatusInternalServerError, nil, err
 	}
 
-	log.Printf("[web] added %d tags across %d sources:", tagsAdded, sourcesAdded)
+	h.log.Tracef("added %d tags across %d sources:", tagsAdded, sourcesAdded)
 
 	return http.StatusOK, &newPage{
 		Mods: mods,
@@ -97,7 +98,7 @@ func (h *newHandler) storeNewMods(mods []Parsed) (int, int, error) {
 	}
 
 	for _, able := range ableToAdd {
-		log.Printf("[web] adding to registry: %s@%s", able.Source, able.Version)
+		h.log.Tracef("[web] adding to registry: %s@%s", able.Source, able.Version)
 	}
 
 	return h.store.Add(ableToAdd)
@@ -133,7 +134,6 @@ var (
 
 func parseLine(line string) Parsed {
 	groups := modLineRe.FindStringSubmatch(line)
-	fmt.Println("groups:", groups)
 	if len(groups) != 3 {
 		return Parsed{
 			Text: line,

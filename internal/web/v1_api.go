@@ -3,17 +3,19 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/libmodprox/webutil"
 	"github.com/modprox/modprox-registry/internal/repositories"
 )
 
 func registryList(store repositories.Store) http.HandlerFunc {
+	log := loggy.New("registry-list-api")
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("[api] registry list endpoint")
+		log.Tracef("listing contents of registry")
 
 		repos, err := store.ListSources()
 		if err != nil {
@@ -25,7 +27,11 @@ func registryList(store repositories.Store) http.HandlerFunc {
 }
 
 func registryAdd(store repositories.Store) http.HandlerFunc {
+	log := loggy.New("registry-add-api")
+
 	return func(w http.ResponseWriter, r *http.Request) {
+		log.Tracef("adding to the registry")
+
 		var wantToAdd []repository.ModInfo
 
 		if err := json.NewDecoder(r.Body).Decode(&wantToAdd); err != nil {

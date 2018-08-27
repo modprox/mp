@@ -3,10 +3,10 @@ package web
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strings"
 
+	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-registry/internal/repositories"
 	"github.com/modprox/modprox-registry/static"
@@ -22,6 +22,12 @@ type homePage struct {
 	Modules []linkable
 }
 
+type homeHandler struct {
+	html  *template.Template
+	store repositories.Store
+	log   loggy.Logger
+}
+
 func newHomeHandler(store repositories.Store) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
@@ -31,27 +37,25 @@ func newHomeHandler(store repositories.Store) http.Handler {
 	return &homeHandler{
 		html:  html,
 		store: store,
+		log:   loggy.New("home-handler"),
 	}
 }
 
-type homeHandler struct {
-	html  *template.Template
-	store repositories.Store
-}
-
 func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println("[web] serving up the homepage")
+	h.log.Tracef("serving up the homepage")
 
 	modules, err := h.store.ListSources()
 	if err != nil {
 		http.Error(w, "failed to list sources", http.StatusInternalServerError)
-		log.Println("[web] failed to list sources:", err)
+		h.log.Tracef("failed to list sources: %v", err)
+		return
 	}
 
 	page := homePage{Modules: linkables(modules)}
 
 	if err := h.html.Execute(w, page); err != nil {
-		log.Panicf("failed to execute homepage template: %v", err)
+		h.log.Errorf("failed to execute homepage template: %v", err)
+		return
 	}
 }
 
