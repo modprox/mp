@@ -55,7 +55,7 @@ func (c *client) ModInfos() ([]repository.ModInfo, error) {
 func (c *client) get(path string, i interface{}) error {
 	for _, addr := range c.options.Addresses {
 		if err := c.getSingle(path, addr, i); err != nil {
-			c.log.Warnf("GET request failed for %s: %v", addr, err)
+			c.log.Warnf("GET request failed: %v", err)
 			continue // keep trying with the next address
 		} else {
 			// the request was a success, can stop trying now
