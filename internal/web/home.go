@@ -8,7 +8,7 @@ import (
 
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
-	"github.com/modprox/modprox-registry/internal/repositories"
+	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/static"
 )
 
@@ -24,11 +24,11 @@ type homePage struct {
 
 type homeHandler struct {
 	html  *template.Template
-	store repositories.Store
+	store data.Store
 	log   loggy.Logger
 }
 
-func newHomeHandler(store repositories.Store) http.Handler {
+func newHomeHandler(store data.Store) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -44,7 +44,7 @@ func newHomeHandler(store repositories.Store) http.Handler {
 func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.log.Tracef("serving up the homepage")
 
-	modules, err := h.store.ListSources()
+	modules, err := h.store.ListMods()
 	if err != nil {
 		http.Error(w, "failed to list sources", http.StatusInternalServerError)
 		h.log.Tracef("failed to list sources: %v", err)

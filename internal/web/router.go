@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/shoenig/petrify/v4"
 
-	"github.com/modprox/modprox-registry/internal/repositories"
+	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/static"
 )
 
@@ -15,7 +15,7 @@ const (
 	post = http.MethodPost
 )
 
-func NewRouter(store repositories.Store) http.Handler {
+func NewRouter(store data.Store) http.Handler {
 	router := mux.NewRouter()
 
 	staticFiles := http.FileServer(&petrify.AssetFS{

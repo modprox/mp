@@ -6,7 +6,7 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 
-	"github.com/modprox/modprox-registry/internal/repositories"
+	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/internal/web"
 )
 
@@ -14,7 +14,7 @@ type initer func(*Registry) error
 
 func initStore(r *Registry) error {
 	dsn := r.config.Index.MySQL
-	db, err := repositories.Connect(mysql.Config{
+	db, err := data.Connect(mysql.Config{
 		User:                 dsn.User,
 		Passwd:               dsn.Password,
 		Addr:                 dsn.Address,
@@ -25,7 +25,7 @@ func initStore(r *Registry) error {
 		return errors.Wrap(err, "failed to connect to mysql")
 	}
 
-	store, err := repositories.New(db)
+	store, err := data.New(db)
 	if err != nil {
 		return errors.Wrap(err, "failed to open repository index")
 	}

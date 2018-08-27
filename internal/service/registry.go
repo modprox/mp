@@ -4,12 +4,12 @@ import (
 	"os"
 
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/internal/repositories"
+	"github.com/modprox/modprox-registry/internal/data"
 )
 
 type Registry struct {
 	config Configuration
-	store  repositories.Store
+	store  data.Store
 	log    loggy.Logger
 }
 

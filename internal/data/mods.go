@@ -1,38 +1,10 @@
-package repositories
+package data
 
 import (
 	"database/sql"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/modprox/libmodprox/repository"
-	"github.com/pkg/errors"
 )
-
-func Connect(config mysql.Config) (*sql.DB, error) {
-	dsn := config.FormatDSN()
-	return sql.Open("mysql", dsn)
-}
-
-type Store interface {
-	ListSources() ([]repository.ModInfo, error)
-	Add([]repository.ModInfo) (int, int, error)
-}
-
-func New(db *sql.DB) (Store, error) {
-	statements, err := load(db)
-	if err != nil {
-		return nil, err
-	}
-	return &store{
-		db:         db,
-		statements: statements,
-	}, nil
-}
-
-type store struct {
-	db         *sql.DB
-	statements statements
-}
 
 type sourceTableRow struct {
 	id      int
@@ -52,7 +24,7 @@ type scanRow struct {
 	tagsTableRow
 }
 
-func (s *store) ListSources() ([]repository.ModInfo, error) {
+func (s *store) ListMods() ([]repository.ModInfo, error) {
 	rows, err := s.statements[selectSourcesScanSQL].Query()
 	if err != nil {
 		return nil, err
@@ -86,7 +58,7 @@ func (s *store) ListSources() ([]repository.ModInfo, error) {
 	return modules, nil
 }
 
-func (s *store) Add(modules []repository.ModInfo) (int, int, error) {
+func (s *store) AddMods(modules []repository.ModInfo) (int, int, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return 0, 0, err
@@ -133,21 +105,4 @@ func (s *store) maybeAddSource(tx *sql.Tx, source string) (int64, bool, error) {
 	}
 	added, err := maybeAffectedN(result, 1)
 	return id, added, err
-}
-
-func maybeAffectedN(result sql.Result, n int) (bool, error) {
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-
-	if rowsAffected == 0 {
-		return false, nil
-	}
-
-	if rowsAffected == int64(n) {
-		return true, nil
-	}
-
-	return false, errors.Errorf("expected to affect %d rows, actually affected %d", n, rowsAffected)
 }

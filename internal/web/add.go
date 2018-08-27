@@ -10,7 +10,7 @@ import (
 
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
-	"github.com/modprox/modprox-registry/internal/repositories"
+	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/static"
 )
 
@@ -20,11 +20,11 @@ type newPage struct {
 
 type newHandler struct {
 	html  *template.Template
-	store repositories.Store
+	store data.Store
 	log   loggy.Logger
 }
 
-func newAddHandler(store repositories.Store) http.Handler {
+func newAddHandler(store data.Store) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -101,7 +101,7 @@ func (h *newHandler) storeNewMods(mods []Parsed) (int, int, error) {
 		h.log.Tracef("[web] adding to registry: %s@%s", able.Source, able.Version)
 	}
 
-	return h.store.Add(ableToAdd)
+	return h.store.AddMod(ableToAdd)
 }
 
 type Parsed struct {

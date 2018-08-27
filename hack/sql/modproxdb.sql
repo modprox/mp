@@ -18,3 +18,12 @@ create table tags (
   primary key(id),
   foreign key (source_id) references sources(id) on delete cascade
 ) engine=InnoDB default charset=utf8;
+
+create table redirects (
+  id int(3) unsigned not null auto_increment,
+  original varchar(128) not null,
+  substitution varchar(128) not null,
+  created timestamp not null default current_timestamp,
+  primary key(id),
+  unique(original)
+) engine=InnoDB default charset=utf8;

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/internal/repositories"
+	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/static"
 )
 
@@ -14,11 +14,11 @@ type redirectsPage struct {
 
 type redirectsHandler struct {
 	html  *template.Template
-	store repositories.Store
+	store data.Store
 	log   loggy.Logger
 }
 
-func newRedirectsHandler(store repositories.Store) http.Handler {
+func newRedirectsHandler(store data.Store) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
