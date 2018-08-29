@@ -3,6 +3,8 @@ package background
 import (
 	"time"
 
+	"github.com/modprox/modprox-proxy/internal/modules/upstream"
+
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
@@ -23,6 +25,7 @@ type reloadWorker struct {
 	options        Options
 	registryClient registry.Client
 	store          store.Store
+	resolver       upstream.Resolver
 	log            loggy.Logger
 }
 
@@ -30,11 +33,13 @@ func NewReloader(
 	options Options,
 	registryClient registry.Client,
 	store store.Store,
+	// resolver upstream.Resolver,
 ) Reloader {
 	return &reloadWorker{
 		options:        options,
 		registryClient: registryClient,
 		store:          store,
+		resolver:       upstream.Passthrough(), // needs more than just github
 		log:            loggy.New("reload-worker"),
 	}
 }
@@ -76,11 +81,23 @@ func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	w.log.Infof("acquired %d mods from registry", len(mods))
+	w.log.Infof("acquired list of %d mods from registry", len(mods))
 
 	for _, mod := range mods {
 		w.log.Tracef("- %s @ %s", mod.Source, mod.Version)
 	}
 
+	for _, mod := range mods {
+		_ = w.download(mod)
+	}
+
 	return mods, nil
+}
+
+func (w *reloadWorker) download(mod repository.ModInfo) error {
+	resolvedURI := w.resolver.Resolve(mod)
+
+	w.log.Infof("download %s", resolvedURI)
+
+	return nil
 }
