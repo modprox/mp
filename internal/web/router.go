@@ -2,27 +2,41 @@ package web
 
 import (
 	"net/http"
-
-	"github.com/modprox/libmodprox/loggy"
+	"strings"
 
 	"github.com/gorilla/mux"
+
+	"github.com/modprox/libmodprox/loggy"
 )
 
 func NewRouter() http.Handler {
 	router := mux.NewRouter()
 
-	router.Handle("/module/{v}/list", newModuleList())
-	router.Handle("/module/{v}/version.info", newModuleInfo())
-	router.Handle("/module/{v}/version.mod", newModuleFile())
-	router.Handle("/module/{v}/version.zip", newModuleZip())
+	// e.g. GET http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.info
 
-	router.HandleFunc("/", index)
+	router.PathPrefix("/").Handler(newModuleList()).MatcherFunc(suffix("list"))
+	router.PathPrefix("/").Handler(newModuleInfo()).MatcherFunc(suffix(".info"))
+	router.PathPrefix("/").Handler(newModuleFile()).MatcherFunc(suffix(".mod"))
+	router.PathPrefix("/").Handler(newModuleZip()).MatcherFunc(suffix(".zip"))
+	router.PathPrefix("/").HandlerFunc(notFound())
 
 	return router
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	log := loggy.New("404")
-	log.Tracef("remote %s attempted to reach unknown path: %s", r.RemoteAddr, r.URL.Path)
-	http.Error(w, "nothing to see here", http.StatusNotFound)
+func suffix(s string) mux.MatcherFunc {
+	log := loggy.New("suffix-match")
+
+	return func(r *http.Request, rm *mux.RouteMatch) bool {
+		match := strings.HasSuffix(r.URL.Path, s)
+		log.Tracef("request from %s matches suffix %q: %t", r.RemoteAddr, s, match)
+		return match
+	}
+}
+
+func notFound() http.HandlerFunc {
+	log := loggy.New("not-found")
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Infof("request from %s wanted %q which is not found", r.RemoteAddr, r.URL.String())
+		http.Error(w, "not found", http.StatusNotFound)
+	}
 }
