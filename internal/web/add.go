@@ -101,7 +101,7 @@ func (h *newHandler) storeNewMods(mods []Parsed) (int, int, error) {
 		h.log.Tracef("[web] adding to registry: %s@%s", able.Source, able.Version)
 	}
 
-	return h.store.AddMod(ableToAdd)
+	return h.store.AddMods(ableToAdd)
 }
 
 type Parsed struct {

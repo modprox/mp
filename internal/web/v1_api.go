@@ -39,7 +39,7 @@ func registryAdd(store data.Store) http.HandlerFunc {
 			return
 		}
 
-		sourcesAdded, tagsAdded, err := store.AddMod(wantToAdd)
+		sourcesAdded, tagsAdded, err := store.AddMods(wantToAdd)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
