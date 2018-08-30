@@ -3,12 +3,11 @@ package background
 import (
 	"time"
 
-	"github.com/modprox/modprox-proxy/internal/modules/upstream"
-
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/internal/modules/upstream"
 
 	"github.com/shoenig/toolkit"
 )
@@ -33,13 +32,13 @@ func NewReloader(
 	options Options,
 	registryClient registry.Client,
 	store store.Store,
-	// resolver upstream.Resolver,
+	resolver upstream.Resolver,
 ) Reloader {
 	return &reloadWorker{
 		options:        options,
 		registryClient: registryClient,
 		store:          store,
-		resolver:       upstream.Passthrough(), // needs more than just github
+		resolver:       resolver,
 		log:            loggy.New("reload-worker"),
 	}
 }
@@ -95,9 +94,12 @@ func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
 }
 
 func (w *reloadWorker) download(mod repository.ModInfo) error {
-	resolvedURI := w.resolver.Resolve(mod)
+	request, err := w.resolver.Resolve(mod)
+	if err != nil {
+		return err
+	}
 
-	w.log.Infof("download %s", resolvedURI)
+	w.log.Infof("download %s", request.URI())
 
 	return nil
 }

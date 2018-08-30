@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/modprox/modprox-proxy/internal/modules/upstream"
+
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/modprox-proxy/internal/modules/background"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
@@ -35,6 +37,9 @@ func initReloader(p *Proxy) error {
 		},
 		p.registryClient,
 		p.store,
+		upstream.NewResolver(
+			upstream.NewRedirectTransform("indeed", "code.corp.indeed.com"),
+		),
 	)
 	p.reloader.Start()
 	return nil
