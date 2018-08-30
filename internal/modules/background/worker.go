@@ -91,7 +91,11 @@ func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
 	}
 
 	for _, mod := range mods {
-		_ = w.download(mod)
+		if err := w.download(mod); err != nil {
+			w.log.Errorf("failed to download %s, %v", mod, err)
+			continue // may as well get the rest of them
+		}
+		w.log.Tracef("downloaded %s!", mod)
 	}
 
 	return mods, nil
@@ -103,7 +107,7 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 		return err
 	}
 
-	w.log.Infof("will download %s", request.URI())
+	w.log.Infof("about to download %s", request.URI())
 
 	// actually download it
 	blob, err := w.downloader.Get(request)
@@ -113,5 +117,5 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 
 	w.log.Infof("downloaded blob of size: %d", len(blob))
 
-	return nil
+	return w.store.Put(mod, blob)
 }

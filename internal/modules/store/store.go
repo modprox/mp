@@ -7,7 +7,6 @@ import (
 //go:generate mockery -interface=Store -package=storetest
 
 type Store interface {
-	List() ([]repository.ModInfo, error)
-	Set(repository.ModInfo, repository.Blob) error
+	Put(repository.ModInfo, repository.Blob) error
 	Get(repository.ModInfo) (repository.Blob, error)
 }
