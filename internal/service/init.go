@@ -38,7 +38,8 @@ func initReloader(p *Proxy) error {
 		p.registryClient,
 		p.store,
 		upstream.NewResolver(
-			upstream.NewRedirectTransform("indeed", "code.corp.indeed.com"),
+			upstream.NewRedirectTransform("example", "code.example.com"),
+			upstream.NewSetPathTransform(nil),
 		),
 	)
 	p.reloader.Start()
