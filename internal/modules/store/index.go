@@ -1,8 +1,11 @@
 package store
 
 import (
+	"io/ioutil"
 	"path/filepath"
+	"strings"
 
+	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 )
 
@@ -23,6 +26,7 @@ func NewIndex(options IndexOptions) Index {
 
 	return &fsIndex{
 		options: options,
+		log:     loggy.New("fs-index"),
 	}
 }
 
@@ -31,12 +35,26 @@ func NewIndex(options IndexOptions) Index {
 // filesystem store. This is very slow, but easy to implement.
 type fsIndex struct {
 	options IndexOptions
+	log     loggy.Logger
 }
 
 func (i *fsIndex) List(module string) ([]string, error) {
-	// versionsDir := i.versionsPathOf(module)
-	// filepath.
-	return nil, nil
+	versionsDir := i.versionsPathOf(module)
+	list, err := ioutil.ReadDir(versionsDir)
+	if err != nil {
+		i.log.Errorf("unable to list versions directory for %s, %v", module, err)
+		return nil, err
+	}
+
+	zips := make([]string, 0, 10)
+	for _, file := range list {
+		if strings.HasSuffix(file.Name(), ".zip") {
+			version := strings.TrimSuffix(file.Name(), ".zip")
+			zips = append(zips, version)
+		}
+	}
+
+	return zips, nil
 }
 
 func (i *fsIndex) versionsPathOf(module string) string {

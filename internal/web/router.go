@@ -7,17 +7,22 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/modprox/libmodprox/loggy"
+	"github.com/modprox/modprox-proxy/internal/modules/store"
 )
 
-func NewRouter() http.Handler {
+const (
+	get = http.MethodGet
+)
+
+func NewRouter(index store.Index) http.Handler {
 	router := mux.NewRouter()
 
 	// e.g. GET http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.info
 
-	router.PathPrefix("/").Handler(newModuleList()).MatcherFunc(suffix("list"))
-	router.PathPrefix("/").Handler(newModuleInfo()).MatcherFunc(suffix(".info"))
-	router.PathPrefix("/").Handler(newModuleFile()).MatcherFunc(suffix(".mod"))
-	router.PathPrefix("/").Handler(newModuleZip()).MatcherFunc(suffix(".zip"))
+	router.PathPrefix("/").Handler(modList(index)).MatcherFunc(suffix("list")).Methods(get)
+	router.PathPrefix("/").Handler(modInfo(index)).MatcherFunc(suffix(".info")).Methods(get)
+	router.PathPrefix("/").Handler(modFile(index)).MatcherFunc(suffix(".mod")).Methods(get)
+	router.PathPrefix("/").Handler(modZip()).MatcherFunc(suffix(".zip")).Methods(get)
 	router.PathPrefix("/").HandlerFunc(notFound())
 
 	return router

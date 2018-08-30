@@ -1,6 +1,7 @@
 package background
 
 import (
+	"errors"
 	"time"
 
 	"github.com/modprox/libmodprox/clients/registry"
@@ -54,7 +55,7 @@ func (w *reloadWorker) Start() {
 			// never return an error, which would stop the worker
 			// instead, we remain hopeful the next iteration will work
 		}
-		return nil
+		return errors.New("stopping, should be nil")
 	})
 }
 

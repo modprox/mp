@@ -10,6 +10,7 @@ import (
 
 type Proxy struct {
 	config         Configuration
+	index          store.Index
 	store          store.Store
 	registryClient registry.Client
 	zipsClient     zips.Client
@@ -24,6 +25,7 @@ func NewProxy(config Configuration) *Proxy {
 	}
 
 	for _, f := range []initer{
+		initIndex,
 		initStore,
 		initRegistryClient,
 		initZipsClient,

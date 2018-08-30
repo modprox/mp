@@ -14,6 +14,13 @@ import (
 
 type initer func(*Proxy) error
 
+func initIndex(p *Proxy) error {
+	p.index = store.NewIndex(store.IndexOptions{
+		Directory: "/tmp/foo",
+	})
+	return nil
+}
+
 func initStore(p *Proxy) error {
 	p.store = store.NewStore(store.Options{
 		Directory: "/tmp/foo",
@@ -63,6 +70,6 @@ func initWebserver(p *Proxy) error {
 			p.log.Errorf("failed to listen and serve forever %v", err)
 			panic(err)
 		}
-	}(web.NewRouter())
+	}(web.NewRouter(p.index))
 	return nil
 }

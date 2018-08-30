@@ -4,15 +4,18 @@ import (
 	"net/http"
 
 	"github.com/modprox/libmodprox/loggy"
+	"github.com/modprox/modprox-proxy/internal/modules/store"
 )
 
 type moduleFile struct {
-	log loggy.Logger
+	index store.Index
+	log   loggy.Logger
 }
 
-func newModuleFile() http.Handler {
+func modFile(index store.Index) http.Handler {
 	return &moduleFile{
-		log: loggy.New("mod-file"),
+		index: index,
+		log:   loggy.New("mod-file"),
 	}
 }
 

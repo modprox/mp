@@ -10,7 +10,7 @@ type moduleZip struct {
 	log loggy.Logger
 }
 
-func newModuleZip() http.Handler {
+func modZip() http.Handler {
 	return &moduleZip{
 		log: loggy.New("mod-zip"),
 	}
