@@ -1,9 +1,12 @@
 package zips
 
 import (
-	"errors"
+	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/shoenig/toolkit"
 
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
@@ -26,7 +29,10 @@ func NewHTTPClient(options HTTPOptions) Client {
 	}
 	return &httpClient{
 		options: options,
-		log:     loggy.New("zips-http"),
+		client: &http.Client{
+			Timeout: options.Timeout,
+		},
+		log: loggy.New("zips-http"),
 	}
 }
 
@@ -43,5 +49,55 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 	uri := r.URI()
 	c.log.Tracef("making a request to %s", uri)
 
-	return nil, nil
+	request, err := c.convert(r)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not create request from %s", uri)
+	}
+
+	response, err := c.client.Do(request)
+	if err != nil {
+		return nil, errors.Wrapf(err, "could not do request for %s", uri)
+	}
+	defer toolkit.Drain(response.Body)
+
+	// if we get a bad response code, try to read the body and log it
+	if response.StatusCode >= 400 {
+		bs, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"could not read body of bad response (%d)",
+				response.StatusCode,
+			)
+		}
+		c.log.Errorf(
+			"bad response (%d), body: %s",
+			response.StatusCode,
+			string(bs),
+		)
+		return nil, errors.Wrapf(
+			err,
+			"unexpected response (%d)",
+			response.StatusCode,
+		)
+	}
+
+	// response is good, read the bytes
+	return ioutil.ReadAll(response.Body)
+}
+
+func (c *httpClient) convert(r *upstream.Request) (*http.Request, error) {
+	uri := r.URI()
+	request, err := http.NewRequest(
+		http.MethodGet,
+		uri,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// todo: limit response size via setting Transport.RoundTripper?
+
+	return request, nil
 }
