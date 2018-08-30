@@ -30,6 +30,15 @@
 
 /* ----- modprox stuff ------- */
 
+.homelink {
+    font-weight: bold;
+    font-size: x-large;
+}
+
+.otherlink {
+    font-size: large;
+}
+
 .bigheader {
     padding-left: 50px;
     alignment: center;
