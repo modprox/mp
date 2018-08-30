@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/modprox/modprox-proxy/internal/modules/upstream"
-
 	"github.com/modprox/libmodprox/clients/registry"
+	"github.com/modprox/libmodprox/clients/zips"
+	"github.com/modprox/libmodprox/upstream"
 	"github.com/modprox/modprox-proxy/internal/modules/background"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
 	"github.com/modprox/modprox-proxy/internal/web"
@@ -29,6 +29,16 @@ func initRegistryClient(p *Proxy) error {
 	return nil
 }
 
+func initZipsClient(p *Proxy) error {
+	httpClient := zips.NewHTTPClient(
+		zips.HTTPOptions{
+			Timeout: 1 * time.Minute,
+		},
+	)
+	p.zipsClient = zips.NewClient(httpClient)
+	return nil
+}
+
 func initReloader(p *Proxy) error {
 	pollFreq := time.Duration(p.config.PollRegFreq) * time.Second
 	p.reloader = background.NewReloader(
@@ -41,6 +51,7 @@ func initReloader(p *Proxy) error {
 			upstream.NewRedirectTransform("example", "code.example.com"),
 			upstream.NewSetPathTransform(nil),
 		),
+		p.zipsClient,
 	)
 	p.reloader.Start()
 	return nil

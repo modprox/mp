@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/modprox/libmodprox/clients/registry"
+	"github.com/modprox/libmodprox/clients/zips"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
+	"github.com/modprox/libmodprox/upstream"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
-	"github.com/modprox/modprox-proxy/internal/modules/upstream"
 
 	"github.com/shoenig/toolkit"
 )
@@ -25,6 +26,7 @@ type reloadWorker struct {
 	registryClient registry.Client
 	store          store.Store
 	resolver       upstream.Resolver
+	downloader     zips.Client
 	log            loggy.Logger
 }
 
@@ -33,12 +35,14 @@ func NewReloader(
 	registryClient registry.Client,
 	store store.Store,
 	resolver upstream.Resolver,
+	downloader zips.Client,
 ) Reloader {
 	return &reloadWorker{
 		options:        options,
 		registryClient: registryClient,
 		store:          store,
 		resolver:       resolver,
+		downloader:     downloader,
 		log:            loggy.New("reload-worker"),
 	}
 }
@@ -99,7 +103,15 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 		return err
 	}
 
-	w.log.Infof("download %s", request.URI())
+	w.log.Infof("will download %s", request.URI())
+
+	// actually download it
+	blob, err := w.downloader.Get(request)
+	if err != nil {
+		return err
+	}
+
+	w.log.Infof("downloaded blob of size: %d", len(blob))
 
 	return nil
 }
