@@ -12,7 +12,7 @@
 }
 
 .navbar-inverse .navbar-brand:hover {
-    color: yellow;
+    color: lightgray;
 }
 
 .navbar-inverse .navbar-nav>li>a {
@@ -20,7 +20,12 @@
 }
 
 .navbar-inverse .navbar-nav>li>a:hover {
-    color: yellow;
+    color: lightgray;
+}
+
+.navbar-inverse .navbar-nav>.open>a, .navbar-inverse .navbar-nav>.open>a:focus, .navbar-inverse .navbar-nav>.open>a:hover {
+    background-color: white;
+    color: #660066;
 }
 
 /* ----- modprox stuff ------- */
