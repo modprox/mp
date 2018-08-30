@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 	"github.com/pkg/errors"
 )
@@ -29,12 +30,14 @@ func New(db *sql.DB) (Store, error) {
 	return &store{
 		db:         db,
 		statements: statements,
+		log:        loggy.New("store"),
 	}, nil
 }
 
 type store struct {
 	db         *sql.DB
 	statements statements
+	log        loggy.Logger
 }
 
 func maybeAffectedN(result sql.Result, n int) (bool, error) {
