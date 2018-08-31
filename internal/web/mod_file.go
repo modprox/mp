@@ -5,6 +5,7 @@ import (
 
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/internal/web/output"
 )
 
 type moduleFile struct {
@@ -20,6 +21,18 @@ func modFile(index store.Index) http.Handler {
 }
 
 func (h *moduleFile) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.log.Infof("serving request for module file")
-	return
+	mod, err := modInfoFromPath(r.URL.Path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	h.log.Infof("serving request for go.mod file of %s", mod)
+
+	modFile, err := h.index.Mod(mod)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	output.Write(w, output.Text, modFile)
 }

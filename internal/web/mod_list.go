@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/modprox/modprox-proxy/internal/web/output"
+
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
-	"github.com/pkg/errors"
 )
 
 type moduleList struct {
@@ -37,11 +38,7 @@ func (h *moduleList) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body := formatList(listing)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(body))
-
-	return
+	output.Write(w, output.Text, formatList(listing))
 }
 
 func formatList(list []string) string {
@@ -51,14 +48,4 @@ func formatList(list []string) string {
 		sb.WriteString("\n")
 	}
 	return sb.String()
-}
-
-// GET baseURL/module/@v/list fetches a list of all known versions, one per line.
-
-func moduleFromPath(p string) (string, error) {
-	vIdx := strings.Index(p, "@v")
-	if vIdx <= 0 {
-		return "", errors.Errorf("malformed path: %q")
-	}
-	return p[0:vIdx], nil
 }

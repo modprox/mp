@@ -1,7 +1,9 @@
 package store
 
 import (
+	"encoding/json"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -66,9 +68,37 @@ func (i *fsIndex) versionsPathOf(module string) string {
 
 func (i *fsIndex) Info(mod repository.ModInfo) (repository.RevInfo, error) {
 	var revInfo repository.RevInfo
+
+	revInfoPath := filepath.Join(
+		i.versionsPathOf(mod.Source),
+		mod.Version,
+	) + ".info"
+	i.log.Tracef("looking up revinfo at path %s", revInfoPath)
+
+	f, err := os.Open(revInfoPath)
+	if err != nil {
+		i.log.Errorf("failed to open revinfo file at %s", revInfoPath)
+		return revInfo, err
+	}
+	defer f.Close()
+
+	if err := json.NewDecoder(f).Decode(&revInfo); err != nil {
+		return revInfo, err
+	}
+
 	return revInfo, nil
 }
 
 func (i *fsIndex) Mod(mod repository.ModInfo) (string, error) {
-	return "", nil
+	modFilePath := filepath.Join(
+		i.versionsPathOf(mod.Source),
+		mod.Version,
+	) + ".mod"
+	i.log.Tracef("looking up mod file at path %s", modFilePath)
+
+	bs, err := ioutil.ReadFile(modFilePath)
+	if err != nil {
+		return "", err
+	}
+	return string(bs), nil
 }
