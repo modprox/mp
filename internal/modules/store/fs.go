@@ -3,6 +3,7 @@ package store
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,7 +36,12 @@ func NewStore(options Options) Store {
 }
 
 func (s *fsStore) Get(mod repository.ModInfo) (repository.Blob, error) {
-	return nil, nil
+	s.log.Tracef("retrieving module %s", mod)
+	zipFile := filepath.Join(
+		s.fullPathOf(mod),
+		zipName(mod),
+	)
+	return ioutil.ReadFile(zipFile)
 }
 
 func (s *fsStore) Put(mod repository.ModInfo, blob repository.Blob) error {

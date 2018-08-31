@@ -55,6 +55,7 @@ func initReloader(p *Proxy) error {
 		p.registryClient,
 		p.store,
 		upstream.NewResolver(
+			upstream.NewGolangRewriteTransform(),
 			upstream.NewRedirectTransform("example", "code.example.com"),
 			upstream.NewSetPathTransform(nil),
 		),
@@ -70,6 +71,6 @@ func initWebserver(p *Proxy) error {
 			p.log.Errorf("failed to listen and serve forever %v", err)
 			panic(err)
 		}
-	}(web.NewRouter(p.index))
+	}(web.NewRouter(p.index, p.store))
 	return nil
 }
