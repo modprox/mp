@@ -128,18 +128,22 @@ func (h *newHandler) parseTextArea(r *http.Request) ([]Parsed, error) {
 }
 
 var (
-	// e.g. gihub.com/foo/bar v2.0.0
-	modLineRe = regexp.MustCompile(`^([\S.-]+)[\s]+(v[\d]+.[\d]+.[\d]+)$`)
+	// e.g. github.com/foo/bar v2.0.0
+	// e.g. golang.org/x/tools v0.0.0-20180111040409-fbec762f837d
+	modLineRe = regexp.MustCompile(`([\S.-]+)[\s]+(v[\d]+.[\d]+.[\d]+(-[\d]+-[0-9a-f]+)?)`)
 )
 
 func parseLine(line string) Parsed {
 	groups := modLineRe.FindStringSubmatch(line)
-	if len(groups) != 3 {
+	if len(groups) != 4 {
 		return Parsed{
 			Text: line,
-			Err:  errors.New("malformed module and tag"),
+			Err:  errors.New("malformed module line"),
 		}
 	}
+
+	// groups[3] is the -ts-hash leftovers group sub-match
+
 	return Parsed{
 		Text: line,
 		Module: repository.ModInfo{
