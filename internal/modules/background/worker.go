@@ -118,5 +118,13 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 
 	w.log.Infof("downloaded blob of size: %d", len(blob))
 
-	return w.store.Put(mod, blob)
+	rewritten, err := zips.Rewrite(mod, blob)
+	if err != nil {
+		w.log.Errorf("failed to rewrite blob for %s, %v", mod, err)
+		return err
+	}
+
+	return w.store.Put(mod, rewritten)
 }
+
+// blob is a dir, need flat
