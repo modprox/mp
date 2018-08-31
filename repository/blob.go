@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"io/ioutil"
+	"path/filepath"
 
 	"github.com/pkg/errors"
 )
@@ -22,7 +23,11 @@ func (b Blob) ModFile() (string, bool, error) {
 	}
 
 	for _, f := range unzip.File {
-		if f.Name == "go.mod" {
+
+		// todo: BUG - there could be more than 1 go.mod file, must choose
+		// todo: the correct one (hmmm, what if they want a nested module?)
+		filename := filepath.Base(f.Name)
+		if filename == "go.mod" {
 			rc, err := f.Open()
 			if err != nil {
 				return "", false, err
