@@ -105,6 +105,41 @@ func (t *RedirectTransform) Modify(r *Request) *Request {
 	return modified
 }
 
+// basically a special case for golang.org/x/package => github.com/golang/package
+// which basically requires a switch on the original domain to compute the namespace
+// maybe generalize this feature if there are other use cases
+type GolangTransform struct {
+	log loggy.Logger
+}
+
+func NewGolangRewriteTransform() Transform {
+	return &GolangTransform{
+		log: loggy.New("golang-transform"),
+	}
+}
+
+// e.g. golang.org/x/tools => github.com/golang/tools
+
+func (t *GolangTransform) Modify(r *Request) *Request {
+	if r.Domain != "golang.org" {
+		return r
+	}
+
+	newDomain := "github.com"
+	newNamespace := []string{"golang", r.Namespace[1]}
+
+	modified := &Request{
+		Transport: r.Transport,
+		Domain:    newDomain,
+		Namespace: newNamespace,
+		Version:   r.Version,
+	}
+
+	t.log.Tracef("original: %s", r)
+	t.log.Tracef("modified: %s", modified)
+	return modified
+}
+
 type DomainPathTransform struct {
 	pathFmt string
 }
@@ -113,7 +148,8 @@ type DomainPathTransform struct {
 // e.g. https://gitlab.com/cryptsetup/cryptsetup/-/archive/v2.0.1/cryptsetup-v2.0.1.zip
 
 func (t *DomainPathTransform) Modify(r *Request) *Request {
-	newPath := formatPath(t.pathFmt, r.Version, r.Namespace)
+	version := addressableVersion(r.Version) // this seems a little conflated
+	newPath := formatPath(t.pathFmt, version, r.Namespace)
 	return &Request{
 		Transport: r.Transport,
 		Domain:    r.Domain,
@@ -121,6 +157,16 @@ func (t *DomainPathTransform) Modify(r *Request) *Request {
 		Version:   r.Version,
 		Path:      newPath,
 	}
+}
+
+// e.g. v2.0.0 => v2.0.0
+// e.g. v0.0.0-20180111040409-fbec762f837d => fbec762f837d
+func addressableVersion(version string) string {
+	split := strings.Split(version, "-")
+	if len(split) == 3 {
+		return split[2] // return the hash if it exists
+	}
+	return version // else return the input
 }
 
 // e.g. ELEM1/ELEM2/archive/VERSION.zip => shoenig/petrify/archive/v4.0.1.zip
