@@ -1,9 +1,16 @@
 package upstream
 
 import (
-	"errors"
+	"bufio"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"regexp"
 	"strings"
+	"time"
+
+	"github.com/pkg/errors"
+	"github.com/shoenig/toolkit"
 
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
@@ -105,40 +112,179 @@ func (t *RedirectTransform) Modify(r *Request) *Request {
 	return modified
 }
 
-// basically a special case for golang.org/x/package => github.com/golang/package
-// which basically requires a switch on the original domain to compute the namespace
-// maybe generalize this feature if there are other use cases
-type GolangTransform struct {
-	log loggy.Logger
+// use <url>?go-get=1 to find the real uri
+// e.g. golang.org and gopkg.in => github.com/?/?
+type GoGetTransform struct {
+	domains    map[string]bool // only implement redirect metadata
+	httpClient *http.Client
+	log        loggy.Logger
 }
 
-func NewGolangRewriteTransform() Transform {
-	return &GolangTransform{
-		log: loggy.New("golang-transform"),
+func NewGoGetTransform(domains []string) Transform {
+	match := make(map[string]bool)
+	for _, domain := range domains {
+		match[domain] = true
+	}
+	match["golang.org"] = true
+	match["gopkg.in"] = true
+
+	return &GoGetTransform{
+		domains: match,
+		httpClient: &http.Client{
+			Timeout: 30 * time.Second,
+		},
+		log: loggy.New("go-get-transform"),
 	}
 }
 
-// e.g. golang.org/x/tools => github.com/golang/tools
+func (t *GoGetTransform) Modify(r *Request) *Request {
+	if !t.domains[r.Domain] {
+		t.log.Tracef("domain %s is not set for go-get redirects", r.Domain)
+		return r
+	}
+	t.log.Infof("doing go-get redirect lookup for domain %s", r.Domain)
 
-func (t *GolangTransform) Modify(r *Request) *Request {
-	if r.Domain != "golang.org" {
+	meta, err := t.doGoGetRequest(r)
+	if err != nil {
+		t.log.Warnf("unable to lookup go get redirect to %s (assuming none): %v", meta, err)
 		return r
 	}
 
-	newDomain := "github.com"
-	newNamespace := []string{"golang", r.Namespace[1]}
-
+	t.log.Infof("redirect to: %s", meta)
 	modified := &Request{
-		Transport: r.Transport,
-		Domain:    newDomain,
-		Namespace: newNamespace,
+		Transport: meta.transport,
+		Domain:    meta.domain,
+		Namespace: strings.Split(meta.path, "/"),
 		Version:   r.Version,
+		// Path: set by the github rewriter
 	}
 
 	t.log.Tracef("original: %s", r)
 	t.log.Tracef("modified: %s", modified)
+
 	return modified
 }
+
+type goGetMeta struct {
+	transport string
+	domain    string
+	path      string
+}
+
+func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
+	var meta goGetMeta
+	uri := fmt.Sprintf("%s://%s/%s?go-get=1", r.Transport, r.Domain, strings.Join(r.Namespace, "/"))
+	request, err := http.NewRequest(http.MethodGet, uri, nil)
+	if err != nil {
+		return meta, err
+	}
+
+	response, err := t.httpClient.Do(request)
+	if err != nil {
+		return meta, err
+	}
+	defer toolkit.Drain(response.Body)
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return meta, err
+	}
+
+	// fmt.Println("lll body:", string(body))
+
+	return parseGoGetMetadata(string(body))
+}
+
+var (
+	sourceRe = regexp.MustCompile(`(http[s]?)://([\w-.]+)/([\w-./]+)`)
+)
+
+// gives us transport, domain, path
+func parseGoGetMetadata(content string) (goGetMeta, error) {
+	var meta goGetMeta
+	scanner := bufio.NewScanner(strings.NewReader(content))
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if strings.Contains(line, `name="go-source"`) {
+			groups := sourceRe.FindStringSubmatch(line)
+			fmt.Println("iii groups:", groups)
+			if len(groups) != 4 {
+				return meta, errors.Errorf("malformed go-source meta tag: %q", line)
+			}
+			return goGetMeta{
+				transport: groups[1],
+				domain:    groups[2],
+				path:      groups[3],
+			}, nil
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return meta, err
+	}
+	return meta, errors.New("no go-source meta tag in response")
+}
+
+// please kill me ...
+
+// --- from gopkg.in ---
+//<html>
+//<head>
+//<meta name="go-import" content="gopkg.in/yaml.v1 git https://gopkg.in/yaml.v1">
+//<meta name="go-source" content="gopkg.in/yaml.v1 _ https://github.com/go-yaml/yaml/tree/v1{/dir} https://github.com/go-yaml/yaml/blob/v1{/dir}/{file}#L{line}">
+//</head>
+//<body>
+//go get gopkg.in/yaml.v1
+//</body>
+//</html>
+
+// --- from golang.org ---
+//<!DOCTYPE html>
+//<html>
+//<head>
+//<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+//<meta name="go-import" content="golang.org/x/tools git https://go.googlesource.com/tools">
+//<meta name="go-source" content="golang.org/x/tools https://github.com/golang/tools/ https://github.com/golang/tools/tree/master{/dir} https://github.com/golang/tools/blob/master{/dir}/{file}#L{line}">
+//<meta http-equiv="refresh" content="0; url=https://godoc.org/golang.org/x/tools">
+//</head>
+//<body>
+//Nothing to see here; <a href="https://godoc.org/golang.org/x/tools">move along</a>.
+//</body>
+//</html>
+
+//// basically a special case for golang.org/x/package => github.com/golang/package
+//// which basically requires a switch on the original domain to compute the namespace
+//// maybe generalize this feature if there are other use cases
+//type GolangTransform struct {
+//	log loggy.Logger
+//}
+//
+//func NewGolangRewriteTransform() Transform {
+//	return &GolangTransform{
+//		log: loggy.New("golang-transform"),
+//	}
+//}
+//
+//// e.g. golang.org/x/tools => github.com/golang/tools
+//
+//func (t *GolangTransform) Modify(r *Request) *Request {
+//	if r.Domain != "golang.org" {
+//		return r
+//	}
+//
+//	newDomain := "github.com"
+//	newNamespace := []string{"golang", r.Namespace[1]}
+//
+//	modified := &Request{
+//		Transport: r.Transport,
+//		Domain:    newDomain,
+//		Namespace: newNamespace,
+//		Version:   r.Version,
+//	}
+//
+//	t.log.Tracef("original: %s", r)
+//	t.log.Tracef("modified: %s", modified)
+//	return modified
+//}
 
 type DomainPathTransform struct {
 	pathFmt string
@@ -191,7 +337,7 @@ func NewDomainPathTransform(pathFmt string) Transform {
 var DefaultPathTransforms = map[string]Transform{
 	"github.com": NewDomainPathTransform("ELEM1/ELEM2/archive/VERSION.zip"),
 	"gitlab.com": NewDomainPathTransform("ELEM1/ELEM2/-/archive/VERSION/ELEM2-VERSION.zip"),
-	"":           NewDomainPathTransform(""), // arbitrary
+	"":           NewDomainPathTransform(""), // unknown
 }
 
 type SetPathTransform struct {
@@ -220,10 +366,10 @@ func combinedDomainPathTransforms(
 	return m
 }
 
-func (s *SetPathTransform) Modify(r *Request) *Request {
-	domainPathTransform := s.domainPathTransforms[r.Domain]
+func (t *SetPathTransform) Modify(r *Request) *Request {
+	domainPathTransform := t.domainPathTransforms[r.Domain]
 	modified := domainPathTransform.Modify(r)
-	s.log.Tracef("original: %s", r)
-	s.log.Tracef("modified: %s", modified)
+	t.log.Tracef("original: %s", r)
+	t.log.Tracef("modified: %s", modified)
 	return modified
 }
