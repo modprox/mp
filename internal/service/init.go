@@ -55,7 +55,8 @@ func initReloader(p *Proxy) error {
 		p.registryClient,
 		p.store,
 		upstream.NewResolver(
-			upstream.NewGolangRewriteTransform(),
+			// upstream.NewGolangRewriteTransform(),
+			upstream.NewGoGetTransform(nil),
 			upstream.NewRedirectTransform("example", "code.example.com"),
 			upstream.NewSetPathTransform(nil),
 		),
