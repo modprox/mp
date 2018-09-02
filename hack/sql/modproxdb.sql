@@ -16,6 +16,7 @@ create table tags (
   created timestamp not null default current_timestamp,
   source_id int(5) unsigned not null,
   primary key(id),
+  unique(tag, source_id),
   foreign key (source_id) references sources(id) on delete cascade
 ) engine=InnoDB default charset=utf8;
 

@@ -68,12 +68,15 @@ func (s *store) AddMods(modules []repository.ModInfo) (int, int, error) {
 	sourcesAdded := 0
 	tagsAdded := 0
 	for _, module := range modules {
+		s.log.Tracef("inserting module: %s", module)
+
 		sourceID, addedSource, err := s.maybeAddSource(tx, module.Source)
 		if err != nil {
 			return 0, 0, err
 		} else if addedSource {
 			sourcesAdded++
 		}
+		s.log.Tracef("inserted source, got sourceID: %d", sourceID)
 
 		addedTag, err := s.maybeAddTag(tx, sourceID, module.Version)
 		if err != nil {
