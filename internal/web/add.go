@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gorilla/csrf"
+
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-registry/internal/data"
@@ -15,7 +17,8 @@ import (
 )
 
 type newPage struct {
-	Mods []Parsed
+	Mods      []Parsed
+	CSRFField template.HTML
 }
 
 type newHandler struct {
@@ -67,7 +70,8 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h *newHandler) get(r *http.Request) (int, *newPage, error) {
 	return http.StatusOK, &newPage{
-		Mods: nil,
+		Mods:      nil,
+		CSRFField: csrf.TemplateField(r),
 	}, nil
 }
 

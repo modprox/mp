@@ -1,13 +1,28 @@
 package service
 
-import "github.com/modprox/libmodprox/configutil"
+import (
+	"fmt"
+
+	"github.com/modprox/libmodprox/configutil"
+)
 
 type Configuration struct {
-	Index PersistentStore `json:"persistent_index"`
+	// DevMode indicates if the server is in local development mode. Defaults to false.
+	DevMode     bool            `json:"dev_mode"`
+	CSRFAuthKey string          `json:"csrf_auth_key"`
+	Index       PersistentStore `json:"persistent_index"`
 }
 
 func (c Configuration) String() string {
 	return configutil.Format(c)
+}
+
+// MustCSRFAuthKey returns a valid 32-byte slice from configuration or panics.
+func (c Configuration) MustCSRFAuthKey() []byte {
+	if len(c.CSRFAuthKey) != 32 {
+		panic(fmt.Sprintf("csrf_token must be 32 bytes, was: %q" + c.CSRFAuthKey))
+	}
+	return []byte(c.CSRFAuthKey)
 }
 
 type PersistentStore struct {

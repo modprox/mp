@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 
 	"github.com/modprox/modprox-registry/internal/data"
@@ -11,6 +12,7 @@ import (
 )
 
 type initer func(*Registry) error
+type middleware func(http.Handler) http.Handler
 
 func initStore(r *Registry) error {
 	dsn := r.config.Index.MySQL
@@ -34,12 +36,28 @@ func initStore(r *Registry) error {
 	return nil
 }
 
+// chain recursively chains middleware together
+func chain(h http.Handler, m ...middleware) http.Handler {
+	if len(m) == 0 {
+		return h
+	}
+	return m[0](chain(h, m[1:cap(m)]...))
+}
+
 func initWebserver(r *Registry) error {
+	middlewares := []middleware{
+		csrf.Protect(
+			r.config.MustCSRFAuthKey(),
+			csrf.Secure(!r.config.DevMode), // CSRF cookies are https-only normally
+		),
+	}
+	rtr := chain(web.NewRouter(r.store), middlewares...)
+
 	go func(h http.Handler) {
 		if err := http.ListenAndServe(":8000", h); err != nil {
 			r.log.Errorf("failed to listen and serve forever: %v", err)
 			panic(err)
 		}
-	}(web.NewRouter(r.store))
+	}(rtr)
 	return nil
 }

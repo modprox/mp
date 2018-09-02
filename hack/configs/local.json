@@ -1,4 +1,6 @@
 {
+  "dev_mode": true,
+  "csrf_auth_key": "this is a 32 byte long string ok",
   "persistent_index": {
     "mysql": {
       "user": "docker",
