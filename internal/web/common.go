@@ -11,6 +11,8 @@ import (
 // GET baseURL/module/@v/list fetches a list of all known versions, one per line.
 
 func moduleFromPath(p string) (string, error) {
+	p = demangle(p)
+
 	vIdx := strings.Index(p, "@v")
 	if vIdx <= 0 {
 		return "", errors.Errorf("malformed path: %q", p)
@@ -19,11 +21,14 @@ func moduleFromPath(p string) (string, error) {
 }
 
 func modInfoFromPath(p string) (repository.ModInfo, error) {
+	p = demangle(p)
+
 	var mod repository.ModInfo
 	split := strings.Split(p, "@v")
 	if len(split) != 2 {
 		return mod, errors.Errorf("malformed path: %q", p)
 	}
+
 	mod.Source = split[0]
 	mod.Version = trimExt(split[1])
 	return mod, nil
@@ -35,4 +40,38 @@ func trimExt(v string) string {
 		return v
 	}
 	return v[:dotIdx]
+}
+
+// from the Go documentation: https://tip.golang.org/cmd/go/#hdr-Module_proxy_protocol
+//
+// To avoid problems when serving from case-sensitive file systems, the <module> and <version>
+// elements are case-encoded, replacing every uppercase letter with an exclamation mark followed
+// by the corresponding lower-case letter: github.com/Azure encodes as github.com/!azure.
+//
+// modprox currently store modules under their correct names, so we must rewrite the go
+// commands download requests from the mangled name to the correct name.
+func demangle(s string) string {
+	var correct strings.Builder
+
+	// copy s into correct, using lookahead to rewrite letters
+	var i int
+	for i = 0; i < len(s)-1; i++ {
+		c := s[i]
+		if c == '!' {
+			next := s[i+1]
+			if next >= 'a' && next <= 'z' {
+				correct.WriteByte(next - ('a' - 'A'))
+				i++
+				continue
+			}
+		}
+		correct.WriteByte(c)
+	}
+
+	// if the last 2 letters were not an encoding, copy the last letter
+	if i == len(s)-1 {
+		correct.WriteByte(s[i])
+	}
+
+	return correct.String()
 }
