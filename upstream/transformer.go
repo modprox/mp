@@ -16,14 +16,6 @@ import (
 	"github.com/modprox/libmodprox/repository"
 )
 
-// what we really need is a thing which
-// transforms a module into a URI usable for an http
-// request - by applying each of the types of transforms:
-//
-// - domain alias
-// - URL path creation based on domain
-// - authentication / authorization configuration
-
 type Resolver interface {
 	Resolve(repository.ModInfo) (*Request, error)
 }
@@ -223,68 +215,6 @@ func parseGoGetMetadata(content string) (goGetMeta, error) {
 	}
 	return meta, errors.New("no go-source meta tag in response")
 }
-
-// please kill me ...
-
-// --- from gopkg.in ---
-//<html>
-//<head>
-//<meta name="go-import" content="gopkg.in/yaml.v1 git https://gopkg.in/yaml.v1">
-//<meta name="go-source" content="gopkg.in/yaml.v1 _ https://github.com/go-yaml/yaml/tree/v1{/dir} https://github.com/go-yaml/yaml/blob/v1{/dir}/{file}#L{line}">
-//</head>
-//<body>
-//go get gopkg.in/yaml.v1
-//</body>
-//</html>
-
-// --- from golang.org ---
-//<!DOCTYPE html>
-//<html>
-//<head>
-//<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-//<meta name="go-import" content="golang.org/x/tools git https://go.googlesource.com/tools">
-//<meta name="go-source" content="golang.org/x/tools https://github.com/golang/tools/ https://github.com/golang/tools/tree/master{/dir} https://github.com/golang/tools/blob/master{/dir}/{file}#L{line}">
-//<meta http-equiv="refresh" content="0; url=https://godoc.org/golang.org/x/tools">
-//</head>
-//<body>
-//Nothing to see here; <a href="https://godoc.org/golang.org/x/tools">move along</a>.
-//</body>
-//</html>
-
-//// basically a special case for golang.org/x/package => github.com/golang/package
-//// which basically requires a switch on the original domain to compute the namespace
-//// maybe generalize this feature if there are other use cases
-//type GolangTransform struct {
-//	log loggy.Logger
-//}
-//
-//func NewGolangRewriteTransform() Transform {
-//	return &GolangTransform{
-//		log: loggy.New("golang-transform"),
-//	}
-//}
-//
-//// e.g. golang.org/x/tools => github.com/golang/tools
-//
-//func (t *GolangTransform) Modify(r *Request) *Request {
-//	if r.Domain != "golang.org" {
-//		return r
-//	}
-//
-//	newDomain := "github.com"
-//	newNamespace := []string{"golang", r.Namespace[1]}
-//
-//	modified := &Request{
-//		Transport: r.Transport,
-//		Domain:    newDomain,
-//		Namespace: newNamespace,
-//		Version:   r.Version,
-//	}
-//
-//	t.log.Tracef("original: %s", r)
-//	t.log.Tracef("modified: %s", modified)
-//	return modified
-//}
 
 type DomainPathTransform struct {
 	pathFmt string
