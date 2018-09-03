@@ -131,6 +131,21 @@ func (h *newHandler) parseTextArea(r *http.Request) ([]Parsed, error) {
 	return results, nil
 }
 
+func parseLines(lines []string) []Parsed {
+	results := make([]Parsed, 0, len(lines))
+	for _, line := range lines {
+		if strings.Contains(line, "/go.mod ") {
+			// when copying from go.sum, every line
+			// appears twice, once with this key so
+			// just get rid of this one
+			continue
+		}
+		result := parseLine(line)
+		results = append(results, result)
+	}
+	return results
+}
+
 func parseLine(line string) Parsed {
 	mod, err := repository.Parse(line)
 	return Parsed{
@@ -138,15 +153,6 @@ func parseLine(line string) Parsed {
 		Module: mod,
 		Err:    err,
 	}
-}
-
-func parseLines(lines []string) []Parsed {
-	results := make([]Parsed, 0, len(lines))
-	for _, line := range lines {
-		result := parseLine(line)
-		results = append(results, result)
-	}
-	return results
 }
 
 func linesOfText(text string) []string {
