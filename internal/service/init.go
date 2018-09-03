@@ -53,6 +53,7 @@ func initReloader(p *Proxy) error {
 			Frequency: pollFreq,
 		},
 		p.registryClient,
+		p.index,
 		p.store,
 		upstream.NewResolver(
 			// upstream.NewGolangRewriteTransform(),

@@ -25,6 +25,7 @@ func modInfo(index store.Index) http.Handler {
 func (h *moduleInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mod, err := modInfoFromPath(r.URL.Path)
 	if err != nil {
+		h.log.Warnf("bad request for info: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

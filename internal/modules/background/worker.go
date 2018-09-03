@@ -25,6 +25,7 @@ type Reloader interface {
 type reloadWorker struct {
 	options        Options
 	registryClient registry.Client
+	index          store.Index
 	store          store.Store
 	resolver       upstream.Resolver
 	downloader     zips.Client
@@ -34,6 +35,7 @@ type reloadWorker struct {
 func NewReloader(
 	options Options,
 	registryClient registry.Client,
+	index store.Index,
 	store store.Store,
 	resolver upstream.Resolver,
 	downloader zips.Client,
@@ -41,6 +43,7 @@ func NewReloader(
 	return &reloadWorker{
 		options:        options,
 		registryClient: registryClient,
+		index:          index,
 		store:          store,
 		resolver:       resolver,
 		downloader:     downloader,
@@ -92,14 +95,22 @@ func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
 	}
 
 	for _, mod := range mods {
-		if err := w.download(mod); err != nil {
-			w.log.Errorf("failed to download %s, %v", mod, err)
-			continue // may as well get the rest of them
+		// only download mod if we do not already have it
+		if !w.alreadyHave(mod) {
+			if err := w.download(mod); err != nil {
+				w.log.Errorf("failed to download %s, %v", mod, err)
+				continue // may as well try to get the rest of them
+			}
+			w.log.Tracef("downloaded %s!", mod)
 		}
-		w.log.Tracef("downloaded %s!", mod)
 	}
 
 	return mods, nil
+}
+
+func (w *reloadWorker) alreadyHave(mod repository.ModInfo) bool {
+	_, err := w.index.Info(mod)
+	return err == nil
 }
 
 func (w *reloadWorker) download(mod repository.ModInfo) error {
