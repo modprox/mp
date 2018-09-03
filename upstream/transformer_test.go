@@ -79,3 +79,14 @@ func Test_formatPath(t *testing.T) {
 		"crypo/cryptsetup/-/archive/v2.0.1/cryptsetup-v2.0.1.zip",
 	)
 }
+
+func Test_addressableVersion(t *testing.T) {
+	try := func(input string, exp string) {
+		output := addressableVersion(input)
+		require.Equal(t, exp, output)
+	}
+
+	try("v2.0.0", "v2.0.0")
+	try("v0.0.0-20180111040409-fbec762f837d", "fbec762f837d")
+	try("v2.3.3+incompatible", "v2.3.3")
+}

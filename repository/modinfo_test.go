@@ -20,7 +20,7 @@ func Test_Parse(t *testing.T) {
 
 	try("github.com/tdewolff/parse v2.3.3+incompatible // indirect", ModInfo{
 		Source:  "github.com/tdewolff/parse",
-		Version: "v2.3.3",
+		Version: "v2.3.3+incompatible",
 	}, false)
 
 	try("golang.org/x/tools v0.0.0-20180111040409-fbec762f837d", ModInfo{

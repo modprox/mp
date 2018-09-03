@@ -62,10 +62,6 @@ func Rewrite(mod repository.ModInfo, b repository.Blob) (repository.Blob, error)
 			// no hg stuff
 			continue
 		}
-		if name == ".gitattributes" {
-			// no git attributes
-			continue
-		}
 		if isVendoredPackage(name) {
 			// no vendor directories
 			continue

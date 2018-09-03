@@ -237,12 +237,24 @@ func (t *DomainPathTransform) Modify(r *Request) *Request {
 
 // e.g. v2.0.0 => v2.0.0
 // e.g. v0.0.0-20180111040409-fbec762f837d => fbec762f837d
+// e.g. v2.3.3+incompatible => v2.3.3
 func addressableVersion(version string) string {
-	split := strings.Split(version, "-")
-	if len(split) == 3 {
-		return split[2] // return the hash if it exists
+	// dashes indicate <version>-<timestamp>-<hash> format,
+	// where the hash is what is addressable in vcs
+	splitOnDash := strings.Split(version, "-")
+	if len(splitOnDash) == 3 {
+		return splitOnDash[2] // return the hash if it exists
 	}
-	return version // else return the input
+
+	// plus indicates <version>+<comment> where the version
+	// is what is addressable in vcs
+	splitOnPlus := strings.Split(version, "+")
+	if len(splitOnPlus) > 1 {
+		return splitOnPlus[0]
+	}
+
+	// the version is just the version
+	return version
 }
 
 // e.g. ELEM1/ELEM2/archive/VERSION.zip => shoenig/petrify/archive/v4.0.1.zip
