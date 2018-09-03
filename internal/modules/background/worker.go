@@ -137,5 +137,3 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 
 	return w.store.Put(mod, rewritten)
 }
-
-// blob is a dir, need flat
