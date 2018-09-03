@@ -88,7 +88,8 @@ func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
 	h.log.Tracef("added %d tags across %d sources:", tagsAdded, sourcesAdded)
 
 	return http.StatusOK, &newPage{
-		Mods: mods,
+		Mods:      mods,
+		CSRFField: csrf.TemplateField(r),
 	}, nil
 }
 
