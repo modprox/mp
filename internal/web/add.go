@@ -5,7 +5,6 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/gorilla/csrf"
@@ -131,29 +130,12 @@ func (h *newHandler) parseTextArea(r *http.Request) ([]Parsed, error) {
 	return results, nil
 }
 
-var (
-	// e.g. github.com/foo/bar v2.0.0
-	// e.g. golang.org/x/tools v0.0.0-20180111040409-fbec762f837d
-	modLineRe = regexp.MustCompile(`([\S.-]+)[\s]+(v[\d]+.[\d]+.[\d]+(-[\d]+-[0-9a-f]+)?)`)
-)
-
 func parseLine(line string) Parsed {
-	groups := modLineRe.FindStringSubmatch(line)
-	if len(groups) != 4 {
-		return Parsed{
-			Text: line,
-			Err:  errors.New("malformed module line"),
-		}
-	}
-
-	// groups[3] is the -ts-hash leftovers group sub-match
-
+	mod, err := repository.Parse(line)
 	return Parsed{
-		Text: line,
-		Module: repository.ModInfo{
-			Source:  strings.TrimRight(groups[1], "/"),
-			Version: groups[2],
-		},
+		Text:   line,
+		Module: mod,
+		Err:    err,
 	}
 }
 
