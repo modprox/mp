@@ -15,6 +15,7 @@ type Index interface {
 	List(module string) ([]string, error)
 	Info(repository.ModInfo) (repository.RevInfo, error)
 	Mod(repository.ModInfo) (string, error) // go.mod
+	Contains(repository.ModInfo) (bool, error)
 }
 
 type IndexOptions struct {
@@ -66,13 +67,16 @@ func (i *fsIndex) versionsPathOf(module string) string {
 	)
 }
 
-func (i *fsIndex) Info(mod repository.ModInfo) (repository.RevInfo, error) {
-	var revInfo repository.RevInfo
-
-	revInfoPath := filepath.Join(
+func (i *fsIndex) zipFilePath(mod repository.ModInfo) string {
+	return filepath.Join(
 		i.versionsPathOf(mod.Source),
 		mod.Version,
-	) + ".info"
+	) + ".zip"
+}
+
+func (i *fsIndex) Info(mod repository.ModInfo) (repository.RevInfo, error) {
+	var revInfo repository.RevInfo
+	revInfoPath := i.revInfoPath(mod)
 	i.log.Tracef("looking up revinfo at path %s", revInfoPath)
 
 	f, err := os.Open(revInfoPath)
@@ -89,11 +93,15 @@ func (i *fsIndex) Info(mod repository.ModInfo) (repository.RevInfo, error) {
 	return revInfo, nil
 }
 
-func (i *fsIndex) Mod(mod repository.ModInfo) (string, error) {
-	modFilePath := filepath.Join(
+func (i *fsIndex) revInfoPath(mod repository.ModInfo) string {
+	return filepath.Join(
 		i.versionsPathOf(mod.Source),
 		mod.Version,
-	) + ".mod"
+	) + ".info"
+}
+
+func (i *fsIndex) Mod(mod repository.ModInfo) (string, error) {
+	modFilePath := i.modFilePath(mod)
 	i.log.Tracef("looking up mod file at path %s", modFilePath)
 
 	bs, err := ioutil.ReadFile(modFilePath)
@@ -101,4 +109,37 @@ func (i *fsIndex) Mod(mod repository.ModInfo) (string, error) {
 		return "", err
 	}
 	return string(bs), nil
+}
+
+func (i *fsIndex) modFilePath(mod repository.ModInfo) string {
+	return filepath.Join(
+		i.versionsPathOf(mod.Source),
+		mod.Version,
+	) + ".mod"
+}
+
+func (i *fsIndex) Contains(mod repository.ModInfo) (bool, error) {
+	modFilePath := i.modFilePath(mod)
+	infoFilePath := i.revInfoPath(mod)
+	zipFilePath := i.zipFilePath(mod)
+	return filesExist(modFilePath, infoFilePath, zipFilePath)
+}
+
+func filesExist(filePaths ...string) (bool, error) {
+	for _, filePath := range filePaths {
+		if _, err := os.Stat(filePath); err != nil {
+			if os.IsNotExist(err) {
+				// file does not exist, no error while
+				// trying to detect the existence
+				return false, nil
+			}
+			// some error occurred while checking if the
+			// file exists
+			return false, err
+		}
+		continue // file exists
+	}
+
+	// no errors stat-ing each file, so they must all exist
+	return true, nil
 }

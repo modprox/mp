@@ -95,21 +95,25 @@ func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
 
 	for _, mod := range mods {
 		// only download mod if we do not already have it
-		if !w.alreadyHave(mod) {
-			if err := w.download(mod); err != nil {
-				w.log.Errorf("failed to download %s, %v", mod, err)
-				continue // may as well try to get the rest of them
-			}
-			w.log.Tracef("downloaded %s!", mod)
+		exists, err := w.index.Contains(mod)
+		if err != nil {
+			w.log.Errorf("problem with index lookups: %v", err)
+			continue // may as well try the others
 		}
+
+		if exists {
+			w.log.Tracef("already have %s, not going to download it again", mod)
+			continue // move on to the next one
+		}
+
+		if err := w.download(mod); err != nil {
+			w.log.Errorf("failed to download %s, %v", mod, err)
+			continue // may as well try the others
+		}
+		w.log.Tracef("downloaded %s!", mod)
 	}
 
 	return mods, nil
-}
-
-func (w *reloadWorker) alreadyHave(mod repository.ModInfo) bool {
-	_, err := w.index.Info(mod)
-	return err == nil
 }
 
 func (w *reloadWorker) download(mod repository.ModInfo) error {
@@ -118,7 +122,7 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 		return err
 	}
 
-	w.log.Infof("about to download %s", request.URI())
+	w.log.Infof("going to download %s", request.URI())
 
 	// actually download it
 	blob, err := w.downloader.Get(request)
