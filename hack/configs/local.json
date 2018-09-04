@@ -1,7 +1,18 @@
 {
-  "dev_mode": true,
-  "csrf_auth_key": "this is a 32 byte long string ok",
-  "persistent_index": {
+  "web_server": {
+    "tls": {
+      "enabled": false,
+      "certificate": "",
+      "key": ""
+    },
+    "bind_address": "127.0.0.1",
+    "port": 8000
+  },
+  "csrf": {
+    "development_mode": true,
+    "authentication_key": "this is a 32 byte long string ok"
+  },
+  "database_storage": {
     "mysql": {
       "user": "docker",
       "password": "docker",

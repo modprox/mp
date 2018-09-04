@@ -1,28 +1,44 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/modprox/libmodprox/configutil"
+	"github.com/pkg/errors"
 )
 
 type Configuration struct {
-	// DevMode indicates if the server is in local development mode. Defaults to false.
-	DevMode     bool            `json:"dev_mode"`
-	CSRFAuthKey string          `json:"csrf_auth_key"`
-	Index       PersistentStore `json:"persistent_index"`
+	WebServer WebServer       `json:"web_server"`
+	CSRF      CSRF            `json:"csrf"`
+	Database  PersistentStore `json:"database_storage"`
 }
 
 func (c Configuration) String() string {
 	return configutil.Format(c)
 }
 
-// MustCSRFAuthKey returns a valid 32-byte slice from configuration or panics.
-func (c Configuration) MustCSRFAuthKey() []byte {
-	if len(c.CSRFAuthKey) != 32 {
-		panic(fmt.Sprintf("csrf_token must be 32 bytes, was: %q" + c.CSRFAuthKey))
+type WebServer struct {
+	TLS struct {
+		Enabled     bool   `json:"enabled"`
+		Certificate string `json:"certificate"`
+		Key         string `json:"key"`
+	} `json:"tls"`
+	BindAddress string `json:"bind_address"`
+	Port        int    `json:"port"`
+}
+
+type CSRF struct {
+	DevelopmentMode   bool   `json:"development_mode"`
+	AuthenticationKey string `json:"authentication_key"`
+}
+
+func (c Configuration) csrfKey() ([]byte, error) {
+	key := c.CSRF.AuthenticationKey
+	if len(key) != 32 {
+		return nil, errors.Errorf(
+			"csrf.authentication_key must be 32 bytes long, got %d",
+			len(key),
+		)
 	}
-	return []byte(c.CSRFAuthKey)
+	return []byte(key), nil
 }
 
 type PersistentStore struct {

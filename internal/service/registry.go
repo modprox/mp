@@ -21,10 +21,11 @@ func NewRegistry(config Configuration) *Registry {
 
 	for _, f := range []initer{
 		initStore,
-		initWebserver,
+		initWebServer,
 	} {
 		if err := f(r); err != nil {
-			r.log.Errorf("failed to initialize registry: %v", err)
+			r.log.Errorf("cannot startup: failed to initialize registry")
+			r.log.Errorf("caused by: %v", err)
 			os.Exit(1)
 		}
 	}
