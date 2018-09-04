@@ -9,12 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/modprox/libmodprox/loggy"
-
 	"github.com/pkg/errors"
 	"github.com/shoenig/toolkit"
 
-	"github.com/modprox/libmodprox/netutil"
+	"github.com/modprox/libmodprox/loggy"
+	"github.com/modprox/libmodprox/netservice"
 	"github.com/modprox/libmodprox/repository"
 )
 
@@ -25,7 +24,7 @@ type Client interface {
 }
 
 type Options struct {
-	Addresses []netutil.Service
+	Instances []netservice.Instance
 	Timeout   time.Duration
 }
 
@@ -53,7 +52,7 @@ func (c *client) ModInfos() ([]repository.ModInfo, error) {
 }
 
 func (c *client) get(path string, i interface{}) error {
-	for _, addr := range c.options.Addresses {
+	for _, addr := range c.options.Instances {
 		if err := c.getSingle(path, addr, i); err != nil {
 			c.log.Warnf("GET request failed: %v", err)
 			continue // keep trying with the next address
@@ -62,7 +61,7 @@ func (c *client) get(path string, i interface{}) error {
 			return nil
 		}
 	}
-	return errors.Errorf("failed to GET from any registry: %v", c.options.Addresses)
+	return errors.Errorf("failed to GET from any registry: %v", c.options.Instances)
 }
 
 // maybe set this in configuration somewhere
@@ -73,7 +72,7 @@ func tweak(addr string) string {
 	return addr
 }
 
-func (c *client) getSingle(path string, addr netutil.Service, i interface{}) error {
+func (c *client) getSingle(path string, addr netservice.Instance, i interface{}) error {
 	url := fmt.Sprintf("%s:%d/%s", tweak(addr.Address), addr.Port, strings.TrimPrefix(path, "/"))
 
 	c.log.Tracef("GET single for url %q", url)

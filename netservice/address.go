@@ -1,12 +1,12 @@
-package netutil
+package netservice
 
 import "fmt"
 
-type Service struct {
+type Instance struct {
 	Address string `json:"address"`
 	Port    int    `json:"port"`
 }
 
-func (s Service) String() string {
+func (s Instance) String() string {
 	return fmt.Sprintf("<%s:%d>", s.Address, s.Port)
 }
