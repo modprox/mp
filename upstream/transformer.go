@@ -207,8 +207,6 @@ func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
 		return meta, err
 	}
 
-	// fmt.Println("lll body:", string(body))
-
 	return parseGoGetMetadata(string(body))
 }
 
@@ -224,7 +222,6 @@ func parseGoGetMetadata(content string) (goGetMeta, error) {
 		line := strings.TrimSpace(scanner.Text())
 		if strings.Contains(line, `name="go-source"`) {
 			groups := sourceRe.FindStringSubmatch(line)
-			fmt.Println("iii groups:", groups)
 			if len(groups) != 4 {
 				return meta, errors.Errorf("malformed go-source meta tag: %q", line)
 			}
