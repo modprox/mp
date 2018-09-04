@@ -1,6 +1,24 @@
 {
-  "registries": [
-    {"address":"localhost", "port":8000}
-  ],
-  "registry_poll_frequency_s": 5
+  "api_server": {
+    "tls": {
+      "enabled": false,
+      "certificate": "",
+      "key": ""
+    },
+    "bind_address": "127.0.0.1",
+    "port": 12505
+  },
+  "registry": {
+    "instances": [
+      {
+        "address": "localhost",
+        "port": 12500
+      }
+    ],
+    "poll_frequency_s": 5,
+    "request_timeout_s": 10
+  },
+  "module_storage": {
+    "path": "/tmp/modprox-modules"
+  }
 }

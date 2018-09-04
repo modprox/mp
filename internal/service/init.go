@@ -1,8 +1,12 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/libmodprox/clients/zips"
@@ -15,24 +19,59 @@ import (
 type initer func(*Proxy) error
 
 func initIndex(p *Proxy) error {
+	// this is the same as the store path for now,
+	// because for MVP the index is just another view
+	// of the filesystem where the modules are
+	//
+	// later, we could keep the index in memory if performance
+	// is lacking reading the filesystem all the time
+	storePath := p.config.ModuleStorage.Path
+	if storePath == "" {
+		return errors.New("module_storage.path is required")
+	}
+
 	p.index = store.NewIndex(store.IndexOptions{
-		Directory: "/tmp/foo",
+		Directory: storePath,
 	})
+
 	return nil
 }
 
 func initStore(p *Proxy) error {
+	storePath := p.config.ModuleStorage.Path
+	if storePath == "" {
+		return errors.New("module_storage.path is required")
+	}
+
 	p.store = store.NewStore(store.Options{
-		Directory: "/tmp/foo",
+		Directory: storePath,
 	})
+
 	return nil
 }
 
 func initRegistryClient(p *Proxy) error {
+	clientTimeout := p.config.Registry.RequestTimeoutS
+	if clientTimeout <= 0 {
+		return errors.Errorf(
+			"registry.request_timeout_s must be > 0, got %d",
+			clientTimeout,
+		)
+	}
+
+	instances := p.config.Registry.Instances
+	if len(instances) <= 2 {
+		p.log.Warnf(
+			"at least 2 registry instances recommended, got %d",
+			len(instances),
+		)
+	}
+
 	p.registryClient = registry.NewClient(registry.Options{
-		Timeout:   10 * time.Second,
-		Addresses: p.config.Registries,
+		Timeout:   time.Duration(clientTimeout) * time.Second,
+		Instances: p.config.Registry.Instances,
 	})
+
 	return nil
 }
 
@@ -46,19 +85,18 @@ func initZipsClient(p *Proxy) error {
 	return nil
 }
 
-func initReloader(p *Proxy) error {
-	pollFreq := time.Duration(p.config.PollRegFreq) * time.Second
+func initRegistryReloader(p *Proxy) error {
+	reloadFreqS := time.Duration(p.config.Registry.PollFrequencyS) * time.Second
 	p.reloader = background.NewReloader(
 		background.Options{
-			Frequency: pollFreq,
+			Frequency: reloadFreqS,
 		},
 		p.registryClient,
 		p.index,
 		p.store,
 		upstream.NewResolver(
-			// upstream.NewGolangRewriteTransform(),
 			upstream.NewGoGetTransform(nil),
-			upstream.NewRedirectTransform("example", "code.example.com"),
+			upstream.NewRedirectTransform("example", "code.example.com"), // todo: config
 			upstream.NewSetPathTransform(nil),
 		),
 		p.zipsClient,
@@ -67,12 +105,22 @@ func initReloader(p *Proxy) error {
 	return nil
 }
 
-func initWebserver(p *Proxy) error {
-	go func(r http.Handler) {
-		if err := http.ListenAndServe(":9000", r); err != nil {
-			p.log.Errorf("failed to listen and serve forever %v", err)
-			panic(err)
+func initWebServer(p *Proxy) error {
+	router := web.NewRouter(p.index, p.store)
+
+	listenOn := fmt.Sprintf(
+		"%s:%d",
+		p.config.APIServer.BindAddress,
+		p.config.APIServer.Port,
+	)
+
+	go func(h http.Handler) {
+		if err := http.ListenAndServe(listenOn, h); err != nil {
+			p.log.Errorf("failed to listen and serve forever")
+			p.log.Errorf("caused by: %v", err)
+			os.Exit(1)
 		}
-	}(web.NewRouter(p.index, p.store))
+	}(router)
+
 	return nil
 }

@@ -29,8 +29,8 @@ func NewProxy(config Configuration) *Proxy {
 		initStore,
 		initRegistryClient,
 		initZipsClient,
-		initReloader,
-		initWebserver,
+		initRegistryReloader,
+		initWebServer,
 	} {
 		if err := f(p); err != nil {
 			p.log.Errorf("failed to initialize proxy: %v", err)
