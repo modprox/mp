@@ -97,7 +97,9 @@ func (c *httpClient) convert(r *upstream.Request) (*http.Request, error) {
 		return nil, err
 	}
 
-	// todo: limit response size via setting Transport.RoundTripper?
+	for k, v := range r.Headers {
+		request.Header.Set(k, v)
+	}
 
 	return request, nil
 }

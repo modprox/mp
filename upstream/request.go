@@ -11,6 +11,7 @@ type Request struct {
 	Version       string
 	Path          string
 	GoGetRedirect bool
+	Headers       map[string]string
 }
 
 func (r *Request) String() string {

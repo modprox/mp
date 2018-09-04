@@ -396,3 +396,45 @@ func (t *SetPathTransform) Modify(r *Request) *Request {
 	t.log.Tracef("modified: %s", modified)
 	return modified
 }
+
+func NewDomainHeaderTransform(domain string, headers map[string]string) Transform {
+	return &DomainHeaderTransform{
+		domain:  domain,
+		headers: headers,
+		log:     loggy.New("domain-header-transform"),
+	}
+}
+
+// A DomainHeaderTransform is used to set the header for a request.
+// Typically one of these will be used to set the authentication key
+// for https requests to an internal VCS system.
+type DomainHeaderTransform struct {
+	domain  string
+	headers map[string]string
+	log     loggy.Logger
+}
+
+func (t *DomainHeaderTransform) Modify(r *Request) *Request {
+	if r.Domain != t.domain {
+		return r
+	}
+
+	newHeaders := make(map[string]string, len(r.Headers))
+	for k, v := range r.Headers {
+		newHeaders[k] = v
+	}
+
+	for key, value := range t.headers {
+		t.log.Tracef("setting a value for request header %q", key)
+		newHeaders[key] = value
+	}
+
+	return &Request{
+		Transport: r.Transport,
+		Domain:    r.Domain,
+		Namespace: r.Namespace,
+		Version:   r.Version,
+		Path:      r.Path,
+		Headers:   newHeaders,
+	}
+}
