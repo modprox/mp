@@ -6,7 +6,7 @@
       "key": ""
     },
     "bind_address": "127.0.0.1",
-    "port": 8000
+    "port": 12500
   },
   "csrf": {
     "development_mode": true,

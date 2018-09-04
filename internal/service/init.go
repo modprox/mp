@@ -79,5 +79,6 @@ func initWebServer(r *Registry) error {
 			os.Exit(1)
 		}
 	}(router)
+
 	return nil
 }
