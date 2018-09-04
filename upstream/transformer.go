@@ -104,8 +104,18 @@ func (t *RedirectTransform) Modify(r *Request) *Request {
 	return modified
 }
 
-// use <url>?go-get=1 to find the real uri
-// e.g. golang.org and gopkg.in => github.com/?/?
+// The GoGetTransform triggers an http request to the domain
+// to simply do a "?go-get=1" lookup for the real domain of where
+// the module is being hosted.
+//
+// Additional domains can be specified via configuration.
+// The known go-get redirectors in the wild include:
+// - golang.org
+// - google.golang.org
+// - cloud.google.com
+// - gopkg.in
+// - contrib.go.opencensus.io
+// - go.uber.org
 type GoGetTransform struct {
 	domains    map[string]bool // only implement redirect metadata
 	httpClient *http.Client
@@ -117,8 +127,13 @@ func NewGoGetTransform(domains []string) Transform {
 	for _, domain := range domains {
 		match[domain] = true
 	}
+
 	match["golang.org"] = true
+	match["cloud.google.com"] = true
+	match["google.golang.org"] = true
 	match["gopkg.in"] = true
+	match["contrib.go.opencensus.io"] = true
+	match["go.uber.org"] = true
 
 	return &GoGetTransform{
 		domains: match,
@@ -148,7 +163,7 @@ func (t *GoGetTransform) Modify(r *Request) *Request {
 		Domain:    meta.domain,
 		Namespace: strings.Split(meta.path, "/"),
 		Version:   r.Version,
-		// Path: set by the github rewriter
+		// Path: set by the domain rewriter
 	}
 
 	t.log.Tracef("original: %s", r)
