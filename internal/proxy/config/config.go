@@ -1,4 +1,4 @@
-package service
+package config
 
 import (
 	"github.com/modprox/libmodprox/configutil"
