@@ -47,7 +47,7 @@ func chain(h http.Handler, m ...middleware) http.Handler {
 }
 
 func initWebServer(r *Registry) error {
-	key, err := r.config.csrfKey()
+	key, err := r.config.CSRFKey()
 	if err != nil {
 		return err
 	}

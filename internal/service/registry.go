@@ -5,15 +5,16 @@ import (
 
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/modprox-registry/internal/data"
+	"github.com/modprox/modprox-registry/registry/config"
 )
 
 type Registry struct {
-	config Configuration
+	config config.Configuration
 	store  data.Store
 	log    loggy.Logger
 }
 
-func NewRegistry(config Configuration) *Registry {
+func NewRegistry(config config.Configuration) *Registry {
 	r := &Registry{
 		config: config,
 		log:    loggy.New("registry-service"),

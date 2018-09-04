@@ -1,4 +1,4 @@
-package service
+package config
 
 import (
 	"github.com/modprox/libmodprox/configutil"
@@ -30,7 +30,7 @@ type CSRF struct {
 	AuthenticationKey string `json:"authentication_key"`
 }
 
-func (c Configuration) csrfKey() ([]byte, error) {
+func (c Configuration) CSRFKey() ([]byte, error) {
 	key := c.CSRF.AuthenticationKey
 	if len(key) != 32 {
 		return nil, errors.Errorf(

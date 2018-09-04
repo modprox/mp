@@ -5,7 +5,8 @@ import (
 
 	"github.com/modprox/libmodprox/configutil"
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/internal/service"
+	"github.com/modprox/modprox-registry/registry"
+	"github.com/modprox/modprox-registry/registry/config"
 )
 
 // generate webpage statics
@@ -22,12 +23,12 @@ func main() {
 	}
 	log.Infof("loading configuration from: %s", configFilename)
 
-	var config service.Configuration
-	if err := configutil.LoadConfig(configFilename, &config); err != nil {
+	var configuration config.Configuration
+	if err := configutil.LoadConfig(configFilename, &configuration); err != nil {
 		log.Errorf("failed to startup: %v", err)
 		os.Exit(1)
 	}
-	log.Tracef("starting with configuration: %s", config)
+	log.Tracef("starting with configuration: %s", configuration)
 
-	service.NewRegistry(config).Run()
+	registry.Start(configuration)
 }
