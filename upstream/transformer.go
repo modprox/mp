@@ -16,10 +16,28 @@ import (
 	"github.com/modprox/libmodprox/repository"
 )
 
+// A Resolver is able to turn the globally unique identifier of
+// a Go module (which includes a Source and a Version) and applies
+// a set of Transform operations until a Request is created
+// that can later be used to fetch the module from some source,
+// which is typically a VCS host (e.g. github).
 type Resolver interface {
+	// Resolve applies any underlying Transform operations
+	// and returns the resulting Request, or an error if
+	// one of the Transform operations does not work.
 	Resolve(repository.ModInfo) (*Request, error)
 }
 
+// A Transform is one operation that is applied to a Request,
+// which creates a new Request with zero or more parameters
+// of the input Request having been modified. A Transform can
+// be used to handle things like static domain name redirection,
+// indirect domain name redirect (i.e. accommodate go-get meta URIs),
+// domain-based path rewriting, etc.
+//
+// As time goes on, more and more Transform implementations will be
+// added, to support additional use cases for enterprise environments
+// which tend to have special needs.
 type Transform interface {
 	Modify(*Request) *Request
 }
@@ -28,6 +46,8 @@ type resolver struct {
 	transforms []Transform
 }
 
+// NewResolver creates a Resolver which will apply the given set
+// of Transform operations in the order in which they appear.
 func NewResolver(transforms ...Transform) Resolver {
 	return &resolver{
 		transforms: transforms,
@@ -47,6 +67,10 @@ func (r *resolver) Resolve(mod repository.ModInfo) (*Request, error) {
 	return request, nil
 }
 
+// NewRequest creates a default Request from the given module. This
+// initial Request is likely useless, as it only becomes useful after
+// a set of Transform operations are applied to it, which then compute
+// correct URI for the module it represents.
 func NewRequest(mod repository.ModInfo) (*Request, error) {
 	domain, namespace, err := splitSource(mod.Source)
 	if err != nil {
@@ -81,21 +105,34 @@ func splitSource(s string) (string, Namespace, error) {
 	return domain, namespace, nil
 }
 
-type RedirectTransform struct {
+// A StaticRedirectTransform is used to directly convert one domain
+// to another. For example, if your organization internally keeps packages
+// organized like
+//   ${GOPATH}/company/...
+// but the internal VCS is only addressable in a way like
+//   code.internal.company.net/...
+// then the StaticRedirectTransform can be used to automatically acquire
+// modules prefixed with name "company/" from the internal VCS of the
+// different domain name.
+type StaticRedirectTransform struct {
 	original     string
 	substitution string
 	log          loggy.Logger
 }
 
-func NewRedirectTransform(original, substitution string) Transform {
-	return &RedirectTransform{
+// NewStaticRedirectTransform creates a Transform which will convert
+// domains of the original name to become the substitution name.
+//
+// Currently only exact matches on the domain are supported.
+func NewStaticRedirectTransform(original, substitution string) Transform {
+	return &StaticRedirectTransform{
 		original:     original,
 		substitution: substitution,
 		log:          loggy.New("redirect-transform"),
 	}
 }
 
-func (t *RedirectTransform) Modify(r *Request) *Request {
+func (t *StaticRedirectTransform) Modify(r *Request) *Request {
 	newDomain := r.Domain
 	if newDomain == t.original {
 		newDomain = t.substitution
@@ -131,6 +168,12 @@ type GoGetTransform struct {
 	log        loggy.Logger
 }
 
+// NewGoGetTransform creates a GoGetTransform where any module URIs
+// found in the given list of domains will be first redirected to wherever
+// the go-get meta HTML tag in the domain indicates.
+//
+// Read more about this functionality here:
+//   https://golang.org/cmd/go/#hdr-Remote_import_paths
 func NewGoGetTransform(domains []string) Transform {
 	match := make(map[string]bool)
 	for _, domain := range domains {
@@ -238,12 +281,19 @@ func parseGoGetMetadata(content string) (goGetMeta, error) {
 	return meta, errors.New("no go-source meta tag in response")
 }
 
+// A DomainPathTransform is used to generate or rewrite the URL path
+// of the module archive that is to be fetched per the domain of desired
+// module of the Request. Default path rewriting rules are provided for
+// repositories ultimately hosted in github or gitlab. Additional path
+// transformations should be defined for internally hosed VCSs.
+//
+// e.g. github:
+//   https://github.com/ELEM1/ELEM2/archive/VERSION.zip
+// e.g. gitlab:
+//   https://gitlab.com/ELEM1/ELEM2/-/archive/VERSOIN/ELEM2-v2.0.1.zip
 type DomainPathTransform struct {
 	pathFmt string
 }
-
-// e.g. https://github.com/shoenig/petrify/archive/v4.0.1.zip
-// e.g. https://gitlab.com/cryptsetup/cryptsetup/-/archive/v2.0.1/cryptsetup-v2.0.1.zip
 
 func (t *DomainPathTransform) Modify(r *Request) *Request {
 	version := addressableVersion(r.Version) // this seems a little conflated
@@ -298,12 +348,21 @@ func NewDomainPathTransform(pathFmt string) Transform {
 	}
 }
 
+// DefaultPathTransforms provides a set of default Transform types which
+// create the Request.Path for a known set of VCSs systems in the open source
+// world (i.e. github and gitlab).
+// Additional Transforms should be specified via NewSetPathTransform, which
+// accepts a map of domain to Transform, for internally hosed code.
 var DefaultPathTransforms = map[string]Transform{
 	"github.com": NewDomainPathTransform("ELEM1/ELEM2/archive/VERSION.zip"),
 	"gitlab.com": NewDomainPathTransform("ELEM1/ELEM2/-/archive/VERSION/ELEM2-VERSION.zip"),
 	"":           NewDomainPathTransform(""), // unknown
 }
 
+// A SetPathTransform is a collection of transforms which set the Path of
+// a Request given a domain. Think of it as a map from a domain to a
+// DomainPathTransform, which can be used in the general case rather than
+// specifying an explicit list of DomainPathTransform.
 type SetPathTransform struct {
 	domainPathTransforms map[string]Transform
 	log                  loggy.Logger

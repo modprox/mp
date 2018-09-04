@@ -28,7 +28,7 @@ func Test_NewRequest(t *testing.T) {
 	}, request)
 }
 
-func Test_NewRequest_no_path_ok(t *testing.T) {
+func Test_NewRequest_no_path_is_ok(t *testing.T) {
 	// An example pulled from real life, go.opencensus.io is
 	// itself pointed at a repository using go-get meta.
 	// It has no path.
@@ -42,12 +42,12 @@ func Test_NewRequest_no_path_ok(t *testing.T) {
 	require.Equal(t, &Request{
 		Transport: "https",
 		Domain:    "go.opencensus.io",
-		Namespace: ns(""),
+		Namespace: nil,
 		Version:   "v0.15.0",
 	}, request)
 }
 
-func Test_RedirectTransform(t *testing.T) {
+func Test_StaticRedirectTransform(t *testing.T) {
 	request := &Request{
 		Transport: "https",
 		Domain:    "mycompany",
@@ -55,7 +55,7 @@ func Test_RedirectTransform(t *testing.T) {
 		Version:   "v1.0.1",
 	}
 
-	rt := NewRedirectTransform("mycompany", "code.mycompany.net")
+	rt := NewStaticRedirectTransform("mycompany", "code.mycompany.net")
 
 	transformed := rt.Modify(request)
 	require.Equal(t, &Request{
