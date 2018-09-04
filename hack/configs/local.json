@@ -15,7 +15,7 @@
         "port": 12500
       }
     ],
-    "poll_frequency_s": 5,
+    "poll_frequency_s": 20,
     "request_timeout_s": 10
   },
   "module_storage": {
