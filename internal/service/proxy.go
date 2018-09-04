@@ -6,10 +6,11 @@ import (
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/modprox-proxy/internal/modules/background"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/internal/proxy/config"
 )
 
 type Proxy struct {
-	config         Configuration
+	config         config.Configuration
 	index          store.Index
 	store          store.Store
 	registryClient registry.Client
@@ -18,9 +19,9 @@ type Proxy struct {
 	log            loggy.Logger
 }
 
-func NewProxy(config Configuration) *Proxy {
+func NewProxy(configuration config.Configuration) *Proxy {
 	p := &Proxy{
-		config: config,
+		config: configuration,
 		log:    loggy.New("proxy-service"),
 	}
 

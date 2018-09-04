@@ -6,5 +6,5 @@ import (
 )
 
 func Start(configuration config.Configuration) {
-	service.NewProxy(configuration)
+	service.NewProxy(configuration).Run()
 }

@@ -95,14 +95,47 @@ func initRegistryReloader(p *Proxy) error {
 		p.index,
 		p.store,
 		upstream.NewResolver(
-			upstream.NewGoGetTransform(nil),
-			upstream.NewRedirectTransform("example", "code.example.com"), // todo: config
-			upstream.NewSetPathTransform(nil),
+			initTransforms(p)...,
 		),
 		p.zipsClient,
 	)
 	p.reloader.Start()
 	return nil
+}
+
+func initTransforms(p *Proxy) []upstream.Transform {
+	transforms := make([]upstream.Transform, 0, 1)
+	transforms = append(transforms, initGoGetTransform(p))
+	transforms = append(transforms, initStaticRedirectTransforms(p)...)
+	transforms = append(transforms, initSetPathTransform(p))
+	return transforms
+}
+
+func initGoGetTransform(p *Proxy) upstream.Transform {
+	goGetDomains := make([]string, 0, len(p.config.Transforms.DomainGoGet))
+	for _, domain := range p.config.Transforms.DomainGoGet {
+		goGetDomains = append(goGetDomains, domain.Domain)
+	}
+	return upstream.NewGoGetTransform(goGetDomains)
+}
+
+func initStaticRedirectTransforms(p *Proxy) []upstream.Transform {
+	transforms := make([]upstream.Transform, 0, len(p.config.Transforms.DomainRedirects))
+	for _, domainRedirect := range p.config.Transforms.DomainRedirects {
+		transforms = append(transforms, upstream.NewStaticRedirectTransform(
+			domainRedirect.Original,
+			domainRedirect.Substitution,
+		))
+	}
+	return transforms
+}
+
+func initSetPathTransform(p *Proxy) upstream.Transform {
+	transforms := make(map[string]upstream.Transform)
+	for _, t := range p.config.Transforms.DomainPath {
+		transforms[t.Domain] = upstream.NewDomainPathTransform(t.Path)
+	}
+	return upstream.NewSetPathTransform(transforms)
 }
 
 func initWebServer(p *Proxy) error {
