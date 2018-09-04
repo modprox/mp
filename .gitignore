@@ -1,3 +1,4 @@
 modprox-proxy
 **/cover.out
 go.sum
+hack/configs/indeed.json
