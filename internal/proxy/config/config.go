@@ -45,14 +45,13 @@ type Transforms struct {
 	DomainRedirects []struct {
 		Original     string `json:"original"`
 		Substitution string `json:"substitution"`
-	} `json:"domain_redirect,omitempty"`
-	DomainHeader []struct {
-		Domain      string `json:"domain"`
-		HeaderKey   string `json:"header_key"`
-		HeaderValue string `json:"header_value"`
-	} `json:"domain_header,omitempty"`
+	} `json:"domain_redirects,omitempty"`
+	DomainHeaders []struct {
+		Domain  string            `json:"domain"`
+		Headers map[string]string `json:"headers"`
+	} `json:"domain_headers,omitempty"`
 	DomainPath []struct {
 		Domain string `json:"domain"`
 		Path   string `json:"path"`
-	} `json:"domain_path,omitempty"`
+	} `json:"domain_paths,omitempty"`
 }

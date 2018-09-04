@@ -108,6 +108,7 @@ func initTransforms(p *Proxy) []upstream.Transform {
 	transforms = append(transforms, initGoGetTransform(p))
 	transforms = append(transforms, initStaticRedirectTransforms(p)...)
 	transforms = append(transforms, initSetPathTransform(p))
+	transforms = append(transforms, initHeaderTransforms(p)...)
 	return transforms
 }
 
@@ -136,6 +137,16 @@ func initSetPathTransform(p *Proxy) upstream.Transform {
 		transforms[t.Domain] = upstream.NewDomainPathTransform(t.Path)
 	}
 	return upstream.NewSetPathTransform(transforms)
+}
+
+func initHeaderTransforms(p *Proxy) []upstream.Transform {
+	transforms := make([]upstream.Transform, 0, len(p.config.Transforms.DomainHeaders))
+	for _, t := range p.config.Transforms.DomainHeaders {
+		transforms = append(transforms, upstream.NewDomainHeaderTransform(
+			t.Domain, t.Headers,
+		))
+	}
+	return transforms
 }
 
 func initWebServer(p *Proxy) error {
