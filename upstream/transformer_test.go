@@ -28,14 +28,23 @@ func Test_NewRequest(t *testing.T) {
 	}, request)
 }
 
-func Test_NewRequest_malformed(t *testing.T) {
+func Test_NewRequest_no_path_ok(t *testing.T) {
+	// An example pulled from real life, go.opencensus.io is
+	// itself pointed at a repository using go-get meta.
+	// It has no path.
 	mod := repository.ModInfo{
-		Source:  "foobar",
-		Version: "v1.0.1",
+		Source:  "go.opencensus.io",
+		Version: "v0.15.0",
 	}
 
-	_, err := NewRequest(mod)
-	require.EqualError(t, err, "source does not contain a path")
+	request, err := NewRequest(mod)
+	require.NoError(t, err)
+	require.Equal(t, &Request{
+		Transport: "https",
+		Domain:    "go.opencensus.io",
+		Namespace: ns(""),
+		Version:   "v0.15.0",
+	}, request)
 }
 
 func Test_RedirectTransform(t *testing.T) {

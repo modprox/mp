@@ -61,11 +61,20 @@ func NewRequest(mod repository.ModInfo) (*Request, error) {
 }
 
 func splitSource(s string) (string, Namespace, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return "", nil, errors.New("source is empty string")
+	}
+
 	split := strings.Split(s, "/")
 
-	if len(split) <= 1 {
-		return "", nil, errors.New("source does not contain a path")
+	if len(split) == 1 {
+		// e.g. go.opencensus.io is a whole domain used
+		// to represent one package using go-get meta
+		return s, nil, nil
 	}
+
+	// we have a domain and a path
 
 	domain := split[0]
 	namespace := Namespace(split[1:])
@@ -133,6 +142,7 @@ func NewGoGetTransform(domains []string) Transform {
 	match["google.golang.org"] = true
 	match["gopkg.in"] = true
 	match["contrib.go.opencensus.io"] = true
+	match["go.opencensus.io"] = true
 	match["go.uber.org"] = true
 
 	return &GoGetTransform{
