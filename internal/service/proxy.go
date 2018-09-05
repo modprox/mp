@@ -6,7 +6,7 @@ import (
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/modprox-proxy/internal/modules/background"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
-	"github.com/modprox/modprox-proxy/internal/proxy/config"
+	"github.com/modprox/modprox-proxy/proxy/config"
 )
 
 type Proxy struct {

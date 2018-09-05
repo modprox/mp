@@ -5,8 +5,8 @@ import (
 
 	"github.com/modprox/libmodprox/configutil"
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-proxy/internal/proxy"
-	"github.com/modprox/modprox-proxy/internal/proxy/config"
+	"github.com/modprox/modprox-proxy/proxy"
+	"github.com/modprox/modprox-proxy/proxy/config"
 )
 
 func main() {
