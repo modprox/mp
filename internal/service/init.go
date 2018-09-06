@@ -5,16 +5,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/go-sql-driver/mysql"
-	"github.com/gorilla/csrf"
-	"github.com/pkg/errors"
-
 	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/internal/web"
+
+	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 )
 
 type initer func(*Registry) error
-type middleware func(http.Handler) http.Handler
 
 func initStore(r *Registry) error {
 	dsn := r.config.Database.MySQL
@@ -38,33 +36,8 @@ func initStore(r *Registry) error {
 	return nil
 }
 
-// chain recursively chains middleware together
-func chain(h http.Handler, m ...middleware) http.Handler {
-	if len(m) == 0 {
-		return h
-	}
-	return m[0](chain(h, m[1:cap(m)]...))
-}
-
 func initWebServer(r *Registry) error {
-	key, err := r.config.CSRFKey()
-	if err != nil {
-		return err
-	}
-
-	middlewares := []middleware{
-		csrf.Protect(
-			// the key is used to generate csrf tokens to hand
-			// out on html form loads
-			key,
-
-			// CSRF cookies are https-only normally, so for development
-			// mode make sure the csrf package knows we are using http
-			csrf.Secure(!r.config.CSRF.DevelopmentMode), //todo: also if no tls is set?
-		),
-	}
-
-	router := chain(web.NewRouter(r.store), middlewares...)
+	router := web.NewRouter(r.store, r.config.CSRF)
 
 	listenOn := fmt.Sprintf(
 		"%s:%d",

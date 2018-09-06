@@ -30,15 +30,18 @@ type CSRF struct {
 	AuthenticationKey string `json:"authentication_key"`
 }
 
-func (c Configuration) CSRFKey() ([]byte, error) {
-	key := c.CSRF.AuthenticationKey
+// Key returns the configured 32 byte CSRF key, and a bool indicating
+// whether development mode is enabled. If the CSRF is not well formed,
+// an error is returned.
+func (c CSRF) Key() ([]byte, bool, error) {
+	key := c.AuthenticationKey
 	if len(key) != 32 {
-		return nil, errors.Errorf(
+		return nil, false, errors.Errorf(
 			"csrf.authentication_key must be 32 bytes long, got %d",
 			len(key),
 		)
 	}
-	return []byte(key), nil
+	return []byte(key), c.DevelopmentMode, nil
 }
 
 type PersistentStore struct {

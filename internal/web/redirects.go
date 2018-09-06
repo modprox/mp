@@ -9,9 +9,6 @@ import (
 	"github.com/modprox/modprox-registry/static"
 )
 
-type redirectsPage struct {
-}
-
 type redirectsHandler struct {
 	html  *template.Template
 	store data.Store
