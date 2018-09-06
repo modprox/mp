@@ -12,6 +12,8 @@ const (
 	selectSourcesScanSQL
 	insertRedirectSQL
 	selectRedirectsScanSQL
+	insertStartupConfigSQL
+	insertHeartbeatSQL
 )
 
 type statements map[int]*sql.Stmt
@@ -37,5 +39,7 @@ var (
 		selectSourcesScanSQL:   `select sources.id, sources.source, unix_timestamp(sources.created), tags.id, tags.tag, unix_timestamp(tags.created), tags.source_id from sources inner join (tags) on (tags.source_id=sources.id) order by sources.source asc, tags.tag desc`,
 		insertRedirectSQL:      `insert into redirects (original, substitution) values (?, ?) on duplicate key update original=original`,
 		selectRedirectsScanSQL: `select original, substitution from redirects order by original asc`,
+		insertStartupConfigSQL: `insert into proxy_configurations (hostname, port, transforms) values (?, ?, ?) on duplicate key update id=last_insert_id(id), transforms=?, ts=current_timestamp`,
+		insertHeartbeatSQL:     `insert into proxy_heartbeats (hostname, port, num_packages, num_modules) values (?, ?, ?, ?) on duplicate key update id=last_insert_id(id), num_packages=?, num_modules=?, ts=current_timestamp`,
 	}
 )

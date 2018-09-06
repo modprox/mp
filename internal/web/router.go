@@ -23,7 +23,6 @@ func NewRouter(
 ) http.Handler {
 
 	// 1) a router onto which subrouters will be mounted
-	// router := mux.NewRouter()
 	router := http.NewServeMux()
 
 	// 2) a static files handler for statics

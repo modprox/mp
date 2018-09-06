@@ -21,5 +21,4 @@ func newHeartbeatHandler(store data.Store) http.Handler {
 
 func (h *heartbeatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.log.Tracef("receiving hearbeat update")
-
 }
