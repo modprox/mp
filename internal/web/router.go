@@ -23,48 +23,48 @@ func NewRouter(
 ) http.Handler {
 
 	// 1) a router onto which subrouters will be mounted
-	router := mux.NewRouter()
+	// router := mux.NewRouter()
+	router := http.NewServeMux()
 
 	// 2) a static files handler for statics
-	routeStatics(router, http.FileServer(&petrify.AssetFS{
+	router.Handle("/static/", routeStatics(http.FileServer(&petrify.AssetFS{
 		Asset:     static.Asset,
 		AssetDir:  static.AssetDir,
 		AssetInfo: static.AssetInfo,
 		Prefix:    "static",
-	}))
+	})))
 
 	// 3) an API handler, not CSRF protected
-	routeAPI(router, store)
+	router.Handle("/v1/", routeAPI(store))
 
 	// 4) a webUI handler, is CSRF protected
-	routeWebUI(router, csrfConfig, store)
+	router.Handle("/", routeWebUI(csrfConfig, store))
 
 	return router
 }
 
-func routeStatics(router *mux.Router, files http.Handler) http.Handler {
-	sub := router.PathPrefix("/").Subrouter()
+func routeStatics(files http.Handler) http.Handler {
+	sub := mux.NewRouter()
 	sub.Handle("/static/css/{*}", http.StripPrefix("/static/", files)).Methods(get)
 	sub.Handle("/static/img/{*}", http.StripPrefix("/static/", files)).Methods(get)
 	return sub
 }
 
-func routeAPI(router *mux.Router, store data.Store) http.Handler {
-	sub := router.PathPrefix("/v1").Subrouter()
-	sub.Handle("/registry/sources/list", registryList(store)).Methods(get)
-	sub.Handle("/registry/sources/new", registryAdd(store)).Methods(post)
-	sub.Handle("/heartbeat/update", newHeartbeatHandler(store)).Methods(post)
+func routeAPI(store data.Store) http.Handler {
+	sub := mux.NewRouter()
+	sub.Handle("/v1/registry/sources/list", registryList(store)).Methods(get)
+	sub.Handle("/v1/registry/sources/new", registryAdd(store)).Methods(post)
+	sub.Handle("/v1/heartbeat/update", newHeartbeatHandler(store)).Methods(post)
 	return sub
 }
 
-func routeWebUI(router *mux.Router, csrfConfig config.CSRF, store data.Store) http.Handler {
-	sub := router.PathPrefix("/").Subrouter()
+func routeWebUI(csrfConfig config.CSRF, store data.Store) http.Handler {
+	sub := mux.NewRouter()
 	sub.Handle("/new", newAddHandler(store)).Methods(get, post)
 	sub.Handle("/configure/redirects", newRedirectsHandler(store)).Methods(get)
-	sub.Handle("/", newHomeHandler(store)).Methods(get)
-
-	middlewares := []middleware{
-		csrf.Protect(
+	sub.Handle("/", newHomeHandler(store)).Methods(get, post)
+	return chain(sub,
+		[]middleware{csrf.Protect(
 			// the key is used to generate csrf tokens to hand
 			// out on html form loads
 			[]byte(csrfConfig.AuthenticationKey),
@@ -72,10 +72,9 @@ func routeWebUI(router *mux.Router, csrfConfig config.CSRF, store data.Store) ht
 			// CSRF cookies are https-only normally, so for development
 			//// mode make sure the csrf package knows we are using http
 			csrf.Secure(!csrfConfig.DevelopmentMode),
-		),
-	}
-
-	return chain(sub, middlewares...)
+		)}...,
+	)
+	return sub
 }
 
 type middleware func(http.Handler) http.Handler

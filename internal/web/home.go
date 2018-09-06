@@ -42,7 +42,7 @@ func newHomeHandler(store data.Store) http.Handler {
 }
 
 func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.log.Tracef("serving up the homepage")
+	h.log.Tracef("serving up the homepage, path: %s", r.URL.Path)
 
 	modules, err := h.store.ListMods()
 	if err != nil {
