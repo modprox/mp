@@ -10,9 +10,11 @@ import (
 
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/libmodprox/clients/zips"
+	"github.com/modprox/libmodprox/netservice"
 	"github.com/modprox/libmodprox/upstream"
 	"github.com/modprox/modprox-proxy/internal/modules/background"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/internal/status/heartbeat"
 	"github.com/modprox/modprox-proxy/internal/web"
 )
 
@@ -147,6 +149,31 @@ func initHeaderTransforms(p *Proxy) []upstream.Transform {
 		))
 	}
 	return transforms
+}
+
+func initHeartbeatSender(p *Proxy) error {
+	hostname, err := os.Hostname()
+	if err != nil {
+		return errors.Wrap(err, "failed to acquire hostname")
+	}
+
+	sender := heartbeat.NewSender(heartbeat.Options{
+		Timeout:    30 * time.Second,
+		Registries: p.config.Registry.Instances,
+		Self: netservice.Instance{
+			Address: hostname,
+			Port:    p.config.APIServer.Port,
+		},
+	})
+
+	looper := heartbeat.NewLooper(
+		10*time.Second,
+		sender,
+	)
+
+	go looper.Loop()
+
+	return nil
 }
 
 func initWebServer(p *Proxy) error {

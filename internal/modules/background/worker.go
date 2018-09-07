@@ -83,7 +83,7 @@ func (w *reloadWorker) loop() error {
 }
 
 func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
-	mods, err := w.registryClient.ModInfos()
+	mods, err := w.registryClient.Modules()
 	if err != nil {
 		return nil, err
 	}
