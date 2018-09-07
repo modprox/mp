@@ -1,0 +1,28 @@
+package data
+
+import "github.com/modprox/libmodprox/pokes"
+
+func (s *store) SetStartConfig(config pokes.StartConfig) error {
+	result, err := s.statements[insertStartupConfigSQL].Exec(
+		config.Self.Address,
+		config.Self.Port,
+		config.Transforms,
+	)
+	if err != nil {
+		return err
+	}
+	_, err = maybeAffectedN(result, 1)
+	return err
+}
+
+func (s *store) SetHeartbeat(heartbeat pokes.Heartbeat) error {
+	_, err := s.statements[insertHeartbeatSQL].Exec(
+		heartbeat.Self.Address,
+		heartbeat.Self.Port,
+		heartbeat.NumPackages,
+		heartbeat.NumModules,
+		heartbeat.NumPackages, // upsert
+		heartbeat.NumModules,  // upsert
+	)
+	return err
+}

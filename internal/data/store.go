@@ -4,9 +4,11 @@ import (
 	"database/sql"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/repository"
 	"github.com/pkg/errors"
+
+	"github.com/modprox/libmodprox/loggy"
+	"github.com/modprox/libmodprox/pokes"
+	"github.com/modprox/libmodprox/repository"
 )
 
 func Connect(config mysql.Config) (*sql.DB, error) {
@@ -15,11 +17,17 @@ func Connect(config mysql.Config) (*sql.DB, error) {
 }
 
 type Store interface {
+	// modules
 	ListMods() ([]repository.ModInfo, error)
 	AddMods([]repository.ModInfo) (int, int, error)
 
+	// remove
 	ListRedirects() ([]repository.Redirect, error)
 	AddRedirect(repository.Redirect) error
+
+	// startup configs and pokes
+	SetStartConfig(pokes.StartConfig) error
+	SetHeartbeat(pokes.Heartbeat) error
 }
 
 func New(db *sql.DB) (Store, error) {
