@@ -22,7 +22,7 @@ func NewRouter(
 	csrfConfig config.CSRF,
 ) http.Handler {
 
-	// 1) a router onto which subrouters will be mounted
+	// 1) a router onto which sub-routers will be mounted
 	router := http.NewServeMux()
 
 	// 2) a static files handler for statics
