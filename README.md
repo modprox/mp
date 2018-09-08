@@ -1,6 +1,9 @@
 ## modprox-proxy
 proxy component of modprox
 
+#### Project Management
+Issue [tracker](https://github.com/modprox/modprox-registry/issues) (prefix with `proxy:`)
+
 #### Setting up the Proxy
 For setting up your own instance of the modprox-proxy,
 see the documentation on [modprox.org](https://modprox.org/#starting).
