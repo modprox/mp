@@ -36,7 +36,7 @@ func NewStore(options Options) Store {
 		panic("no directory set for store")
 	}
 
-	writer := atomicfs.NewFileWriter(atomicfs.FileWriterOptions{
+	writer := atomicfs.NewFileWriter(atomicfs.Options{
 		TmpDirectory: options.TmpDirectory,
 		Mode:         filePerm,
 	})
