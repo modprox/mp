@@ -1,6 +1,9 @@
 # modprox-registry
 registry component of modprox
 
+#### Project Management
+Issue [tracker](https://github.com/modprox/modprox-registry/issues) (prefix with `registry:`)
+
 #### Setting up the Registry
 For setting up your own instance of the modprox-registry,
 see the documentation on [modprox.org](https://modprox.org/#starting)
