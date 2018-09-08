@@ -8,5 +8,5 @@ type Instance struct {
 }
 
 func (s Instance) String() string {
-	return fmt.Sprintf("<%s:%d>", s.Address, s.Port)
+	return fmt.Sprintf("[%s:%d]", s.Address, s.Port)
 }

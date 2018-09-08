@@ -17,10 +17,14 @@ import (
 	"github.com/modprox/libmodprox/repository"
 )
 
+// todo: make this abstract over the HTTP methods, rather than
+// implementing methods for every use case. let other packages
+// provide those.
+
 // A Client is used to make requests to any one of a group of
 // modprox-registry services working together.
 type Client interface {
-	ModInfos() ([]repository.ModInfo, error)
+	Modules() ([]repository.ModInfo, error)
 }
 
 type Options struct {
@@ -44,7 +48,7 @@ func NewClient(options Options) Client {
 	}
 }
 
-func (c *client) ModInfos() ([]repository.ModInfo, error) {
+func (c *client) Modules() ([]repository.ModInfo, error) {
 	path := "/v1/registry/sources/list"
 	modInfos := make([]repository.ModInfo, 0, 100)
 	err := c.get(path, &modInfos)
