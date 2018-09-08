@@ -19,6 +19,8 @@
     "request_timeout_s": 10
   },
   "module_storage": {
-    "path": "/tmp/modprox-modules"
+    "data_path": "/tmp/mod-zips",
+    "index_path": "/tmp/mod-index-v0",
+    "tmp_path": "/tmp"
   }
 }

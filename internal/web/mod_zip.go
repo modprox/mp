@@ -9,11 +9,11 @@ import (
 )
 
 type moduleZip struct {
-	store store.Store
+	store store.ZipStore
 	log   loggy.Logger
 }
 
-func modZip(store store.Store) http.Handler {
+func modZip(store store.ZipStore) http.Handler {
 	return &moduleZip{
 		store: store,
 		log:   loggy.New("mod-zip"),
@@ -31,7 +31,7 @@ func (h *moduleZip) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.log.Infof("serving request for .zip file of %s", mod)
 
-	zipBlob, err := h.store.Get(mod)
+	zipBlob, err := h.store.GetZip(mod)
 	if err != nil {
 		h.log.Warnf("failed to get zip file of %s, %v", mod, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

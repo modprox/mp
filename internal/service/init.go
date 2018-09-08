@@ -21,32 +21,21 @@ import (
 type initer func(*Proxy) error
 
 func initIndex(p *Proxy) error {
-	// this is the same as the store path for now,
-	// because for MVP the index is just another view
-	// of the filesystem where the modules are
-	//
-	// later, we could keep the index in memory if performance
-	// is lacking reading the filesystem all the time
-	storePath := p.config.ModuleStorage.Path
-	if storePath == "" {
-		return errors.New("module_storage.path is required")
-	}
-
-	p.index = store.NewIndex(store.IndexOptions{
-		Directory: storePath,
+	var err error
+	indexPath := p.config.ModuleStorage.IndexPath
+	p.index, err = store.NewIndex(store.IndexOptions{
+		Directory: indexPath,
 	})
-
-	return nil
+	return err
 }
 
 func initStore(p *Proxy) error {
-	storePath := p.config.ModuleStorage.Path
+	storePath := p.config.ModuleStorage.DataPath
 	if storePath == "" {
 		return errors.New("module_storage.path is required")
 	}
 
-	tmpPath := p.config.ModuleStorage.Tmp
-
+	tmpPath := p.config.ModuleStorage.TmpPath
 	p.store = store.NewStore(store.Options{
 		Directory:    storePath,
 		TmpDirectory: tmpPath,

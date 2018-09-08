@@ -1,6 +1,7 @@
 package background
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/modprox/libmodprox/clients/registry"
@@ -25,7 +26,7 @@ type reloadWorker struct {
 	options        Options
 	registryClient registry.Client
 	index          store.Index
-	store          store.Store
+	store          store.ZipStore
 	resolver       upstream.Resolver
 	downloader     zips.Client
 	log            loggy.Logger
@@ -35,7 +36,7 @@ func NewReloader(
 	options Options,
 	registryClient registry.Client,
 	index store.Index,
-	store store.Store,
+	store store.ZipStore,
 	resolver upstream.Resolver,
 	downloader zips.Client,
 ) Reloader {
@@ -138,5 +139,34 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 		return err
 	}
 
-	return w.store.Put(mod, rewritten)
+	if err := w.store.PutZip(mod, rewritten); err != nil {
+		w.log.Errorf("failed to save blob to zip store for %s, %v", mod, err)
+		return err
+	}
+
+	modFile, exists, err := rewritten.ModFile()
+	if err != nil {
+		w.log.Errorf("failed to re-read re-written zip file for %s, %v", mod, err)
+		return err
+	}
+	if !exists {
+		modFile = emptyModFile(mod)
+	}
+
+	ma := store.ModuleAddition{
+		Mod:      mod,
+		UniqueID: 666, // todo: send from registry
+		ModFile:  modFile,
+	}
+
+	if err := w.index.Put(ma); err != nil {
+		w.log.Errorf("failed to updated index for %s, %v", mod, err)
+		return err
+	}
+
+	return nil
+}
+
+func emptyModFile(mod repository.ModInfo) string {
+	return fmt.Sprintf("module %s\n", mod.Source)
 }

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"os"
+
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/libmodprox/clients/zips"
 	"github.com/modprox/libmodprox/loggy"
@@ -12,7 +14,7 @@ import (
 type Proxy struct {
 	config         config.Configuration
 	index          store.Index
-	store          store.Store
+	store          store.ZipStore
 	registryClient registry.Client
 	zipsClient     zips.Client
 	reloader       background.Reloader
@@ -36,7 +38,7 @@ func NewProxy(configuration config.Configuration) *Proxy {
 	} {
 		if err := f(p); err != nil {
 			p.log.Errorf("failed to initialize proxy: %v", err)
-			panic(err)
+			os.Exit(1)
 		}
 	}
 

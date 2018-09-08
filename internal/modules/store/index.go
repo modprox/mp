@@ -1,145 +1,242 @@
 package store
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
+	"time"
+
+	"github.com/boltdb/bolt"
+	"github.com/pkg/errors"
 
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 )
+
+// the index is used to return content/info:
+// - .mod files
+// - .info files
+// - boolean whether a module@version is in the store
+// - list of versions in the store for a module
+//
+// in the future, we will need to
+// - know the uniqueID of the module, assigned by the registry
+//   for the use case of giving the registry an optimized gap-list
+//   describing which modules we already have, so the registry
+//   can respond with a minimized list of modules the proxy needs
+//   to download
 
 type Index interface {
 	List(module string) ([]string, error)
 	Info(repository.ModInfo) (repository.RevInfo, error)
 	Mod(repository.ModInfo) (string, error) // go.mod
 	Contains(repository.ModInfo) (bool, error)
+	Put(ModuleAddition) error
+}
+
+type ModuleAddition struct {
+	Mod      repository.ModInfo
+	UniqueID uint64
+	ModFile  string
 }
 
 type IndexOptions struct {
-	Directory string
+	Directory   string
+	OpenTimeout time.Duration
 }
 
-func NewIndex(options IndexOptions) Index {
+func NewIndex(options IndexOptions) (Index, error) {
+	log := loggy.New("bolt-index")
+
 	if options.Directory == "" {
-		panic("no directory set for index")
+		return nil, errors.New("no directory set for index")
 	}
 
-	return &fsIndex{
-		options: options,
-		log:     loggy.New("fs-index"),
+	openTimeout := options.OpenTimeout
+	if openTimeout <= 0 {
+		openTimeout = 10 * time.Second
 	}
+
+	if err := setupDirs(options.Directory); err != nil {
+		return nil, errors.Wrap(err, "unable to make directories for modprox.db")
+	}
+
+	dbPath := filepath.Join(options.Directory, "modprox.db")
+	db, err := bolt.Open(dbPath, 0660, &bolt.Options{
+		Timeout: openTimeout,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to open modprox.db")
+	}
+
+	if err := initDB(db); err != nil {
+		return nil, errors.Wrap(err, "unable to initialize modprox.db")
+	}
+
+	return &boltIndex{
+		options: options,
+		db:      db,
+		log:     log,
+	}, nil
 }
 
-// fsIndex is an MVP implementation of Index which just
-// retrieves all the information "live" from the actual
-// filesystem store. This is very slow, but easy to implement.
-type fsIndex struct {
+var (
+	modsBktLbl = []byte("mods")
+	infoBktLbl = []byte("info")
+	idBktLbl   = []byte("ids")
+)
+
+func setupDirs(indexPath string) error {
+	return os.MkdirAll(indexPath, 0770)
+}
+
+func initDB(db *bolt.DB) error {
+	return db.Update(func(tx *bolt.Tx) error {
+		if _, err := tx.CreateBucketIfNotExists([]byte(modsBktLbl)); err != nil {
+			return err
+		}
+
+		if _, err := tx.CreateBucketIfNotExists([]byte(infoBktLbl)); err != nil {
+			return err
+		}
+
+		if _, err := tx.CreateBucketIfNotExists([]byte(idBktLbl)); err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+type boltIndex struct {
 	options IndexOptions
+	db      *bolt.DB
 	log     loggy.Logger
 }
 
-func (i *fsIndex) List(module string) ([]string, error) {
-	versionsDir := i.versionsPathOf(module)
-	list, err := ioutil.ReadDir(versionsDir)
-	if err != nil {
-		i.log.Errorf("unable to list versions directory for %s, %v", module, err)
-		return nil, err
-	}
+func (i *boltIndex) List(module string) ([]string, error) {
+	// produces an ordered list of version strings
 
-	zips := make([]string, 0, 10)
-	for _, file := range list {
-		if strings.HasSuffix(file.Name(), ".zip") {
-			version := strings.TrimSuffix(file.Name(), ".zip")
-			zips = append(zips, version)
+	prefix := []byte(module)
+	var versions []string
+
+	err := i.db.View(func(tx *bolt.Tx) error {
+		cursor := tx.Bucket(idBktLbl).Cursor()
+		for key, _ := cursor.Seek(prefix); key != nil && bytes.HasPrefix(key, prefix); key, _ = cursor.Next() {
+			version := versionOf(key)
+			versions = append(versions, version)
 		}
-	}
+		return nil
+	})
 
-	return zips, nil
+	// todo: sort versions using common lib
+	sort.Strings(versions) // incorrect
+
+	return versions, err
 }
 
-func (i *fsIndex) versionsPathOf(module string) string {
-	return filepath.Join(
-		i.options.Directory,
-		filepath.FromSlash(module),
-	)
+func versionOf(key []byte) string {
+	s := string(key)
+	vIdx := strings.Index(s, "@")
+	return s[vIdx+1:]
 }
 
-func (i *fsIndex) zipFilePath(mod repository.ModInfo) string {
-	return filepath.Join(
-		i.versionsPathOf(mod.Source),
-		mod.Version,
-	) + ".zip"
-}
-
-func (i *fsIndex) Info(mod repository.ModInfo) (repository.RevInfo, error) {
+func (i *boltIndex) Info(mod repository.ModInfo) (repository.RevInfo, error) {
+	key := mod.Bytes()
 	var revInfo repository.RevInfo
-	revInfoPath := i.revInfoPath(mod)
-	i.log.Tracef("looking up revinfo at path %s", revInfoPath)
+	var content []byte
 
-	f, err := os.Open(revInfoPath)
-	if err != nil {
-		i.log.Errorf("failed to open revinfo file at %s", revInfoPath)
-		return revInfo, err
-	}
-	defer f.Close()
-
-	if err := json.NewDecoder(f).Decode(&revInfo); err != nil {
-		return revInfo, err
-	}
-
-	return revInfo, nil
-}
-
-func (i *fsIndex) revInfoPath(mod repository.ModInfo) string {
-	return filepath.Join(
-		i.versionsPathOf(mod.Source),
-		mod.Version,
-	) + ".info"
-}
-
-func (i *fsIndex) Mod(mod repository.ModInfo) (string, error) {
-	modFilePath := i.modFilePath(mod)
-	i.log.Tracef("looking up mod file at path %s", modFilePath)
-
-	bs, err := ioutil.ReadFile(modFilePath)
-	if err != nil {
-		return "", err
-	}
-	return string(bs), nil
-}
-
-func (i *fsIndex) modFilePath(mod repository.ModInfo) string {
-	return filepath.Join(
-		i.versionsPathOf(mod.Source),
-		mod.Version,
-	) + ".mod"
-}
-
-func (i *fsIndex) Contains(mod repository.ModInfo) (bool, error) {
-	modFilePath := i.modFilePath(mod)
-	infoFilePath := i.revInfoPath(mod)
-	zipFilePath := i.zipFilePath(mod)
-	return filesExist(modFilePath, infoFilePath, zipFilePath)
-}
-
-func filesExist(filePaths ...string) (bool, error) {
-	for _, filePath := range filePaths {
-		if _, err := os.Stat(filePath); err != nil {
-			if os.IsNotExist(err) {
-				// file does not exist, no error while
-				// trying to detect the existence
-				return false, nil
-			}
-			// some error occurred while checking if the
-			// file exists
-			return false, err
+	if err := i.db.View(func(tx *bolt.Tx) error {
+		infoBkt := tx.Bucket(infoBktLbl)
+		bs := infoBkt.Get(key) // must copy inside tx
+		content = make([]byte, len(bs))
+		copy(content, bs)
+		if bs == nil {
+			return errors.New("module not in index")
 		}
-		continue // file exists
+		return nil
+	}); err != nil {
+		return revInfo, err
 	}
 
-	// no errors stat-ing each file, so they must all exist
-	return true, nil
+	err := json.Unmarshal(content, &revInfo)
+	return revInfo, err
+}
+
+func (i *boltIndex) Mod(mod repository.ModInfo) (string, error) {
+	key := mod.Bytes()
+	var content string
+
+	err := i.db.View(func(tx *bolt.Tx) error {
+		modBkt := tx.Bucket(modsBktLbl)
+		bs := modBkt.Get(key)
+		content = string(bs)
+		if bs == nil {
+			return errors.New("module not in index")
+		}
+		return nil
+	})
+
+	return content, err
+}
+
+func (i *boltIndex) Contains(mod repository.ModInfo) (bool, error) {
+	key := mod.Bytes()
+	var exists bool
+
+	err := i.db.View(func(tx *bolt.Tx) error {
+		idBkt := tx.Bucket(idBktLbl)
+		bs := idBkt.Get(key)
+		exists = bs != nil
+		return nil
+	})
+
+	return exists, err
+}
+
+func (i *boltIndex) Put(add ModuleAddition) error {
+	key := add.Mod.Bytes()
+
+	// update the three buckets with the new information
+	return i.db.Update(func(tx *bolt.Tx) error {
+		// insert the .mod file
+		{
+			modFile := []byte(add.ModFile)
+			modsBkt := tx.Bucket(modsBktLbl)
+			if err := modsBkt.Put(key, modFile); err != nil {
+				return err
+			}
+		}
+
+		// insert the .info file
+		{
+			infoFile := newRevInfo(add.Mod).Bytes()
+			infoBkt := tx.Bucket(infoBktLbl)
+			if err := infoBkt.Put(key, infoFile); err != nil {
+				return err
+			}
+		}
+
+		// insert the uniqueID
+		{
+			var encodedID = make([]byte, 8) // 8 bytes in uint64
+			binary.BigEndian.PutUint64(encodedID, add.UniqueID)
+			idBkt := tx.Bucket(idBktLbl)
+			if err := idBkt.Put(key, encodedID); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
+func newRevInfo(mod repository.ModInfo) repository.RevInfo {
+	// todo: ... what goes in the revinfo?
+	return repository.RevInfo{
+		Version: mod.Version,
+	}
 }
