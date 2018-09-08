@@ -3,33 +3,34 @@ package heartbeat
 import (
 	"time"
 
-	"github.com/modprox/libmodprox/loggy"
 	"github.com/shoenig/toolkit"
+
+	"github.com/modprox/libmodprox/loggy"
+	"github.com/modprox/modprox-proxy/internal/modules/store"
 )
 
 type PokeLooper interface {
 	Loop()
 }
 
-func NewLooper(interval time.Duration, sender Sender) PokeLooper {
+func NewLooper(
+	interval time.Duration,
+	index store.Index,
+	sender Sender,
+) PokeLooper {
 	return &looper{
 		interval: interval,
+		index:    index,
 		sender:   sender,
 		log:      loggy.New("heartbeat-looper"),
-
-		numPackages: 1,
-		numModules:  2,
 	}
 }
 
 type looper struct {
 	interval time.Duration
+	index    store.Index
 	sender   Sender
 	log      loggy.Logger
-
-	// todo: get real information
-	numPackages int
-	numModules  int
 }
 
 // Loop will block and run forever, sending heartbeats
@@ -40,11 +41,15 @@ func (l *looper) Loop() {
 }
 
 func (l *looper) loop() error {
-	// todo: get real information
+	// todo: get real information, depends on proxy #14
+	// todo: when we have a boltdb and can maintain a separate
+	// todo: table with this information indexed
+	numPackages := 1
+	numModules := 2
 
 	if err := l.sender.Send(
-		l.numPackages,
-		l.numModules,
+		numPackages,
+		numModules,
 	); err != nil {
 		l.log.Warnf("could not send heartbeat, will try again later", err)
 		return nil // always nil, never stop

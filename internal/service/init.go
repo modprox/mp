@@ -171,6 +171,7 @@ func initHeartbeatSender(p *Proxy) error {
 
 	looper := heartbeat.NewLooper(
 		10*time.Second,
+		p.index,
 		sender,
 	)
 
