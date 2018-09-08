@@ -28,6 +28,7 @@ type APIServer struct {
 
 type Storage struct {
 	Path string `json:"path"`
+	Tmp  string `json:"tmp"`
 }
 
 type instances = []netservice.Instance

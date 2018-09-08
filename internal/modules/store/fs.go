@@ -9,19 +9,26 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/rboyer/safeio"
+	"github.com/shoenig/atomicfs"
 
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 )
 
+const (
+	filePerm      = 0660
+	directoryPerm = 0770
+)
+
 type fsStore struct {
 	options Options
+	writer  atomicfs.FileWriter
 	log     loggy.Logger
 }
 
 type Options struct {
-	Directory string
+	Directory    string
+	TmpDirectory string
 }
 
 func NewStore(options Options) Store {
@@ -29,8 +36,14 @@ func NewStore(options Options) Store {
 		panic("no directory set for store")
 	}
 
+	writer := atomicfs.NewFileWriter(atomicfs.FileWriterOptions{
+		TmpDirectory: options.TmpDirectory,
+		Mode:         filePerm,
+	})
+
 	return &fsStore{
 		options: options,
+		writer:  writer,
 		log:     loggy.New("fs-store"),
 	}
 }
@@ -78,11 +91,6 @@ func (s *fsStore) Put(mod repository.ModInfo, blob repository.Blob) error {
 	return nil
 }
 
-const (
-	filePerm      = 0660
-	directoryPerm = 0770
-)
-
 func (s *fsStore) safeWriteZip(mod repository.ModInfo, blob repository.Blob) error {
 	modPath := s.fullPathOf(mod)
 	s.log.Tracef("writing module zip into path: %s", modPath)
@@ -94,8 +102,7 @@ func (s *fsStore) safeWriteZip(mod repository.ModInfo, blob repository.Blob) err
 
 	zipFile := filepath.Join(modPath, zipName(mod))
 	reader := bytes.NewReader(blob)
-	_, err := safeio.WriteToFile(reader, zipFile, filePerm)
-	return err
+	return s.writer.Write(reader, zipFile)
 }
 
 func (s *fsStore) safeWriteModFile(mod repository.ModInfo, blob repository.Blob) error {
@@ -114,8 +121,7 @@ func (s *fsStore) safeWriteModFile(mod repository.ModInfo, blob repository.Blob)
 	}
 
 	reader := strings.NewReader(content)
-	_, err = safeio.WriteToFile(reader, modFile, filePerm)
-	return err
+	return s.writer.Write(reader, modFile)
 }
 
 func (s *fsStore) safeWriteInfoFile(mod repository.ModInfo) error {
@@ -127,8 +133,7 @@ func (s *fsStore) safeWriteInfoFile(mod repository.ModInfo) error {
 	content := revInfo.String()
 
 	reader := strings.NewReader(content)
-	_, err := safeio.WriteToFile(reader, infoFile, filePerm)
-	return err
+	return s.writer.Write(reader, infoFile)
 }
 
 func zipName(mod repository.ModInfo) string {

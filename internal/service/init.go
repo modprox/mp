@@ -45,8 +45,11 @@ func initStore(p *Proxy) error {
 		return errors.New("module_storage.path is required")
 	}
 
+	tmpPath := p.config.ModuleStorage.Tmp
+
 	p.store = store.NewStore(store.Options{
-		Directory: storePath,
+		Directory:    storePath,
+		TmpDirectory: tmpPath,
 	})
 
 	return nil
