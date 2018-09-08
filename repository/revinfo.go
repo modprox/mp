@@ -19,3 +19,11 @@ func (ri RevInfo) String() string {
 	}
 	return string(bs)
 }
+
+func (ri RevInfo) Bytes() []byte {
+	bs, err := json.Marshal(ri)
+	if err != nil {
+		panic(err)
+	}
+	return bs
+}

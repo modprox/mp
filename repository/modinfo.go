@@ -16,6 +16,14 @@ func (mi ModInfo) String() string {
 	return fmt.Sprintf("(%s @ %s)", mi.Source, mi.Version)
 }
 
+func (mi ModInfo) Bytes() []byte {
+	return []byte(fmt.Sprintf(
+		"%s@%s",
+		mi.Source,
+		mi.Version,
+	))
+}
+
 var (
 // examples
 //  mod file style
