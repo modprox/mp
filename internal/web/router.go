@@ -16,7 +16,7 @@ const (
 
 func NewRouter(
 	index store.Index,
-	store store.Store,
+	store store.ZipStore,
 ) http.Handler {
 
 	router := mux.NewRouter()

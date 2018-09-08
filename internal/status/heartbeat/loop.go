@@ -51,7 +51,7 @@ func (l *looper) loop() error {
 		numPackages,
 		numModules,
 	); err != nil {
-		l.log.Warnf("could not send heartbeat, will try again later", err)
+		l.log.Warnf("could not send heartbeat, will try again later: %v", err)
 		return nil // always nil, never stop
 	}
 
