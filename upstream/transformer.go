@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shoenig/toolkit"
 
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/repository"
 )
 
 // A Resolver is able to turn the globally unique identifier of
@@ -25,7 +25,7 @@ type Resolver interface {
 	// Resolve applies any underlying Transform operations
 	// and returns the resulting Request, or an error if
 	// one of the Transform operations does not work.
-	Resolve(repository.ModInfo) (*Request, error)
+	Resolve(coordinates.Module) (*Request, error)
 }
 
 // A Transform is one operation that is applied to a Request,
@@ -54,7 +54,7 @@ func NewResolver(transforms ...Transform) Resolver {
 	}
 }
 
-func (r *resolver) Resolve(mod repository.ModInfo) (*Request, error) {
+func (r *resolver) Resolve(mod coordinates.Module) (*Request, error) {
 	request, err := NewRequest(mod)
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (r *resolver) Resolve(mod repository.ModInfo) (*Request, error) {
 // initial Request is likely useless, as it only becomes useful after
 // a set of Transform operations are applied to it, which then compute
 // correct URI for the module it represents.
-func NewRequest(mod repository.ModInfo) (*Request, error) {
+func NewRequest(mod coordinates.Module) (*Request, error) {
 	domain, namespace, err := splitSource(mod.Source)
 	if err != nil {
 		return nil, err

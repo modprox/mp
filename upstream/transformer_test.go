@@ -4,7 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/modprox/libmodprox/repository"
+	"github.com/modprox/libmodprox/coordinates"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,7 +14,7 @@ func ns(path string) Namespace {
 }
 
 func Test_NewRequest(t *testing.T) {
-	mod := repository.ModInfo{
+	mod := coordinates.Module{
 		Source:  "github.com/shoenig/toolkit",
 		Version: "v1.0.1",
 	}
@@ -32,7 +33,7 @@ func Test_NewRequest_no_path_is_ok(t *testing.T) {
 	// An example pulled from real life, go.opencensus.io is
 	// itself pointed at a repository using go-get meta.
 	// It has no path.
-	mod := repository.ModInfo{
+	mod := coordinates.Module{
 		Source:  "go.opencensus.io",
 		Version: "v0.15.0",
 	}

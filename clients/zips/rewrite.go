@@ -9,6 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/repository"
 )
 
@@ -17,7 +18,7 @@ import (
 //
 // most of this code is inspired from go/src/cmd/go/internal/modfetch/coderepo.go
 
-func Rewrite(mod repository.ModInfo, b repository.Blob) (repository.Blob, error) {
+func Rewrite(mod coordinates.Module, b repository.Blob) (repository.Blob, error) {
 	in := bytes.NewReader(b)
 	unzip, err := zip.NewReader(in, int64(len(b)))
 	if err != nil {

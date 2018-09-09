@@ -1,28 +1,12 @@
 package repository
 
 import (
-	"fmt"
 	"strings"
+
+	"github.com/modprox/libmodprox/coordinates"
 
 	"github.com/pkg/errors"
 )
-
-type ModInfo struct {
-	Source  string `json:"source"`
-	Version string `json:"version"`
-}
-
-func (mi ModInfo) String() string {
-	return fmt.Sprintf("(%s @ %s)", mi.Source, mi.Version)
-}
-
-func (mi ModInfo) Bytes() []byte {
-	return []byte(fmt.Sprintf(
-		"%s@%s",
-		mi.Source,
-		mi.Version,
-	))
-}
 
 var (
 // examples
@@ -36,7 +20,7 @@ var (
 )
 
 // Parse will parse s as a module in string form.
-func Parse(s string) (ModInfo, error) {
+func Parse(s string) (coordinates.Module, error) {
 	orig := s
 	s = strings.Trim(s, "/")
 	s = strings.TrimSuffix(s, ".info")
@@ -44,16 +28,16 @@ func Parse(s string) (ModInfo, error) {
 	s = strings.TrimSuffix(s, ".mod")
 	s = strings.Replace(s, "/@v/", " ", -1)
 
+	var mod coordinates.Module
 	split := strings.Fields(s)
 	if len(split) < 2 {
-		return ModInfo{}, errors.Errorf("malformed module line: %q", orig)
+		return mod, errors.Errorf("malformed module line: %q", orig)
 	}
 
 	source := strings.TrimSuffix(split[0], "/")
 	version := split[1]
 
-	return ModInfo{
-		Source:  source,
-		Version: version,
-	}, nil
+	mod.Source = source
+	mod.Version = version
+	return mod, nil
 }
