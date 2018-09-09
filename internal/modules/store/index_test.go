@@ -1,6 +1,7 @@
 package store
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -29,6 +30,13 @@ func cleanupIndex(t *testing.T, tmpDir string) {
 	require.NoError(t, err)
 }
 
+func newMod(source, version string) repository.ModInfo {
+	return repository.ModInfo{
+		Source:  source,
+		Version: version,
+	}
+}
+
 func Test_Index_empty(t *testing.T) {
 	tmpDir, index := setupIndex(t)
 	defer cleanupIndex(t, tmpDir)
@@ -37,22 +45,22 @@ func Test_Index_empty(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 0, len(versions))
 
-	_, err = index.Info(repository.ModInfo{
-		Source:  "github.com/pkg/errors",
-		Version: "v0.8.0",
-	})
+	_, err = index.Info(newMod(
+		"github.com/pkg/errors",
+		"v0.8.0",
+	))
 	require.Error(t, err)
 
-	_, err = index.Mod(repository.ModInfo{
-		Source:  "github.com/pkg/errors",
-		Version: "v0.8.0",
-	})
+	_, err = index.Mod(newMod(
+		"github.com/pkg/errors",
+		"v0.8.0",
+	))
 	require.Error(t, err)
 
-	exists, err := index.Contains(repository.ModInfo{
-		Source:  "github.com/pkg/errors",
-		Version: "v0.8.0",
-	})
+	exists, err := index.Contains(newMod(
+		"github.com/pkg/errors",
+		"v0.8.0",
+	))
 	require.NoError(t, err)
 	require.False(t, exists)
 }
@@ -80,35 +88,149 @@ func Test_Index_Put_1(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 0, len(versions))
 
-	info, err := index.Info(repository.ModInfo{
-		Source:  "github.com/pkg/errors",
-		Version: "v0.8.0",
-	})
+	info, err := index.Info(newMod(
+		"github.com/pkg/errors",
+		"v0.8.0",
+	))
 	require.NoError(t, err)
 	require.Equal(t, repository.RevInfo{
 		Version: "v0.8.0",
 	}, info)
 
 	// not the module added
-	_, err = index.Info(repository.ModInfo{
-		Source:  "gitlab.com/some/other",
-		Version: "v0.0.0",
-	})
+	_, err = index.Info(newMod(
+		"github.com/pkg/errors",
+		"v6.6.6",
+	))
 	require.Error(t, err)
 
-	modFile, err := index.Mod(repository.ModInfo{
-		Source:  "github.com/pkg/errors",
-		Version: "v0.8.0",
-	})
+	modFile, err := index.Mod(newMod(
+		"github.com/pkg/errors",
+		"v0.8.0",
+	))
 	require.NoError(t, err)
 	require.Equal(t, "module github.com/pkg/errors", modFile)
 
 	// not the module added
-	_, err = index.Mod(repository.ModInfo{
-		Source:  "gitlab.com/some/other",
-		Version: "v0.0.0",
-	})
+	_, err = index.Mod(newMod(
+		"github.com/pkg/errors",
+		"v6.6.6",
+	))
 	require.Error(t, err)
 }
 
 // todo: test were we put several in, and test version sorting
+
+func insert(t *testing.T, index Index, pkg string, id int) {
+	err := index.Put(ModuleAddition{
+		Mod: repository.ModInfo{
+			Source:  pkg,
+			Version: fmt.Sprintf("v0.0.%d", id),
+		},
+		ModFile:  fmt.Sprintf("module %s", pkg),
+		UniqueID: uint64(id),
+	})
+	require.NoError(t, err)
+}
+
+func Test_IDs_empty(t *testing.T) {
+	tmpDir, index := setupIndex(t)
+	defer cleanupIndex(t, tmpDir)
+
+	ids, err := index.IDs()
+	require.NoError(t, err)
+	require.Equal(t, [][2]int(nil), ids)
+}
+
+func Test_IDs(t *testing.T) {
+	tmpDir, index := setupIndex(t)
+	defer cleanupIndex(t, tmpDir)
+
+	insert(t, index, "github.com/pkg/errors", 1)
+	insert(t, index, "github.com/pkg/errors", 2)
+	insert(t, index, "github.com/pkg/errors", 3)
+	insert(t, index, "github.com/pkg/errors", 4)
+	insert(t, index, "github.com/pkg/errors", 5)
+
+	insert(t, index, "github.com/pkg/toolkit", 10)
+	insert(t, index, "github.com/pkg/toolkit", 11)
+	insert(t, index, "github.com/pkg/errors", 12)
+
+	insert(t, index, "github.com/pkg/errors", 20)
+
+	ids, err := index.IDs()
+	require.NoError(t, err)
+	require.Equal(t, [][2]int{
+		{1, 5}, {10, 12}, {20, 20},
+	}, ids)
+}
+
+func Test_ranges(t *testing.T) {
+	try := func(input []int, exp [][2]int) {
+		output := ranges(input)
+		require.Equal(t, exp, output)
+	}
+
+	try(
+		[]int{},
+		[][2]int(nil),
+	)
+
+	try(
+		[]int{5},
+		[][2]int{{5, 5}},
+	)
+
+	try(
+		[]int{7, 8},
+		[][2]int{{7, 8}},
+	)
+
+	try(
+		[]int{2, 3, 4, 7, 8, 10, 13},
+		[][2]int{{2, 4}, {7, 8}, {10, 10}, {13, 13}},
+	)
+
+	try(
+		[]int{0, 4, 5, 6, 7, 8, 23, 25, 26},
+		[][2]int{{0, 0}, {4, 8}, {23, 23}, {25, 26}},
+	)
+}
+
+func Test_first(t *testing.T) {
+	try := func(input []int, expRange [2]int, expLen int) {
+		incRange, lenRange := first(input)
+		require.Equal(t, expRange, incRange)
+		require.Equal(t, expLen, lenRange)
+	}
+
+	try(
+		[]int{},
+		[2]int{0, 0}, 0,
+	)
+
+	try(
+		[]int{5},
+		[2]int{5, 5}, 1,
+	)
+
+	try(
+		[]int{7, 8},
+		[2]int{7, 8}, 2,
+	)
+
+	try(
+		[]int{3, 6},
+		[2]int{3, 3}, 1,
+	)
+
+	try(
+		[]int{3, 4, 5, 6, 8, 9, 10},
+		[2]int{3, 6}, 4,
+	)
+
+	try(
+		[]int{4, 7, 8, 9},
+		[2]int{4, 4}, 1,
+	)
+}

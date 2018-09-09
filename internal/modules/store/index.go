@@ -17,25 +17,22 @@ import (
 	"github.com/modprox/libmodprox/repository"
 )
 
-// the index is used to return content/info:
-// - .mod files
-// - .info files
-// - boolean whether a module@version is in the store
-// - list of versions in the store for a module
+// The Index is used to provide:
+//  - .mod file content
+//  - .info file content
+//  - boolean whether a module@version exists in the store
+//  - list of versions of a given module that exist in the store
+//  - list of version intervals for all modules in the store
 //
-// in the future, we will need to
-// - know the uniqueID of the module, assigned by the registry
-//   for the use case of giving the registry an optimized gap-list
-//   describing which modules we already have, so the registry
-//   can respond with a minimized list of modules the proxy needs
-//   to download
-
+// The real implementation is an index backed by boltdb, so
+// we get better performance than keeping actual files on disk.
 type Index interface {
 	Versions(module string) ([]string, error)
 	Info(repository.ModInfo) (repository.RevInfo, error)
 	Mod(repository.ModInfo) (string, error) // go.mod
 	Contains(repository.ModInfo) (bool, error)
 	Put(ModuleAddition) error
+	IDs() ([][2]int, error)
 }
 
 type ModuleAddition struct {
@@ -239,4 +236,62 @@ func newRevInfo(mod repository.ModInfo) repository.RevInfo {
 	return repository.RevInfo{
 		Version: mod.Version,
 	}
+}
+
+func (i *boltIndex) IDs() ([][2]int, error) {
+	var ids []int // values in the bucket
+
+	err := i.db.View(func(tx *bolt.Tx) error {
+		idBkt := tx.Bucket(idBktLbl)
+		idBkt.ForEach(func(_, v []byte) error {
+			id := binary.BigEndian.Uint64(v)
+			ids = append(ids, int(id))
+			return nil
+		})
+
+		return nil
+	})
+
+	return ranges(ids), err
+}
+
+func ranges(ids []int) [][2]int {
+	var cuts [][2]int
+
+	sort.Ints(ids)
+
+	for {
+		if len(ids) == 0 {
+			return cuts
+		}
+
+		r, l := first(ids)
+		cuts = append(cuts, r)
+		ids = ids[l:]
+	}
+
+	panic("there is a bug in this program")
+}
+
+// just get the first sequence from ids
+// this could be done without building the intermediate
+// range, but meh (for now)
+func first(ids []int) ([2]int, int) {
+	if len(ids) == 0 {
+		return [2]int{0, 0}, 0
+	}
+
+	var seq []int
+	for i := 0; i < len(ids); i++ {
+		if i == 0 {
+			seq = append(seq, ids[i])
+		} else if ids[i-1] == ids[i]-1 {
+			seq = append(seq, ids[i])
+		} else {
+			break
+		}
+	}
+
+	includes := [2]int{seq[0], seq[len(seq)-1]}
+	return includes, len(seq)
 }
