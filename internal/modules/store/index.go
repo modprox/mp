@@ -13,9 +13,18 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
 
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 )
+
+// Ranges is an alias of coordinates.RangeIDs for brevity.
+type Ranges = coordinates.RangeIDs
+
+// Range is an alias of coordinates.RangeID for brevity.
+type Range = coordinates.RangeID
+
+//go:generate mockery -interface=Index -package=storetest
 
 // The Index is used to provide:
 //  - .mod file content
@@ -28,16 +37,16 @@ import (
 // we get better performance than keeping actual files on disk.
 type Index interface {
 	Versions(module string) ([]string, error)
-	Info(repository.ModInfo) (repository.RevInfo, error)
-	Mod(repository.ModInfo) (string, error) // go.mod
-	Contains(repository.ModInfo) (bool, error)
+	Info(coordinates.Module) (repository.RevInfo, error)
+	Mod(coordinates.Module) (string, error) // go.mod
+	Contains(coordinates.Module) (bool, error)
 	Put(ModuleAddition) error
-	IDs() ([][2]int, error)
+	IDs() (Ranges, error)
 }
 
 type ModuleAddition struct {
-	Mod      repository.ModInfo
-	UniqueID uint64
+	Mod      coordinates.Module
+	UniqueID int64
 	ModFile  string
 }
 
@@ -141,7 +150,7 @@ func versionOf(key []byte) string {
 	return s[vIdx+1:]
 }
 
-func (i *boltIndex) Info(mod repository.ModInfo) (repository.RevInfo, error) {
+func (i *boltIndex) Info(mod coordinates.Module) (repository.RevInfo, error) {
 	key := mod.Bytes()
 	var revInfo repository.RevInfo
 	var content []byte
@@ -163,7 +172,7 @@ func (i *boltIndex) Info(mod repository.ModInfo) (repository.RevInfo, error) {
 	return revInfo, err
 }
 
-func (i *boltIndex) Mod(mod repository.ModInfo) (string, error) {
+func (i *boltIndex) Mod(mod coordinates.Module) (string, error) {
 	key := mod.Bytes()
 	var content string
 
@@ -180,7 +189,7 @@ func (i *boltIndex) Mod(mod repository.ModInfo) (string, error) {
 	return content, err
 }
 
-func (i *boltIndex) Contains(mod repository.ModInfo) (bool, error) {
+func (i *boltIndex) Contains(mod coordinates.Module) (bool, error) {
 	key := mod.Bytes()
 	var exists bool
 
@@ -220,7 +229,7 @@ func (i *boltIndex) Put(add ModuleAddition) error {
 		// insert the uniqueID
 		{
 			var encodedID = make([]byte, 8) // 8 bytes in uint64
-			binary.BigEndian.PutUint64(encodedID, add.UniqueID)
+			binary.BigEndian.PutUint64(encodedID, uint64(add.UniqueID))
 			idBkt := tx.Bucket(idBktLbl)
 			if err := idBkt.Put(key, encodedID); err != nil {
 				return err
@@ -231,21 +240,21 @@ func (i *boltIndex) Put(add ModuleAddition) error {
 	})
 }
 
-func newRevInfo(mod repository.ModInfo) repository.RevInfo {
+func newRevInfo(mod coordinates.Module) repository.RevInfo {
 	// todo: ... what goes in the revinfo?
 	return repository.RevInfo{
 		Version: mod.Version,
 	}
 }
 
-func (i *boltIndex) IDs() ([][2]int, error) {
-	var ids []int // values in the bucket
+func (i *boltIndex) IDs() (Ranges, error) {
+	var ids []int64 // values in the bucket
 
 	err := i.db.View(func(tx *bolt.Tx) error {
 		idBkt := tx.Bucket(idBktLbl)
 		idBkt.ForEach(func(_, v []byte) error {
 			id := binary.BigEndian.Uint64(v)
-			ids = append(ids, int(id))
+			ids = append(ids, int64(id))
 			return nil
 		})
 
@@ -255,10 +264,12 @@ func (i *boltIndex) IDs() ([][2]int, error) {
 	return ranges(ids), err
 }
 
-func ranges(ids []int) [][2]int {
-	var cuts [][2]int
+func ranges(ids []int64) Ranges {
+	var cuts Ranges
 
-	sort.Ints(ids)
+	sort.Slice(ids, func(x, y int) bool {
+		return ids[x] < ids[y]
+	})
 
 	for {
 		if len(ids) == 0 {
@@ -276,12 +287,12 @@ func ranges(ids []int) [][2]int {
 // just get the first sequence from ids
 // this could be done without building the intermediate
 // range, but meh (for now)
-func first(ids []int) ([2]int, int) {
+func first(ids []int64) (Range, int) {
 	if len(ids) == 0 {
-		return [2]int{0, 0}, 0
+		return Range{0, 0}, 0
 	}
 
-	var seq []int
+	var seq []int64
 	for i := 0; i < len(ids); i++ {
 		if i == 0 {
 			seq = append(seq, ids[i])
@@ -292,6 +303,6 @@ func first(ids []int) ([2]int, int) {
 		}
 	}
 
-	includes := [2]int{seq[0], seq[len(seq)-1]}
+	includes := Range{seq[0], seq[len(seq)-1]}
 	return includes, len(seq)
 }

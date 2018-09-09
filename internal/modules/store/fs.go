@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shoenig/atomicfs"
 
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
 )
@@ -46,7 +47,7 @@ func NewStore(options Options) ZipStore {
 	}
 }
 
-func (s *fsStore) GetZip(mod repository.ModInfo) (repository.Blob, error) {
+func (s *fsStore) GetZip(mod coordinates.Module) (repository.Blob, error) {
 	s.log.Tracef("retrieving module %s", mod)
 	zipFile := filepath.Join(
 		s.fullPathOf(mod),
@@ -55,7 +56,7 @@ func (s *fsStore) GetZip(mod repository.ModInfo) (repository.Blob, error) {
 	return ioutil.ReadFile(zipFile)
 }
 
-func (s *fsStore) PutZip(mod repository.ModInfo, blob repository.Blob) error {
+func (s *fsStore) PutZip(mod coordinates.Module, blob repository.Blob) error {
 	s.log.Infof("will save %s do disk, %d bytes", mod, len(blob))
 	exists, err := s.exists(mod)
 	if err != nil {
@@ -75,7 +76,7 @@ func (s *fsStore) PutZip(mod repository.ModInfo, blob repository.Blob) error {
 	return nil
 }
 
-func (s *fsStore) safeWriteZip(mod repository.ModInfo, blob repository.Blob) error {
+func (s *fsStore) safeWriteZip(mod coordinates.Module, blob repository.Blob) error {
 	modPath := s.fullPathOf(mod)
 	s.log.Tracef("writing module zip into path: %s", modPath)
 
@@ -89,11 +90,11 @@ func (s *fsStore) safeWriteZip(mod repository.ModInfo, blob repository.Blob) err
 	return s.writer.Write(reader, zipFile)
 }
 
-func zipName(mod repository.ModInfo) string {
+func zipName(mod coordinates.Module) string {
 	return mod.Version + ".zip"
 }
 
-func (s *fsStore) exists(mod repository.ModInfo) (bool, error) {
+func (s *fsStore) exists(mod coordinates.Module) (bool, error) {
 	modPath := s.fullPathOf(mod)
 	_, err := os.Stat(modPath)
 	if os.IsNotExist(err) {
@@ -102,13 +103,13 @@ func (s *fsStore) exists(mod repository.ModInfo) (bool, error) {
 	return err != nil, err
 }
 
-func (s *fsStore) fullPathOf(mod repository.ModInfo) string {
+func (s *fsStore) fullPathOf(mod coordinates.Module) string {
 	return filepath.Join(
 		s.options.Directory,
 		pathOf(mod),
 	)
 }
 
-func pathOf(mod repository.ModInfo) string {
+func pathOf(mod coordinates.Module) string {
 	return filepath.FromSlash(mod.Source) // eh windows?
 }

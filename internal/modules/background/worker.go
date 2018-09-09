@@ -6,8 +6,8 @@ import (
 
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/libmodprox/clients/zips"
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/libmodprox/upstream"
 	"github.com/modprox/modprox-proxy/internal/modules/store"
 
@@ -23,31 +23,32 @@ type Reloader interface {
 }
 
 type reloadWorker struct {
-	options        Options
-	registryClient registry.Client
-	index          store.Index
-	store          store.ZipStore
-	resolver       upstream.Resolver
-	downloader     zips.Client
-	log            loggy.Logger
+	options           Options
+	registryClient    registry.Client
+	index             store.Index
+	store             store.ZipStore
+	downloader        zips.Client
+	resolver          upstream.Resolver
+	registryRequester RegistryAPI
+	log               loggy.Logger
 }
 
 func NewReloader(
 	options Options,
-	registryClient registry.Client,
 	index store.Index,
 	store store.ZipStore,
 	resolver upstream.Resolver,
+	registryRequester RegistryAPI,
 	downloader zips.Client,
 ) Reloader {
 	return &reloadWorker{
-		options:        options,
-		registryClient: registryClient,
-		index:          index,
-		store:          store,
-		resolver:       resolver,
-		downloader:     downloader,
-		log:            loggy.New("reload-worker"),
+		options:           options,
+		index:             index,
+		store:             store,
+		resolver:          resolver,
+		downloader:        downloader,
+		registryRequester: registryRequester,
+		log:               loggy.New("reload-worker"),
 	}
 }
 
@@ -83,8 +84,13 @@ func (w *reloadWorker) loop() error {
 	return nil
 }
 
-func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
-	mods, err := w.registryClient.Modules()
+func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
+	ids, err := w.index.IDs()
+	if err != nil {
+		return nil, err
+	}
+
+	mods, err := w.registryRequester.ModulesNeeded(ids)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +102,7 @@ func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
 
 	for _, mod := range mods {
 		// only download mod if we do not already have it
-		exists, err := w.index.Contains(mod)
+		exists, err := w.index.Contains(mod.Module)
 		if err != nil {
 			w.log.Errorf("problem with index lookups: %v", err)
 			continue // may as well try the others
@@ -117,8 +123,8 @@ func (w *reloadWorker) acquireMods() ([]repository.ModInfo, error) {
 	return mods, nil
 }
 
-func (w *reloadWorker) download(mod repository.ModInfo) error {
-	request, err := w.resolver.Resolve(mod)
+func (w *reloadWorker) download(mod coordinates.SerialModule) error {
+	request, err := w.resolver.Resolve(mod.Module)
 	if err != nil {
 		return err
 	}
@@ -133,13 +139,13 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 
 	w.log.Infof("downloaded blob of size: %d", len(blob))
 
-	rewritten, err := zips.Rewrite(mod, blob)
+	rewritten, err := zips.Rewrite(mod.Module, blob)
 	if err != nil {
 		w.log.Errorf("failed to rewrite blob for %s, %v", mod, err)
 		return err
 	}
 
-	if err := w.store.PutZip(mod, rewritten); err != nil {
+	if err := w.store.PutZip(mod.Module, rewritten); err != nil {
 		w.log.Errorf("failed to save blob to zip store for %s, %v", mod, err)
 		return err
 	}
@@ -154,8 +160,8 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 	}
 
 	ma := store.ModuleAddition{
-		Mod:      mod,
-		UniqueID: 666, // todo: send from registry
+		Mod:      mod.Module,
+		UniqueID: mod.SerialID,
 		ModFile:  modFile,
 	}
 
@@ -167,6 +173,6 @@ func (w *reloadWorker) download(mod repository.ModInfo) error {
 	return nil
 }
 
-func emptyModFile(mod repository.ModInfo) string {
-	return fmt.Sprintf("module %s\n", mod.Source)
+func emptyModFile(mod coordinates.SerialModule) string {
+	return fmt.Sprintf("module %s\n", mod.Module.Source)
 }

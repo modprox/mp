@@ -81,16 +81,18 @@ func initZipsClient(p *Proxy) error {
 
 func initRegistryReloader(p *Proxy) error {
 	reloadFreqS := time.Duration(p.config.Registry.PollFrequencyS) * time.Second
+	registryRequester := background.NewRegistryAPI(p.registryClient, p.index)
+
 	p.reloader = background.NewReloader(
 		background.Options{
 			Frequency: reloadFreqS,
 		},
-		p.registryClient,
 		p.index,
 		p.store,
 		upstream.NewResolver(
 			initTransforms(p)...,
 		),
+		registryRequester,
 		p.zipsClient,
 	)
 	p.reloader.Start()

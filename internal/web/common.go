@@ -3,6 +3,8 @@ package web
 import (
 	"strings"
 
+	"github.com/modprox/libmodprox/coordinates"
+
 	"github.com/modprox/libmodprox/repository"
 )
 
@@ -20,7 +22,7 @@ func moduleFromPath(p string) (string, error) {
 	//return p[0:vIdx], nil
 }
 
-func modInfoFromPath(p string) (repository.ModInfo, error) {
+func modInfoFromPath(p string) (coordinates.Module, error) {
 	p = demangle(p)
 	return repository.Parse(p)
 }

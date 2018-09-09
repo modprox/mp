@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/repository"
 
 	"github.com/stretchr/testify/require"
@@ -30,8 +31,8 @@ func cleanupIndex(t *testing.T, tmpDir string) {
 	require.NoError(t, err)
 }
 
-func newMod(source, version string) repository.ModInfo {
-	return repository.ModInfo{
+func newMod(source, version string) coordinates.Module {
+	return coordinates.Module{
 		Source:  source,
 		Version: version,
 	}
@@ -70,7 +71,7 @@ func Test_Index_Put_1(t *testing.T) {
 	defer cleanupIndex(t, tmpDir)
 
 	err := index.Put(ModuleAddition{
-		Mod: repository.ModInfo{
+		Mod: coordinates.Module{
 			Source:  "github.com/pkg/errors",
 			Version: "v0.8.0",
 		},
@@ -123,12 +124,12 @@ func Test_Index_Put_1(t *testing.T) {
 
 func insert(t *testing.T, index Index, pkg string, id int) {
 	err := index.Put(ModuleAddition{
-		Mod: repository.ModInfo{
+		Mod: coordinates.Module{
 			Source:  pkg,
 			Version: fmt.Sprintf("v0.0.%d", id),
 		},
 		ModFile:  fmt.Sprintf("module %s", pkg),
-		UniqueID: uint64(id),
+		UniqueID: int64(id),
 	})
 	require.NoError(t, err)
 }
@@ -139,7 +140,7 @@ func Test_IDs_empty(t *testing.T) {
 
 	ids, err := index.IDs()
 	require.NoError(t, err)
-	require.Equal(t, [][2]int(nil), ids)
+	require.Equal(t, Ranges(nil), ids)
 }
 
 func Test_IDs(t *testing.T) {
@@ -160,45 +161,45 @@ func Test_IDs(t *testing.T) {
 
 	ids, err := index.IDs()
 	require.NoError(t, err)
-	require.Equal(t, [][2]int{
+	require.Equal(t, Ranges{
 		{1, 5}, {10, 12}, {20, 20},
 	}, ids)
 }
 
 func Test_ranges(t *testing.T) {
-	try := func(input []int, exp [][2]int) {
+	try := func(input []int, exp Ranges) {
 		output := ranges(input)
 		require.Equal(t, exp, output)
 	}
 
 	try(
 		[]int{},
-		[][2]int(nil),
+		Ranges(nil),
 	)
 
 	try(
 		[]int{5},
-		[][2]int{{5, 5}},
+		Ranges{{5, 5}},
 	)
 
 	try(
 		[]int{7, 8},
-		[][2]int{{7, 8}},
+		Ranges{{7, 8}},
 	)
 
 	try(
 		[]int{2, 3, 4, 7, 8, 10, 13},
-		[][2]int{{2, 4}, {7, 8}, {10, 10}, {13, 13}},
+		Ranges{{2, 4}, {7, 8}, {10, 10}, {13, 13}},
 	)
 
 	try(
 		[]int{0, 4, 5, 6, 7, 8, 23, 25, 26},
-		[][2]int{{0, 0}, {4, 8}, {23, 23}, {25, 26}},
+		Ranges{{0, 0}, {4, 8}, {23, 23}, {25, 26}},
 	)
 }
 
 func Test_first(t *testing.T) {
-	try := func(input []int, expRange [2]int, expLen int) {
+	try := func(input []int, expRange Range, expLen int) {
 		incRange, lenRange := first(input)
 		require.Equal(t, expRange, incRange)
 		require.Equal(t, expLen, lenRange)
@@ -206,31 +207,31 @@ func Test_first(t *testing.T) {
 
 	try(
 		[]int{},
-		[2]int{0, 0}, 0,
+		Range{0, 0}, 0,
 	)
 
 	try(
 		[]int{5},
-		[2]int{5, 5}, 1,
+		Range{5, 5}, 1,
 	)
 
 	try(
 		[]int{7, 8},
-		[2]int{7, 8}, 2,
+		Range{7, 8}, 2,
 	)
 
 	try(
 		[]int{3, 6},
-		[2]int{3, 3}, 1,
+		Range{3, 3}, 1,
 	)
 
 	try(
 		[]int{3, 4, 5, 6, 8, 9, 10},
-		[2]int{3, 6}, 4,
+		Range{3, 6}, 4,
 	)
 
 	try(
 		[]int{4, 7, 8, 9},
-		[2]int{4, 4}, 1,
+		Range{4, 4}, 1,
 	)
 }
