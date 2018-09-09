@@ -80,12 +80,12 @@ func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
 		return http.StatusBadRequest, nil, err
 	}
 
-	sourcesAdded, tagsAdded, err := h.storeNewMods(mods)
+	modulesAdded, err := h.storeNewMods(mods)
 	if err != nil {
 		return http.StatusInternalServerError, nil, err
 	}
 
-	h.log.Tracef("added %d tags across %d sources:", tagsAdded, sourcesAdded)
+	h.log.Infof("added %d new modules", modulesAdded)
 
 	return http.StatusOK, &newPage{
 		Mods:      mods,
@@ -93,7 +93,7 @@ func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
 	}, nil
 }
 
-func (h *newHandler) storeNewMods(mods []Parsed) (int, int, error) {
+func (h *newHandler) storeNewMods(mods []Parsed) (int, error) {
 	ableToAdd := make([]repository.ModInfo, 0, len(mods))
 	for _, parsed := range mods {
 		if parsed.Err == nil {

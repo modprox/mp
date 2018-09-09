@@ -39,13 +39,13 @@ func registryAdd(store data.Store) http.HandlerFunc {
 			return
 		}
 
-		sourcesAdded, tagsAdded, err := store.AddMods(wantToAdd)
+		modulesAdded, err := store.AddMods(wantToAdd)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		msg := fmt.Sprintf("added %d tags across %d sources", tagsAdded, sourcesAdded)
+		msg := fmt.Sprintf("added %d new modules", modulesAdded)
 		webutil.WriteJSON(w, msg)
 	}
 }

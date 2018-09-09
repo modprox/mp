@@ -7,21 +7,24 @@ import (
 )
 
 const (
-	insertSourceSQL = iota
-	insertTagSQL
+	insertModuleSQL = iota
+	selectModuleIDSQL
 	selectSourcesScanSQL
-	insertRedirectSQL
-	selectRedirectsScanSQL
 	insertStartupConfigSQL
 	insertHeartbeatSQL
 )
 
 type statements map[int]*sql.Stmt
 
-func load(db *sql.DB) (statements, error) {
-	loaded := make(statements, len(sqlText))
+func load(kind string, db *sql.DB) (statements, error) {
+	loaded := make(statements, len(mySQLText))
 
-	for id, text := range sqlText {
+	stmtText := mySQLText
+	if kind == "postgres" {
+		stmtText = postgreSQLText
+	}
+
+	for id, text := range stmtText {
 		stmt, err := db.Prepare(text)
 		if err != nil {
 			return nil, errors.Wrapf(err, "bad sql statement: %q", text)
@@ -33,13 +36,15 @@ func load(db *sql.DB) (statements, error) {
 }
 
 var (
-	sqlText = map[int]string{
-		insertSourceSQL:        `insert into sources (source) values (?) on duplicate key update id=last_insert_id(id), source=source`,
-		insertTagSQL:           `insert into tags (tag, source_id) values (?, ?) on duplicate key update id=last_insert_id(id), tag=tag`,
-		selectSourcesScanSQL:   `select sources.id, sources.source, unix_timestamp(sources.created), tags.id, tags.tag, unix_timestamp(tags.created), tags.source_id from sources inner join (tags) on (tags.source_id=sources.id) order by sources.source asc, tags.tag desc`,
-		insertRedirectSQL:      `insert into redirects (original, substitution) values (?, ?) on duplicate key update original=original`,
-		selectRedirectsScanSQL: `select original, substitution from redirects order by original asc`,
-		insertStartupConfigSQL: `insert into proxy_configurations (hostname, port, transforms) values (?, ?, ?) on duplicate key update id=last_insert_id(id), transforms=?, ts=current_timestamp`,
-		insertHeartbeatSQL:     `insert into proxy_heartbeats (hostname, port, num_packages, num_modules) values (?, ?, ?, ?) on duplicate key update id=last_insert_id(id), num_packages=?, num_modules=?, ts=current_timestamp`,
+	mySQLText = map[int]string{
+		// todo: implement mysql queries
+	}
+
+	postgreSQLText = map[int]string{
+		insertModuleSQL:      `insert into modules (source, version) values ($1, $2)`,
+		selectModuleIDSQL:    `select id from modules where source=$1 and version=$2`,
+		selectSourcesScanSQL: `select id, source, version from modules`,
+		insertHeartbeatSQL:   `insert into proxy_heartbeats (hostname, port, num_packages, num_modules) values ($1, $2, $3, $4) on conflict (hostname, port) do update set num_packages=$5, num_modules=$6, ts=current_timestamp`,
+		// insertStartupConfigSQL`, // todo: write startup configs on startup
 	}
 )

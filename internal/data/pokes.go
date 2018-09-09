@@ -3,15 +3,11 @@ package data
 import "github.com/modprox/libmodprox/pokes"
 
 func (s *store) SetStartConfig(config pokes.StartConfig) error {
-	result, err := s.statements[insertStartupConfigSQL].Exec(
+	_, err := s.statements[insertStartupConfigSQL].Exec(
 		config.Self.Address,
 		config.Self.Port,
 		config.Transforms,
 	)
-	if err != nil {
-		return err
-	}
-	_, err = maybeAffectedN(result, 1)
 	return err
 }
 
