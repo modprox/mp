@@ -31,7 +31,7 @@ import (
 //   to download
 
 type Index interface {
-	List(module string) ([]string, error)
+	Versions(module string) ([]string, error)
 	Info(repository.ModInfo) (repository.RevInfo, error)
 	Mod(repository.ModInfo) (string, error) // go.mod
 	Contains(repository.ModInfo) (bool, error)
@@ -117,7 +117,7 @@ type boltIndex struct {
 	log     loggy.Logger
 }
 
-func (i *boltIndex) List(module string) ([]string, error) {
+func (i *boltIndex) Versions(module string) ([]string, error) {
 	// produces an ordered list of version strings
 
 	prefix := []byte(module)

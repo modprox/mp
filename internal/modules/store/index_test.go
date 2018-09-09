@@ -33,7 +33,7 @@ func Test_Index_empty(t *testing.T) {
 	tmpDir, index := setupIndex(t)
 	defer cleanupIndex(t, tmpDir)
 
-	versions, err := index.List("github.com/pkg/errors")
+	versions, err := index.Versions("github.com/pkg/errors")
 	require.NoError(t, err)
 	require.Equal(t, 0, len(versions))
 
@@ -71,12 +71,12 @@ func Test_Index_Put_1(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	versions, err := index.List("github.com/pkg/errors")
+	versions, err := index.Versions("github.com/pkg/errors")
 	require.NoError(t, err)
 	require.Equal(t, 1, len(versions))
 
 	// not the module added
-	versions, err = index.List("gitlab.com/some/other")
+	versions, err = index.Versions("gitlab.com/some/other")
 	require.NoError(t, err)
 	require.Equal(t, 0, len(versions))
 

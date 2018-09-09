@@ -31,7 +31,7 @@ func (h *moduleList) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.log.Infof("serving request for list module: %s", module)
 
-	listing, err := h.index.List(module)
+	listing, err := h.index.Versions(module)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
