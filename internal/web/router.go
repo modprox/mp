@@ -51,7 +51,7 @@ func routeStatics(files http.Handler) http.Handler {
 
 func routeAPI(store data.Store) http.Handler {
 	sub := mux.NewRouter()
-	sub.Handle("/v1/registry/sources/list", registryList(store)).Methods(get)
+	sub.Handle("/v1/registry/sources/list", newRegistryList(store)).Methods(get, post)
 	sub.Handle("/v1/registry/sources/new", registryAdd(store)).Methods(post)
 	sub.Handle("/v1/heartbeat/update", newHeartbeatHandler(store)).Methods(post)
 	return sub

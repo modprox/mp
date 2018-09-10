@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/modprox/modprox-registry/internal/data"
-
-	"github.com/modprox/modprox-registry/internal/web"
 	"github.com/pkg/errors"
+
+	"github.com/modprox/modprox-registry/internal/data"
+	"github.com/modprox/modprox-registry/internal/web"
 )
 
 type initer func(*Registry) error

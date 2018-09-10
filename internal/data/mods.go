@@ -3,39 +3,57 @@ package data
 import (
 	"database/sql"
 
+	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
-	"github.com/modprox/libmodprox/repository"
+	"github.com/modprox/libmodprox/coordinates"
 )
 
 type moduleTR struct {
 	id      int64
 	source  string
 	version string
-	// created int
 }
 
-func (s *store) ListMods() ([]repository.ModInfo, error) {
+func (s *store) ListModules() ([]coordinates.SerialModule, error) {
 	rows, err := s.statements[selectSourcesScanSQL].Query()
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	modules := make([]repository.ModInfo, 0, 10)
+	return modulesFromRows(rows)
+}
+
+func (s *store) ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error) {
+	rows, err := s.statements[selectModulesByIDsSQL].Query(
+		pq.Array(ids),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return modulesFromRows(rows)
+}
+
+func modulesFromRows(rows *sql.Rows) ([]coordinates.SerialModule, error) {
+	modules := make([]coordinates.SerialModule, 0, 10)
 	for rows.Next() {
 		var row moduleTR
 		if err := rows.Scan(
 			&row.id,
 			&row.source,
 			&row.version,
-			// &row.created,
 		); err != nil {
 			return nil, err
 		}
-		modules = append(modules, repository.ModInfo{
-			Source:  row.source,
-			Version: row.version,
+		modules = append(modules, coordinates.SerialModule{
+			SerialID: row.id,
+			Module: coordinates.Module{
+				Source:  row.source,
+				Version: row.version,
+			},
 		})
 	}
 
@@ -46,7 +64,30 @@ func (s *store) ListMods() ([]repository.ModInfo, error) {
 	return modules, nil
 }
 
-func (s *store) AddMods(modules []repository.ModInfo) (int, error) {
+func (s *store) ListModuleIDs() ([]int64, error) {
+	rows, err := s.statements[selectModuleIDScanSQL].Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	ids := make([]int64, 0, 1024)
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return ids, nil
+}
+
+func (s *store) InsertModules(modules []coordinates.Module) (int, error) {
 	modulesAdded := 0
 
 	for _, mod := range modules {
@@ -89,7 +130,7 @@ func (s *store) AddMods(modules []repository.ModInfo) (int, error) {
 	return modulesAdded, nil
 }
 
-func (s *store) isModuleInDB(tx *sql.Tx, mod repository.ModInfo) (int64, bool, error) {
+func (s *store) isModuleInDB(tx *sql.Tx, mod coordinates.Module) (int64, bool, error) {
 	rows, err := tx.Stmt(s.statements[selectModuleIDSQL]).Query(
 		mod.Source,
 		mod.Version,
@@ -126,7 +167,7 @@ func maybeGetID(rows *sql.Rows) (int64, bool, error) {
 	}
 }
 
-func (s *store) insertModuleInDB(tx *sql.Tx, mod repository.ModInfo) error {
+func (s *store) insertModuleInDB(tx *sql.Tx, mod coordinates.Module) error {
 	// the PQ library DOES NOT SUPPORT LastInsertId, DO NOT USE IT
 	_, err := tx.Stmt(s.statements[insertModuleSQL]).Exec(
 		mod.Source,

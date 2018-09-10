@@ -7,7 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type testHandler struct {}
+type testHandler struct{}
+
 func (h testHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	return

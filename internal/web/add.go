@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/modprox/libmodprox/coordinates"
+
 	"github.com/gorilla/csrf"
 
 	"github.com/modprox/libmodprox/loggy"
@@ -94,7 +96,7 @@ func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
 }
 
 func (h *newHandler) storeNewMods(mods []Parsed) (int, error) {
-	ableToAdd := make([]repository.ModInfo, 0, len(mods))
+	ableToAdd := make([]coordinates.Module, 0, len(mods))
 	for _, parsed := range mods {
 		if parsed.Err == nil {
 			ableToAdd = append(ableToAdd, parsed.Module)
@@ -105,12 +107,12 @@ func (h *newHandler) storeNewMods(mods []Parsed) (int, error) {
 		h.log.Tracef("[web] adding to registry: %s@%s", able.Source, able.Version)
 	}
 
-	return h.store.AddMods(ableToAdd)
+	return h.store.InsertModules(ableToAdd)
 }
 
 type Parsed struct {
 	Text   string
-	Module repository.ModInfo
+	Module coordinates.Module
 	Err    error
 }
 

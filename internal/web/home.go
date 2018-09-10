@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/static"
 )
 
 type linkable struct {
-	Module repository.ModInfo
+	Module coordinates.Module
 	WebURL string
 	TagURL string
 }
@@ -44,7 +44,7 @@ func newHomeHandler(store data.Store) http.Handler {
 func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.log.Tracef("serving up the homepage, path: %s", r.URL.Path)
 
-	modules, err := h.store.ListMods()
+	modules, err := h.store.ListModules()
 	if err != nil {
 		http.Error(w, "failed to list sources", http.StatusInternalServerError)
 		h.log.Tracef("failed to list sources: %v", err)
@@ -59,12 +59,12 @@ func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func linkables(modules []repository.ModInfo) []linkable {
+func linkables(modules []coordinates.SerialModule) []linkable {
 	l := make([]linkable, 0, len(modules))
 	for _, module := range modules {
-		webURL, tagURL := urlInfo(module)
+		webURL, tagURL := urlInfo(module.Module)
 		l = append(l, linkable{
-			Module: module,
+			Module: module.Module,
 			WebURL: webURL,
 			TagURL: tagURL,
 		})
@@ -72,7 +72,7 @@ func linkables(modules []repository.ModInfo) []linkable {
 	return l
 }
 
-func urlInfo(module repository.ModInfo) (string, string) {
+func urlInfo(module coordinates.Module) (string, string) {
 	if strings.HasPrefix(module.Source, "github") {
 		webURL := fmt.Sprintf("https://%s", module.Source)
 		tagURL := fmt.Sprintf("https://%s/releases/tag/%s", module.Source, module.Version)

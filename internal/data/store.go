@@ -8,11 +8,23 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/pokes"
-	"github.com/modprox/libmodprox/repository"
 	"github.com/modprox/modprox-registry/registry/config"
 )
+
+type Store interface {
+	// modules
+	ListModuleIDs() ([]int64, error)
+	ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error)
+	ListModules() ([]coordinates.SerialModule, error)
+	InsertModules([]coordinates.Module) (int, error)
+
+	// startup configs and pokes
+	SetStartConfig(pokes.StartConfig) error
+	SetHeartbeat(pokes.Heartbeat) error
+}
 
 func Connect(kind string, dsn config.DSN) (Store, error) {
 	var db *sql.DB
@@ -56,20 +68,6 @@ func connectPostgreSQL(dsn config.DSN) (*sql.DB, error) {
 		dsn.Database,
 	)
 	return sql.Open("postgres", connectStr)
-}
-
-type Store interface {
-	// modules
-	ListMods() ([]repository.ModInfo, error)
-	AddMods([]repository.ModInfo) (int, error)
-
-	// remove
-	ListRedirects() ([]repository.Redirect, error)
-	AddRedirect(repository.Redirect) error
-
-	// startup configs and pokes
-	SetStartConfig(pokes.StartConfig) error
-	SetHeartbeat(pokes.Heartbeat) error
 }
 
 func New(kind string, db *sql.DB) (Store, error) {
