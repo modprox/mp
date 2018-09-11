@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-proxy/internal/modules/store"
-	"github.com/modprox/modprox-proxy/internal/web/output"
+	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/proxy/internal/web/output"
 )
 
 type moduleZip struct {

@@ -12,10 +12,10 @@ import (
 	"github.com/modprox/libmodprox/clients/zips"
 	"github.com/modprox/libmodprox/netservice"
 	"github.com/modprox/libmodprox/upstream"
-	"github.com/modprox/modprox-proxy/internal/modules/background"
-	"github.com/modprox/modprox-proxy/internal/modules/store"
-	"github.com/modprox/modprox-proxy/internal/status/heartbeat"
-	"github.com/modprox/modprox-proxy/internal/web"
+	"github.com/modprox/modprox-proxy/proxy/internal/modules/background"
+	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/proxy/internal/status/heartbeat"
+	"github.com/modprox/modprox-proxy/proxy/internal/web"
 )
 
 type initer func(*Proxy) error

@@ -6,7 +6,7 @@ import (
 	"github.com/shoenig/toolkit"
 
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
 )
 
 type PokeLooper interface {

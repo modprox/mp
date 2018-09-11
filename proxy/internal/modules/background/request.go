@@ -7,7 +7,7 @@ import (
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
 )
 
 // Range is an alias of coordinates.RangeIDs for brevity.

@@ -9,7 +9,7 @@ import (
 	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/upstream"
-	"github.com/modprox/modprox-proxy/internal/modules/store"
+	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
 
 	"github.com/shoenig/toolkit"
 )

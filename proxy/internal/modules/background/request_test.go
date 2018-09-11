@@ -8,11 +8,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/modprox/libmodprox/clients/registry"
 	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/netservice"
-	"github.com/modprox/modprox-proxy/internal/modules/store/storetest"
-	"github.com/stretchr/testify/require"
+	"github.com/modprox/modprox-proxy/proxy/internal/modules/store/storetest"
 )
 
 func parseURL(t *testing.T, tsURL string) (string, int) {
