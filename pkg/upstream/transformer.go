@@ -39,7 +39,7 @@ type Resolver interface {
 // added, to support additional use cases for enterprise environments
 // which tend to have special needs.
 type Transform interface {
-	Modify(*Request) *Request
+	Modify(*Request) (*Request, error)
 }
 
 type resolver struct {
@@ -61,7 +61,10 @@ func (r *resolver) Resolve(mod coordinates.Module) (*Request, error) {
 	}
 
 	for _, transform := range r.transforms {
-		request = transform.Modify(request)
+		request, err = transform.Modify(request)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return request, nil
@@ -132,7 +135,7 @@ func NewStaticRedirectTransform(original, substitution string) Transform {
 	}
 }
 
-func (t *StaticRedirectTransform) Modify(r *Request) *Request {
+func (t *StaticRedirectTransform) Modify(r *Request) (*Request, error) {
 	newDomain := r.Domain
 	if newDomain == t.original {
 		newDomain = t.substitution
@@ -147,7 +150,7 @@ func (t *StaticRedirectTransform) Modify(r *Request) *Request {
 
 	t.log.Tracef("original: %s", r)
 	t.log.Tracef("modified: %s", modified)
-	return modified
+	return modified, nil
 }
 
 // The GoGetTransform triggers an http request to the domain
@@ -197,17 +200,17 @@ func NewGoGetTransform(domains []string) Transform {
 	}
 }
 
-func (t *GoGetTransform) Modify(r *Request) *Request {
+func (t *GoGetTransform) Modify(r *Request) (*Request, error) {
 	if !t.domains[r.Domain] {
 		t.log.Tracef("domain %s is not set for go-get redirects", r.Domain)
-		return r
+		return r, nil
 	}
 	t.log.Infof("doing go-get redirect lookup for domain %s", r.Domain)
 
 	meta, err := t.doGoGetRequest(r)
 	if err != nil {
-		t.log.Warnf("unable to lookup go get redirect to %s (assuming none): %v", meta, err)
-		return r
+		t.log.Errorf("unable to do go-get redirect for domain %s: %v", r.Domain, err)
+		return nil, err
 	}
 
 	t.log.Infof("redirect to: %s", meta)
@@ -222,7 +225,7 @@ func (t *GoGetTransform) Modify(r *Request) *Request {
 	t.log.Tracef("original: %s", r)
 	t.log.Tracef("modified: %s", modified)
 
-	return modified
+	return modified, nil
 }
 
 type goGetMeta struct {
@@ -245,12 +248,21 @@ func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
 	}
 	defer toolkit.Drain(response.Body)
 
-	body, err := ioutil.ReadAll(response.Body)
+	bs, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return meta, err
 	}
 
-	return parseGoGetMetadata(string(body))
+	code := response.StatusCode
+	body := string(bs)
+
+	if code >= 400 {
+		t.log.Errorf("failed to do go-get redirect, received code %d from %s", code, uri)
+		t.log.Errorf("response body: %s", body)
+		return meta, errors.Errorf("bad response code (%d) from %s", code, uri)
+	}
+
+	return parseGoGetMetadata(body)
 }
 
 var (
@@ -295,7 +307,7 @@ type DomainPathTransform struct {
 	pathFmt string
 }
 
-func (t *DomainPathTransform) Modify(r *Request) *Request {
+func (t *DomainPathTransform) Modify(r *Request) (*Request, error) {
 	version := addressableVersion(r.Version) // this seems a little conflated
 	newPath := formatPath(t.pathFmt, version, r.Namespace)
 	return &Request{
@@ -304,7 +316,7 @@ func (t *DomainPathTransform) Modify(r *Request) *Request {
 		Namespace: r.Namespace,
 		Version:   r.Version,
 		Path:      newPath,
-	}
+	}, nil
 }
 
 // e.g. v2.0.0 => v2.0.0
@@ -389,12 +401,12 @@ func combinedDomainPathTransforms(
 	return m
 }
 
-func (t *SetPathTransform) Modify(r *Request) *Request {
+func (t *SetPathTransform) Modify(r *Request) (*Request, error) {
 	domainPathTransform := t.domainPathTransforms[r.Domain]
-	modified := domainPathTransform.Modify(r)
+	modified, err := domainPathTransform.Modify(r)
 	t.log.Tracef("original: %s", r)
 	t.log.Tracef("modified: %s", modified)
-	return modified
+	return modified, err
 }
 
 func NewDomainHeaderTransform(domain string, headers map[string]string) Transform {
@@ -414,9 +426,9 @@ type DomainHeaderTransform struct {
 	log     loggy.Logger
 }
 
-func (t *DomainHeaderTransform) Modify(r *Request) *Request {
+func (t *DomainHeaderTransform) Modify(r *Request) (*Request, error) {
 	if r.Domain != t.domain {
-		return r
+		return r, nil
 	}
 
 	newHeaders := make(map[string]string, len(r.Headers))
@@ -436,5 +448,5 @@ func (t *DomainHeaderTransform) Modify(r *Request) *Request {
 		Version:   r.Version,
 		Path:      r.Path,
 		Headers:   newHeaders,
-	}
+	}, nil
 }
