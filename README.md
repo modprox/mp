@@ -3,6 +3,12 @@ modprox is a Go Module Proxy focused on the internal hosting use case
 
 documentation @ [modprox.org](https://modprox.org)
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/modprox/mp)](https://goreportcard.com/report/github.com/modprox/mp) 
+[![Build Status](https://travis-ci.org/modprox/mp.svg?branch=master)](https://travis-ci.org/modprox/mp) 
+[![GoDoc](https://godoc.org/github.com/modprox/mp?status.svg)](https://godoc.org/github.com/modprox/mp) 
+[![License](https://img.shields.io/github/license/modprox/mp.svg?style=flat-square)](LICENSE)
+
+
 #### Project Management
 
 - Issue [tracker](https://github.com/modprox/mp/issues)
