@@ -20,7 +20,7 @@ const (
 
 // Rewrite the zip we downloaded from the upstream VCS into a zip file in the format
 // required by the go/cmd tooling. Fundamentally the zip file the Go tooling requires
-// re-namespaces the content under the directory path of the module.
+// re-namespacing the content under the directory path of the module.
 //
 // Additionally, the go/cmd does the following
 // - limits the size of upstream .zip file to 500 MiB
