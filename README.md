@@ -11,10 +11,10 @@ documentation @ [modprox.org](https://modprox.org)
 
 #### Project Management
 
-- Issue [tracker](https://github.com/modprox/mp/issues)
-- for the registry, prefix issues with "registry:"
-- for the proxy, prefix issues with "proxy:"
-- for the library packages (pkg/), prefix issues with "lib:"
+- [Issues](https://github.com/modprox/mp/issues)
+- for the registry, prefix issues with `registry:`
+- for the proxy, prefix issues with `proxy:`
+- for the library packages (pkg/), prefix issues with `lib:`
 
 #### Setting up modprox in your environment
 For setting up your own instances of the modprox components, check out the
