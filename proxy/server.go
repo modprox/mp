@@ -1,8 +1,8 @@
 package proxy
 
 import (
-	"github.com/modprox/modprox-proxy/proxy/config"
-	"github.com/modprox/modprox-proxy/proxy/internal/service"
+	"github.com/modprox/mp/proxy/config"
+	"github.com/modprox/mp/proxy/internal/service"
 )
 
 // Start a proxy service instance parameterized by the given Configuration.

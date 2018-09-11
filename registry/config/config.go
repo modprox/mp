@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/modprox/libmodprox/configutil"
+	"github.com/modprox/mp/pkg/configutil"
 	"github.com/pkg/errors"
 )
 

@@ -3,7 +3,7 @@ package repository
 import (
 	"strings"
 
-	"github.com/modprox/libmodprox/coordinates"
+	"github.com/modprox/mp/pkg/coordinates"
 
 	"github.com/pkg/errors"
 )

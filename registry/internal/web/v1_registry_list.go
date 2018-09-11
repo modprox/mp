@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/modprox/libmodprox/clients/registry"
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/webutil"
-	"github.com/modprox/modprox-registry/registry/internal/data"
+	"github.com/modprox/mp/pkg/clients/registry"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/webutil"
+	"github.com/modprox/mp/registry/internal/data"
 )
 
 type registryList struct {

@@ -9,9 +9,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/netservice"
-	"github.com/modprox/libmodprox/pokes"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/netservice"
+	"github.com/modprox/mp/pkg/pokes"
 )
 
 // A Sender is used to send heartbeat status updates to the registry.

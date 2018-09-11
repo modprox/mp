@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/registry/internal/data"
-	"github.com/modprox/modprox-registry/registry/static"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/registry/internal/data"
+	"github.com/modprox/mp/registry/static"
 )
 
 type linkable struct {

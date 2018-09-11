@@ -9,11 +9,11 @@ import (
 
 	"github.com/gorilla/csrf"
 
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/repository"
-	"github.com/modprox/modprox-registry/registry/internal/data"
-	"github.com/modprox/modprox-registry/registry/static"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/repository"
+	"github.com/modprox/mp/registry/internal/data"
+	"github.com/modprox/mp/registry/static"
 )
 
 type newPage struct {

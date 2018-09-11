@@ -8,14 +8,14 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/modprox/libmodprox/clients/registry"
-	"github.com/modprox/libmodprox/clients/zips"
-	"github.com/modprox/libmodprox/netservice"
-	"github.com/modprox/libmodprox/upstream"
-	"github.com/modprox/modprox-proxy/proxy/internal/modules/background"
-	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
-	"github.com/modprox/modprox-proxy/proxy/internal/status/heartbeat"
-	"github.com/modprox/modprox-proxy/proxy/internal/web"
+	"github.com/modprox/mp/pkg/clients/registry"
+	"github.com/modprox/mp/pkg/clients/zips"
+	"github.com/modprox/mp/pkg/netservice"
+	"github.com/modprox/mp/pkg/upstream"
+	"github.com/modprox/mp/proxy/internal/modules/background"
+	"github.com/modprox/mp/proxy/internal/modules/store"
+	"github.com/modprox/mp/proxy/internal/status/heartbeat"
+	"github.com/modprox/mp/proxy/internal/web"
 )
 
 type initer func(*Proxy) error

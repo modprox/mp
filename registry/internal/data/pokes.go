@@ -1,6 +1,6 @@
 package data
 
-import "github.com/modprox/libmodprox/pokes"
+import "github.com/modprox/mp/pkg/pokes"
 
 func (s *store) SetStartConfig(config pokes.StartConfig) error {
 	_, err := s.statements[insertStartupConfigSQL].Exec(

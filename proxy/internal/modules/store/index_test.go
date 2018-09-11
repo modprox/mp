@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/repository"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/repository"
 
 	"github.com/stretchr/testify/require"
 )

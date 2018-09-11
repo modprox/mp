@@ -1,6 +1,6 @@
 package data
 
-import "github.com/modprox/libmodprox/repository"
+import "github.com/modprox/mp/pkg/repository"
 
 func (s *store) ListRedirects() ([]repository.Redirect, error) {
 	return nil, nil

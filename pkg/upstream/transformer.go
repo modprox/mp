@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shoenig/toolkit"
 
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/loggy"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/loggy"
 )
 
 // A Resolver is able to turn the globally unique identifier of

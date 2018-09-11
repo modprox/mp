@@ -6,7 +6,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 
-	"github.com/modprox/libmodprox/coordinates"
+	"github.com/modprox/mp/pkg/coordinates"
 )
 
 type moduleTR struct {

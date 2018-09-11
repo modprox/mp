@@ -8,10 +8,10 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/pokes"
-	"github.com/modprox/modprox-registry/registry/config"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/pokes"
+	"github.com/modprox/mp/registry/config"
 )
 
 type Store interface {

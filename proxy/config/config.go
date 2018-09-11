@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/modprox/libmodprox/configutil"
-	"github.com/modprox/libmodprox/netservice"
+	"github.com/modprox/mp/pkg/configutil"
+	"github.com/modprox/mp/pkg/netservice"
 )
 
 type Configuration struct {

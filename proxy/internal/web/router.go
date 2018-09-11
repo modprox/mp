@@ -6,8 +6,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/proxy/internal/modules/store"
 )
 
 const (

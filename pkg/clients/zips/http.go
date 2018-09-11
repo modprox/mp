@@ -8,9 +8,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shoenig/toolkit"
 
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/repository"
-	"github.com/modprox/libmodprox/upstream"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/repository"
+	"github.com/modprox/mp/pkg/upstream"
 )
 
 type httpClient struct {

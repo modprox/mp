@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/modprox/libmodprox/coordinates"
+	"github.com/modprox/mp/pkg/coordinates"
 
 	"github.com/stretchr/testify/require"
 )

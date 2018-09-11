@@ -3,12 +3,12 @@ package service
 import (
 	"os"
 
-	"github.com/modprox/libmodprox/clients/registry"
-	"github.com/modprox/libmodprox/clients/zips"
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-proxy/proxy/config"
-	"github.com/modprox/modprox-proxy/proxy/internal/modules/background"
-	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
+	"github.com/modprox/mp/pkg/clients/registry"
+	"github.com/modprox/mp/pkg/clients/zips"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/proxy/config"
+	"github.com/modprox/mp/proxy/internal/modules/background"
+	"github.com/modprox/mp/proxy/internal/modules/store"
 )
 
 type Proxy struct {

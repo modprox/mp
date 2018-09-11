@@ -9,9 +9,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shoenig/atomicfs"
 
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/repository"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/repository"
 )
 
 const (

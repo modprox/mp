@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/modprox/libmodprox/repository"
+	"github.com/modprox/mp/pkg/repository"
 )
 
 const (

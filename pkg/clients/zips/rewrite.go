@@ -9,8 +9,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/repository"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/repository"
 )
 
 // we get to do some gymnastics to turn our zip archive

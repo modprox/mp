@@ -1,6 +1,6 @@
 package registry
 
-import "github.com/modprox/libmodprox/coordinates"
+import "github.com/modprox/mp/pkg/coordinates"
 
 // ReqMods is the data sent from the proxy to the registry when
 // requesting from the registry a list of modules that the proxy

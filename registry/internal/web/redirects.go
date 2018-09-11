@@ -4,9 +4,9 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/registry/internal/data"
-	"github.com/modprox/modprox-registry/registry/static"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/registry/internal/data"
+	"github.com/modprox/mp/registry/static"
 )
 
 type redirectsHandler struct {

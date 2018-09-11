@@ -3,9 +3,9 @@ package service
 import (
 	"os"
 
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/registry/config"
-	"github.com/modprox/modprox-registry/registry/internal/data"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/registry/config"
+	"github.com/modprox/mp/registry/internal/data"
 )
 
 type Registry struct {

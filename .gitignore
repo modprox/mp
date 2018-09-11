@@ -1,7 +1,7 @@
-modprox-registry
-modprox-proxy
+cmd/modprox-registry/modprox-registry
+cmd/modprox-proxy/modprox-proxy
 
 **/cover.out
 **/generated.go
 go.sum
-hack/configs/indeed.json
+hack/configs/*indeed.json

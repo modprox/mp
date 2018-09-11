@@ -5,11 +5,11 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/netservice"
-	"github.com/modprox/libmodprox/pokes"
-	"github.com/modprox/libmodprox/webutil"
-	"github.com/modprox/modprox-registry/registry/internal/data"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/netservice"
+	"github.com/modprox/mp/pkg/pokes"
+	"github.com/modprox/mp/pkg/webutil"
+	"github.com/modprox/mp/registry/internal/data"
 )
 
 type heartbeatHandler struct {

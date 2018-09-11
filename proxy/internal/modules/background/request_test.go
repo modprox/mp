@@ -10,10 +10,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/modprox/libmodprox/clients/registry"
-	"github.com/modprox/libmodprox/coordinates"
-	"github.com/modprox/libmodprox/netservice"
-	"github.com/modprox/modprox-proxy/proxy/internal/modules/store/storetest"
+	"github.com/modprox/mp/pkg/clients/registry"
+	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/netservice"
+	"github.com/modprox/mp/proxy/internal/modules/store/storetest"
 )
 
 func parseURL(t *testing.T, tsURL string) (string, int) {

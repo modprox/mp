@@ -1,26 +1,16 @@
-module github.com/modprox/modprox-registry
+module github.com/modprox/mp
 
 require (
+	github.com/boltdb/bolt v1.3.1
 	github.com/go-sql-driver/mysql v1.4.0
 	github.com/gorilla/csrf v1.5.1
 	github.com/gorilla/mux v1.6.2
 	github.com/lib/pq v1.0.0
-	github.com/modprox/libmodprox v0.0.0
 	github.com/pkg/errors v0.8.0
+	github.com/shoenig/atomicfs v0.1.1
 	github.com/shoenig/petrify/v4 v4.0.2
+	github.com/shoenig/toolkit v1.0.0
 	github.com/stretchr/testify v1.2.2
+	golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e // indirect
 	google.golang.org/appengine v1.1.0 // indirect
-        github.com/boltdb/bolt v1.3.1
-        github.com/gorilla/context v1.1.1 // indirect
-        github.com/gorilla/mux v1.6.2
-        github.com/modprox/libmodprox v0.0.0
-        github.com/pkg/errors v0.8.0
-        github.com/shoenig/atomicfs v0.1.1
-        github.com/shoenig/toolkit v1.0.0
-        github.com/stretchr/testify v1.2.2
-        github.com/davecgh/go-spew v1.1.1 // indirect
-        github.com/pkg/errors v0.8.0
-        github.com/pmezard/go-difflib v1.0.0 // indirect
-        github.com/shoenig/toolkit v1.0.0
-        github.com/stretchr/testify v1.2.2
 )

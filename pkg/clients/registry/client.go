@@ -11,8 +11,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shoenig/toolkit"
 
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/libmodprox/netservice"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/netservice"
 )
 
 //go:generate mockery -interface=Client -package=registrytest

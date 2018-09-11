@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-proxy/proxy/internal/modules/store"
-	"github.com/modprox/modprox-proxy/proxy/internal/web/output"
+	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/proxy/internal/modules/store"
+	"github.com/modprox/mp/proxy/internal/web/output"
 )
 
 type moduleList struct {

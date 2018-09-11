@@ -3,8 +3,8 @@ package zips
 import (
 	"github.com/pkg/errors"
 
-	"github.com/modprox/libmodprox/repository"
-	"github.com/modprox/libmodprox/upstream"
+	"github.com/modprox/mp/pkg/repository"
+	"github.com/modprox/mp/pkg/upstream"
 )
 
 type Client interface {

@@ -3,7 +3,7 @@ package pokes
 import (
 	"fmt"
 
-	"github.com/modprox/libmodprox/netservice"
+	"github.com/modprox/mp/pkg/netservice"
 )
 
 type instance = netservice.Instance
