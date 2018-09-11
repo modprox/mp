@@ -1,0 +1,26 @@
+{
+  "api_server": {
+    "tls": {
+      "enabled": false,
+      "certificate": "",
+      "key": ""
+    },
+    "bind_address": "127.0.0.1",
+    "port": 12505
+  },
+  "registry": {
+    "instances": [
+      {
+        "address": "localhost",
+        "port": 12500
+      }
+    ],
+    "poll_frequency_s": 20,
+    "request_timeout_s": 10
+  },
+  "module_storage": {
+    "data_path": "/tmp/mod-zips",
+    "index_path": "/tmp/mod-index-v0",
+    "tmp_path": "/tmp"
+  }
+}

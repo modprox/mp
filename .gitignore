@@ -1,4 +1,8 @@
 modprox-registry
+modprox-proxy
+
 **/cover.out
 **/generated.go
 go.sum
+hack/configs/indeed.json
+
