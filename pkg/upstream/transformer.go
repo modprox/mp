@@ -402,7 +402,10 @@ func combinedDomainPathTransforms(
 }
 
 func (t *SetPathTransform) Modify(r *Request) (*Request, error) {
-	domainPathTransform := t.domainPathTransforms[r.Domain]
+	domainPathTransform, exists := t.domainPathTransforms[r.Domain]
+	if !exists {
+		return nil, errors.Errorf("no path transformation exists for domain %s", r.Domain)
+	}
 	modified, err := domainPathTransform.Modify(r)
 	t.log.Tracef("original: %s", r)
 	t.log.Tracef("modified: %s", modified)
