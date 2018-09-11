@@ -5,4 +5,3 @@ modprox-proxy
 **/generated.go
 go.sum
 hack/configs/indeed.json
-
