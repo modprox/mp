@@ -1,32 +1,46 @@
-# modprox-registry
-registry component of modprox
+# modprox - The Go Module Proxy
+modprox is a Go Module Proxy focused on the internal hosting use case
 
 #### Project Management
-Issue [tracker](https://github.com/modprox/modprox-registry/issues) (prefix with `registry:`)
 
-#### Setting up the Registry
-For setting up your own instance of the modprox-registry,
-see the documentation on [modprox.org](https://modprox.org/#starting)
+- Issue [tracker](https://github.com/modprox/mp/issues)
+- for the registry, prefix issues with "registry:"
+- for the proxy, prefix issues with "proxy:"
+- for the library packages (pkg/), prefix issues with "lib:"
+
+#### Setting up modprox in your environment
+For setting up your own instances of the modprox components, check out the
+extensive documentation on [modprox.org](https://modprox.org/#starting)
 
 #### Hacking on the Registry
 
 The registry needs a persistent store, and for local development we have a docker image
-with MySQL setup to automatically create tables and users. To make things super simple, in
+with PostgreSQL setup to automatically create tables and users. To make things super simple, in
 the `hack/` directory there is a `docker-compose` file already configured to setup the basic
 containers needed for local developemnt. Simply run
 ```bash
-$ (modprox-registry/hack) docker-compose up
+$ docker-compose up
 ```
 in the `hack/` directory to get them going. Also in the `hack/` directory is a script for
 connecting to the MySQL that is running in the docker container, for ease of poking around.
 ```bash
-$ (modprox-registry/hack) ./connect-mysql.sh
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 2
-Server version: 5.7.22 MySQL Community Server (GPL)
+$ compose up
+Recreating modprox-postgres ... 
+Recreating modprox-postgres ... done
+Attaching to modprox-postgres
+modprox-postgres | 2018-09-11 02:19:14.322 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+modprox-postgres | 2018-09-11 02:19:14.322 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+modprox-postgres | 2018-09-11 02:19:14.339 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+modprox-postgres | 2018-09-11 02:19:14.370 UTC [22] LOG:  database system was shut down at 2018-09-11 02:19:12 UTC
+modprox-postgres | 2018-09-11 02:19:14.381 UTC [1] LOG:  database system is ready to accept connections
 ```
 
-Also in the `hack/` directory is `configs/local.json`. This file is used by the `run-dev.sh`
-script that sits in the root of the repository. The `local.json` file is just some default
-configuration settings for the registry that are meant to work with the provide docker images
-for local development.
+Also in the `hack/` directory are some sample configuration files. By default, the included `run-dev.sh`
+script will use the `hack/configs/registry-local.postgres.json` file, which works well with the included
+`docker-compose.yaml` file.
+
+#### Hacking on the Proxy
+
+The proxy component is more simple than the registry in that it does not connect to anything (other than the registry
+itself). It does however maintain its data-store of downloaded modules on disk, and by default it saves modules in the `/tmp`
+directory.
