@@ -8,8 +8,8 @@ import (
 
 	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/internal/data"
-	"github.com/modprox/modprox-registry/static"
+	"github.com/modprox/modprox-registry/registry/internal/data"
+	"github.com/modprox/modprox-registry/registry/static"
 )
 
 type linkable struct {

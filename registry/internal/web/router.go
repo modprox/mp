@@ -7,9 +7,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/shoenig/petrify/v4"
 
-	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/registry/config"
-	"github.com/modprox/modprox-registry/static"
+	"github.com/modprox/modprox-registry/registry/internal/data"
+	"github.com/modprox/modprox-registry/registry/static"
 )
 
 const (

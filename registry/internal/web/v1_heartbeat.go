@@ -9,7 +9,7 @@ import (
 	"github.com/modprox/libmodprox/netservice"
 	"github.com/modprox/libmodprox/pokes"
 	"github.com/modprox/libmodprox/webutil"
-	"github.com/modprox/modprox-registry/internal/data"
+	"github.com/modprox/modprox-registry/registry/internal/data"
 )
 
 type heartbeatHandler struct {

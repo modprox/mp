@@ -7,14 +7,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/modprox/libmodprox/coordinates"
-
 	"github.com/gorilla/csrf"
 
+	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/repository"
-	"github.com/modprox/modprox-registry/internal/data"
-	"github.com/modprox/modprox-registry/static"
+	"github.com/modprox/modprox-registry/registry/internal/data"
+	"github.com/modprox/modprox-registry/registry/static"
 )
 
 type newPage struct {

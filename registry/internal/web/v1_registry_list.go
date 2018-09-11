@@ -9,7 +9,7 @@ import (
 	"github.com/modprox/libmodprox/coordinates"
 	"github.com/modprox/libmodprox/loggy"
 	"github.com/modprox/libmodprox/webutil"
-	"github.com/modprox/modprox-registry/internal/data"
+	"github.com/modprox/modprox-registry/registry/internal/data"
 )
 
 type registryList struct {

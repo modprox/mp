@@ -7,8 +7,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/modprox/modprox-registry/internal/data"
-	"github.com/modprox/modprox-registry/internal/web"
+	"github.com/modprox/modprox-registry/registry/internal/data"
+	"github.com/modprox/modprox-registry/registry/internal/web"
 )
 
 type initer func(*Registry) error

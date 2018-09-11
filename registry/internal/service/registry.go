@@ -4,8 +4,8 @@ import (
 	"os"
 
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/internal/data"
 	"github.com/modprox/modprox-registry/registry/config"
+	"github.com/modprox/modprox-registry/registry/internal/data"
 )
 
 type Registry struct {

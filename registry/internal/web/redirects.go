@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/modprox/libmodprox/loggy"
-	"github.com/modprox/modprox-registry/internal/data"
-	"github.com/modprox/modprox-registry/static"
+	"github.com/modprox/modprox-registry/registry/internal/data"
+	"github.com/modprox/modprox-registry/registry/static"
 )
 
 type redirectsHandler struct {
