@@ -1,6 +1,8 @@
 # modprox - The Go Module Proxy
 modprox is a Go Module Proxy focused on the internal hosting use case
 
+documentation @ [modprox.org](https://modprox.org)
+
 #### Project Management
 
 - Issue [tracker](https://github.com/modprox/mp/issues)
