@@ -2,7 +2,6 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/modprox/mp/pkg/clients/registry"
@@ -83,8 +82,6 @@ func (h *registryList) post(w http.ResponseWriter, r *http.Request) toSend {
 		}
 	}
 
-	fmt.Println("ranges:", inbound.IDs)
-
 	ids, err := h.store.ListModuleIDs()
 	if err != nil {
 		return toSend{
@@ -94,14 +91,12 @@ func (h *registryList) post(w http.ResponseWriter, r *http.Request) toSend {
 		}
 	}
 
-	fmt.Println("ids:", ids)
+	h.log.Tracef("proxy sent ID ranges: %v", inbound.IDs)
 
 	// compare that with the modules in the registry
 
 	// return a list of the difference
 	neededIDs := inListButNotRange(ids, inbound.IDs)
-
-	fmt.Println("needed ids:", neededIDs)
 
 	needed, err := h.store.ListModulesByIDs(neededIDs)
 	if err != nil {
@@ -112,7 +107,7 @@ func (h *registryList) post(w http.ResponseWriter, r *http.Request) toSend {
 		}
 	}
 
-	fmt.Println("needed mods:", needed)
+	h.log.Tracef("proxy needs %d mods", len(needed))
 
 	return toSend{
 		err:  nil,
