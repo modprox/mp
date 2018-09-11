@@ -1,0 +1,28 @@
+{{define "body"}}
+<div class="container">
+    <br/><br/><br/>
+    <div class="bigheader">
+        <h1>Module Registry Index</h1>
+    </div>
+    <hr/>
+    <div>
+        <table class="list-mods">
+            {{range .Modules}}
+            <tr>
+                <td>
+                    <a href="{{.WebURL}}" target="_blank" rel="noreferrer" rel="noopener">
+                        <span class="mod-text">{{.Module.Source}}</span>
+                    </a>
+                </td>
+                <td>@</td>
+                <td>
+                    <a href="{{.TagURL}}" target="_blank" rel="noreferrer" rel="noopener">
+                        <span class="mod-tag">{{.Module.Version}}</span>
+                    </a>
+                </td>
+            </tr>
+            {{end}}
+        </table>
+    </div>
+</div>
+{{end}}

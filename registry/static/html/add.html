@@ -1,0 +1,57 @@
+{{define "body"}}
+<div class="container">
+    <br/><br/><br/>
+    <div class="bigheader">
+        <h1>Get Modules</h1>
+    </div>
+    <hr/>
+    <div>
+        <form method="POST" id="new-module" action="/new">
+            {{ .CSRFField }}
+            <textarea
+                    name="modules-input"
+                    form="new-module"
+                    rows="8" cols="60"
+                    placeholder=" e.g. github.com/pkg/errors v0.8.0"
+                    required autofocus></textarea>
+            <br/>
+            <input type="submit" form="new-module" class="btn btn-basic" value="ADD">
+        </form>
+    </div>
+
+    <div>
+    {{if .Mods}}
+        <hr/>
+        <table class="mod-tbl">
+        {{range .Mods}}
+            <tr>
+                {{if not .Err}}
+                    <td>
+                        <span class="mod-text">
+                            {{.Module.Source}} {{.Module.Version}}
+                        </span>
+                    </td>
+                    <td>=></td>
+                    <td>
+                        <span class="mod-ok">OK</span>
+                    </td>
+                {{else}}
+                    <td>
+                        <span class="mod-text">
+                            {{.Text}}
+                        </span>
+                    </td>
+                    <td>=></td>
+                    <td>
+                        <span class="mod-bad">
+                            {{.Err.Error}}
+                        </span>
+                    </td>
+                {{end}}
+            </tr>
+        {{end}}
+        </table>
+    {{end}}
+    </div>
+</div>
+{{end}}
