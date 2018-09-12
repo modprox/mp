@@ -1,0 +1,12 @@
+language: go
+
+go:
+  - 1.11.x
+
+install:
+
+script:
+  - go build ./...
+  - go vet ./...
+  - go test ./...
+
