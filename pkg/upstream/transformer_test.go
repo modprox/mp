@@ -101,3 +101,23 @@ func Test_addressableVersion(t *testing.T) {
 	try("v0.0.0-20180111040409-fbec762f837d", "fbec762f837d")
 	try("v2.3.3+incompatible", "v2.3.3")
 }
+
+func Test_DomainTransportTransform(t *testing.T) {
+	request := &Request{
+		Transport: "https",
+		Domain:    "foo.com",
+		Namespace: ns("a/b"),
+		Version:   "v1.0.0",
+	}
+
+	dtt := NewDomainTransportTransform("foo.com", "http")
+
+	transformed, err := dtt.Modify(request)
+	require.NoError(t, err)
+	require.Equal(t, &Request{
+		Transport: "http", // changed
+		Domain:    "foo.com",
+		Namespace: ns("a/b"),
+		Version:   "v1.0.0",
+	}, transformed)
+}
