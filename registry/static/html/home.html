@@ -2,26 +2,84 @@
 <div class="container">
     <br/><br/><br/>
     <div class="bigheader">
-        <h1>Module Registry Index</h1>
+        <h1>Proxies Reporting In</h1>
     </div>
     <hr/>
     <div>
-        <table class="list-mods">
-            {{range .Modules}}
-            <tr>
-                <td>
-                    <a href="{{.WebURL}}" target="_blank" rel="noreferrer" rel="noopener">
-                        <span class="mod-text">{{.Module.Source}}</span>
-                    </a>
+        <table border="0">
+            <tbody>
+            {{range .Proxies}}
+            <tr class="proxy-addr">
+                <td colspan="2">
+                {{.Configuration.Self.Address}}:{{.Configuration.Self.Port}}
                 </td>
-                <td>@</td>
-                <td>
-                    <a href="{{.TagURL}}" target="_blank" rel="noreferrer" rel="noopener">
-                        <span class="mod-tag">{{.Module.Version}}</span>
-                    </a>
+            </tr>
+            <tr>
+                <td class="proxy-heartbeat" colspan="2">
+                    <p>Latest Heartbeat</p>
+                    <table border="0">
+                        <tr>
+                            <td class="proxy-heartbeat-label">Packages</td>
+                            <td class="proxy-heartbeat-value">{{.Heartbeat.NumPackages}}</td>
+                        </tr>
+                        <tr>
+                            <td class="proxy-heartbeat-label">Modules</td>
+                            <td class="proxy-heartbeat-value">{{.Heartbeat.NumModules}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="proxy-storage" colspan="2">
+                    <p>Storage Configuration</p>
+                    <table border="0">
+                        <tr>
+                            <td class="proxy-storage-label">Data Path</td>
+                            <td class="proxy-storage-value">{{.Configuration.Storage.DataPath}}</td>
+                        </tr>
+                        <tr>
+                            <td class="proxy-storage-label">Index Path</td>
+                            <td class="proxy-storage-value">{{.Configuration.Storage.IndexPath}}</td>
+                        </tr>
+                        <tr>
+                            <td class="proxy-storage-label">Temp Path</td>
+                            <td class="proxy-storage-value">{{.Configuration.Storage.TmpPath}}</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="proxy-registry" colspan="2">
+                    <p>Registries Configuration</p>
+                    <table border="0">
+                        <tr>
+                            <td class="proxy-registry-label">Poll Frequency</td>
+                            <td class="proxy-registry-value">{{.Configuration.Registry.PollFrequencyS}}s</td>
+                        </tr>
+                        <tr>
+                            <td class="proxy-registry-label">Request Timeout</td>
+                            <td class="proxy-registry-value">{{.Configuration.Registry.RequestTimeoutS}}s</td>
+                        </tr>
+                        <tr>
+                            <td class="proxy-registry-label" colspan="2">Instances</td>
+                        </tr>
+                        {{range .Configuration.Registry.Instances}}
+                        <tr class="proxy-registry-instances">
+                            <td colspan="2">- {{.Address}}:{{.Port}}</td>
+
+                        </tr>
+                        {{end}}
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="proxy-transforms" colspan="2">
+                    <p>Transform Configurations</p>
+                    <pre>{{.TransformsText}}</pre>
                 </td>
             </tr>
             {{end}}
+            </tbody>
         </table>
     </div>
 </div>

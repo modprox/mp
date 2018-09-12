@@ -23,7 +23,9 @@ type Store interface {
 
 	// startup configs and payloads
 	SetStartConfig(payloads.Configuration) error
+	ListStartConfigs() ([]payloads.Configuration, error)
 	SetHeartbeat(payloads.Heartbeat) error
+	ListHeartbeats() ([]payloads.Heartbeat, error)
 }
 
 func Connect(kind string, dsn config.DSN) (Store, error) {

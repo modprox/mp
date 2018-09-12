@@ -22,5 +22,15 @@
     "data_path": "/tmp/mod-zips",
     "index_path": "/tmp/mod-index-v0",
     "tmp_path": "/tmp"
+  },
+  "transforms": {
+    "domain_paths": [{
+      "domain": "code.internal.company.net",
+      "path": "ELEM1/ELEM2/-/archive/VERSION/ELEM2-VERSION.zip"
+    }],
+    "domain_headers": [{
+      "domain": "code.internal.company.net",
+      "headers": {"Private-Token": "mysecrettoken"}
+    }]
   }
 }

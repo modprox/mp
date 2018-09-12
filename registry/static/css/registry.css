@@ -76,3 +76,84 @@
 .mod-tbl tr td {
     padding-right: 20px;
 }
+
+.proxy-addr {
+    font-size: xx-large;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.proxy-heartbeat {
+    padding-top: 5px;
+    padding-left: 10px;
+}
+
+.proxy-heartbeat p {
+    font-weight: bold;
+    font-size: large;
+}
+
+.proxy-heartbeat-label {
+    padding-left: 1em;
+    font-weight: bold;
+}
+
+.proxy-heartbeat-value {
+    padding-left: 3em;
+    font-family: monospace;
+}
+
+.proxy-storage {
+    padding-top: 5px;
+    padding-left: 10px;
+}
+
+.proxy-storage p {
+    font-weight: bold;
+    font-size: large;
+}
+
+.proxy-storage .proxy-storage-label {
+    padding-left: 1em;
+    font-weight: bold;
+}
+
+.proxy-storage .proxy-storage-value {
+    padding-left: 3em;
+    font-family: monospace;
+}
+
+.proxy-registry {
+    padding-top: 5px;
+    padding-left: 10px;
+}
+
+.proxy-registry p {
+    font-weight: bold;
+    font-size: large;
+}
+
+.proxy-registry .proxy-registry-label {
+    padding-left: 1em;
+    font-weight: bold;
+}
+
+.proxy-registry .proxy-registry-value {
+    padding-left: 3em;
+    font-family: monospace;
+}
+
+.proxy-registry .proxy-registry-instances td {
+    padding-left: 50px;
+    font-family: monospace;
+}
+
+.proxy-transforms {
+    padding-top: 5px;
+    padding-left: 10px;
+}
+
+.proxy-transforms p {
+    font-weight: bold;
+    font-size: large;
+}
