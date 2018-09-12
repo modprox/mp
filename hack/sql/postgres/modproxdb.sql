@@ -10,6 +10,8 @@ create table proxy_configurations (
   id serial primary key,
   hostname varchar(128) not null,
   port integer not null,
+  storage text not null,
+  registry text not null,
   transforms text not null,
   ts timestamp not null default current_timestamp,
   unique(hostname, port)
