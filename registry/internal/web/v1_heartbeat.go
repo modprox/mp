@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/pkg/pokes"
 	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/registry/internal/data"
 )
@@ -48,7 +48,7 @@ func (h *heartbeatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h *heartbeatHandler) post(r *http.Request) (int, string, netservice.Instance, error) {
 	var from netservice.Instance
-	var heartbeat pokes.Heartbeat
+	var heartbeat payloads.Heartbeat
 	if err := json.NewDecoder(r.Body).Decode(&heartbeat); err != nil {
 		return http.StatusBadRequest, "failed to decode request", from, err
 	}
@@ -66,7 +66,7 @@ func (h *heartbeatHandler) post(r *http.Request) (int, string, netservice.Instan
 	return http.StatusOK, "ok", from, nil
 }
 
-func checkHeartbeat(heartbeat pokes.Heartbeat) error {
+func checkHeartbeat(heartbeat payloads.Heartbeat) error {
 	switch {
 	case heartbeat.Self.Address == "":
 		return errors.New("heartbeat address cannot be empty")

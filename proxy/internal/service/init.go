@@ -15,6 +15,7 @@ import (
 	"github.com/modprox/mp/proxy/internal/modules/background"
 	"github.com/modprox/mp/proxy/internal/modules/store"
 	"github.com/modprox/mp/proxy/internal/status/heartbeat"
+	"github.com/modprox/mp/proxy/internal/status/startup"
 	"github.com/modprox/mp/proxy/internal/web"
 )
 
@@ -146,16 +147,11 @@ func initHeaderTransforms(p *Proxy) []upstream.Transform {
 }
 
 func initHeartbeatSender(p *Proxy) error {
-	hostname, err := os.Hostname()
-	if err != nil {
-		return errors.Wrap(err, "failed to acquire hostname")
-	}
-
 	sender := heartbeat.NewSender(heartbeat.Options{
 		Timeout:    30 * time.Second,
 		Registries: p.config.Registry.Instances,
 		Self: netservice.Instance{
-			Address: hostname,
+			Address: netservice.Hostname(),
 			Port:    p.config.APIServer.Port,
 		},
 	})
@@ -168,6 +164,14 @@ func initHeartbeatSender(p *Proxy) error {
 
 	go looper.Loop()
 
+	return nil
+}
+
+func initStartupConfigSender(p *Proxy) error {
+	sender := startup.NewSender(p.registryClient, 30*time.Second)
+	go sender.Send(
+		p.config.ModuleStorage, p.config.Registry, p.config.Transforms,
+	)
 	return nil
 }
 

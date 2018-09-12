@@ -34,6 +34,7 @@ func NewProxy(configuration config.Configuration) *Proxy {
 		initZipsClient,
 		initRegistryReloader,
 		initHeartbeatSender,
+		initStartupConfigSender,
 		initWebServer,
 	} {
 		if err := f(p); err != nil {

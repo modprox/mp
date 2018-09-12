@@ -3,8 +3,6 @@ package background
 import (
 	"net/http"
 	"net/http/httptest"
-	"strconv"
-	"strings"
 	"testing"
 	"time"
 
@@ -13,16 +11,9 @@ import (
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/netservice"
+	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/proxy/internal/modules/store/storetest"
 )
-
-func parseURL(t *testing.T, tsURL string) (string, int) {
-	tsURL = strings.TrimPrefix(tsURL, "http://")
-	tokens := strings.Split(tsURL, ":")
-	port, err := strconv.Atoi(tokens[1])
-	require.NoError(t, err)
-	return tokens[0], port
-}
 
 const modsReply = ` {"serials": [{
 	"id": 2,
@@ -48,7 +39,7 @@ func Test_ModulesNeeded(t *testing.T) {
 	)
 	defer ts.Close()
 
-	address, port := parseURL(t, ts.URL)
+	address, port := webutil.ParseURL(t, ts.URL)
 	client := registry.NewClient(registry.Options{
 		Timeout: 10 * time.Second,
 		Instances: []netservice.Instance{{

@@ -1,4 +1,4 @@
-package pokes
+package payloads
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 
 type instance = netservice.Instance
 
+// Heartbeat of a proxy that is sent periodically to the registry.
 type Heartbeat struct {
 	Self        instance `json:"self"`
 	NumPackages int      `json:"num_packages"`
@@ -21,9 +22,4 @@ func (h Heartbeat) String() string {
 		h.NumPackages,
 		h.NumModules,
 	)
-}
-
-type StartConfig struct {
-	Self       instance `json:"self"`
-	Transforms string   `json:"transforms"`
 }

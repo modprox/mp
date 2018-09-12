@@ -8,9 +8,9 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
 
+	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/pokes"
 	"github.com/modprox/mp/registry/config"
 )
 
@@ -21,9 +21,9 @@ type Store interface {
 	ListModules() ([]coordinates.SerialModule, error)
 	InsertModules([]coordinates.Module) (int, error)
 
-	// startup configs and pokes
-	SetStartConfig(pokes.StartConfig) error
-	SetHeartbeat(pokes.Heartbeat) error
+	// startup configs and payloads
+	SetStartConfig(payloads.Configuration) error
+	SetHeartbeat(payloads.Heartbeat) error
 }
 
 func Connect(kind string, dsn config.DSN) (Store, error) {
