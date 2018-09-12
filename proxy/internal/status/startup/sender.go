@@ -8,20 +8,15 @@ import (
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/proxy/config"
 )
 
 const (
-	configurationPath = "/v1/configuration/update"
+	configurationPath = "/v1/proxy/configuration"
 )
 
 // A Sender is used to send startup configuration state to the registry.
 type Sender interface {
-	Send(
-		config.Storage,
-		config.Registry,
-		config.Transforms,
-	) error
+	Send(configuration payloads.Configuration) error
 }
 
 type sender struct {
@@ -38,14 +33,10 @@ func NewSender(registryClient registry.Client, retryInterval time.Duration) Send
 	}
 }
 
-func (s *sender) Send(
-	storage config.Storage,
-	registry config.Registry,
-	transforms config.Transforms,
-) error {
+func (s *sender) Send(configuration payloads.Configuration) error {
 
 	// optimistically try immediately to start with
-	if err := s.trySend(storage, registry, transforms); err == nil {
+	if err := s.trySend(configuration); err == nil {
 		return nil
 	}
 
@@ -54,7 +45,7 @@ func (s *sender) Send(
 	defer ticker.Stop()
 
 	for range ticker.C {
-		if err := s.trySend(storage, registry, transforms); err == nil {
+		if err := s.trySend(configuration); err == nil {
 			break
 		} else {
 			s.log.Warnf("failed to contact registry; will try again in 30s")
@@ -63,19 +54,8 @@ func (s *sender) Send(
 	return nil
 }
 
-func (s *sender) trySend(
-	storage config.Storage,
-	registry config.Registry,
-	transforms config.Transforms,
-) error {
-
-	p := payloads.Configuration{
-		Storage:    storage,
-		Registry:   registry,
-		Transforms: transforms,
-	}
-
-	bs, err := json.Marshal(p)
+func (s *sender) trySend(configuration payloads.Configuration) error {
+	bs, err := json.Marshal(configuration)
 	if err != nil {
 		return err
 	}

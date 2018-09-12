@@ -8,6 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/netservice"
@@ -170,7 +171,15 @@ func initHeartbeatSender(p *Proxy) error {
 func initStartupConfigSender(p *Proxy) error {
 	sender := startup.NewSender(p.registryClient, 30*time.Second)
 	go sender.Send(
-		p.config.ModuleStorage, p.config.Registry, p.config.Transforms,
+		payloads.Configuration{
+			Self: netservice.Instance{
+				Address: netservice.Hostname(),
+				Port:    p.config.APIServer.Port,
+			},
+			Storage:    p.config.ModuleStorage,
+			Registry:   p.config.Registry,
+			Transforms: p.config.Transforms,
+		},
 	)
 	return nil
 }

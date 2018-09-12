@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	heartbeatPath = "/v1/heartbeat/update"
+	heartbeatPath = "/v1/proxy/heartbeat"
 )
 
 type Options struct {
