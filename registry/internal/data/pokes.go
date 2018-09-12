@@ -5,11 +5,16 @@ import (
 )
 
 func (s *store) SetStartConfig(config payloads.Configuration) error {
-	_, err := s.statements[insertStartupConfigSQL].Exec(
-	// todo: implement
-	// 		config.Self.Address,
-	// 		config.Self.Port,
-	// 		config.Transforms,
+	storageText, registriesText, transformsText, err := config.Texts()
+	if err != nil {
+		return err
+	}
+	_, err = s.statements[insertStartupConfigSQL].Exec(
+		config.Self.Address,
+		config.Self.Port,
+		storageText,
+		registriesText,
+		transformsText,
 	)
 	return err
 }

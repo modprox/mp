@@ -25,16 +25,9 @@ func newHeartbeatHandler(store data.Store) http.Handler {
 }
 
 func (h *heartbeatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.log.Tracef("receiving heartbeat update")
+	h.log.Tracef("receiving heartbeat update from proxy")
 
-	var (
-		code     int
-		response string
-		from     netservice.Instance
-		err      error
-	)
-
-	code, response, from, err = h.post(r)
+	code, response, from, err := h.post(r)
 
 	if err != nil {
 		h.log.Errorf("failed to accept heartbeat from %s, %v", from, err)

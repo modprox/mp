@@ -53,12 +53,8 @@ func routeAPI(store data.Store) http.Handler {
 	sub := mux.NewRouter()
 	sub.Handle("/v1/registry/sources/list", newRegistryList(store)).Methods(get, post)
 	sub.Handle("/v1/registry/sources/new", registryAdd(store)).Methods(post)
-
-	// todo: remap to:
-	// todo:   /v1/proxy/heartbeat
-	// todo:   /v1/proxy/configuration
-	sub.Handle("/v1/heartbeat/update", newHeartbeatHandler(store)).Methods(post)
-	// sub.Handle("/v1/configuration/update", nil).Methods(post) // todo: implement
+	sub.Handle("/v1/proxy/heartbeat", newHeartbeatHandler(store)).Methods(post)
+	sub.Handle("/v1/proxy/configuration", newStartupHandler(store)).Methods(post)
 	return sub
 }
 

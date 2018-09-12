@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/modprox/mp/pkg/clients/payloads"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/modprox/mp/pkg/clients/registry"
@@ -34,11 +36,17 @@ func Test_Send_firstTry(t *testing.T) {
 
 	apiClient := NewSender(client, 1*time.Second)
 
+	instance := netservice.Instance{}
 	storage := config.Storage{}
 	registries := config.Registry{}
 	transforms := config.Transforms{}
 
-	err := apiClient.Send(storage, registries, transforms)
+	err := apiClient.Send(payloads.Configuration{
+		Self:       instance,
+		Storage:    storage,
+		Registry:   registries,
+		Transforms: transforms,
+	})
 	require.NoError(t, err)
 }
 
@@ -71,11 +79,17 @@ func Test_Send_secondTry(t *testing.T) {
 
 	apiClient := NewSender(client, 10*time.Millisecond)
 
+	instance := netservice.Instance{}
 	storage := config.Storage{}
 	registries := config.Registry{}
 	transforms := config.Transforms{}
 
-	err := apiClient.Send(storage, registries, transforms)
+	err := apiClient.Send(payloads.Configuration{
+		Self:       instance,
+		Storage:    storage,
+		Registry:   registries,
+		Transforms: transforms,
+	})
 	require.NoError(t, err)
 	require.True(t, executedSecondTry)
 }
