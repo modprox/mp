@@ -9,22 +9,27 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/pkg/pokes"
 )
+
+const (
+	heartbeatPath = "/v1/heartbeat/update"
+)
+
+type Options struct {
+	Timeout    time.Duration
+	Self       netservice.Instance
+	Registries []netservice.Instance
+}
 
 // A Sender is used to send heartbeat status updates to the registry.
 type Sender interface {
 	Send(int, int) error
 }
 
-type Options struct {
-	Registries []netservice.Instance
-	Self       netservice.Instance
-	Timeout    time.Duration
-}
-
+// todo: use registry.Client
 type sender struct {
 	httpClient *http.Client
 	registries []netservice.Instance
@@ -48,12 +53,8 @@ func NewSender(options Options) Sender {
 	}
 }
 
-const (
-	heartbeatPath = "/v1/heartbeat/update"
-)
-
 func (s *sender) Send(numPackages, numModules int) error {
-	heartbeat := pokes.Heartbeat{
+	heartbeat := payloads.Heartbeat{
 		Self:        s.self,
 		NumPackages: numPackages,
 		NumModules:  numModules,
@@ -76,7 +77,7 @@ func (s *sender) Send(numPackages, numModules int) error {
 
 func (s *sender) trySend(
 	registry netservice.Instance,
-	heartbeat pokes.Heartbeat,
+	heartbeat payloads.Heartbeat,
 ) error {
 
 	host := fmt.Sprintf("%s:%d", registry.Address, registry.Port)
