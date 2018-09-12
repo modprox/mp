@@ -41,6 +41,7 @@
 
 .bigheader {
     alignment: left;
+    padding-bottom: 20px;
 }
 
 .list-mods tr td {

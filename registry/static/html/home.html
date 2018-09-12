@@ -2,9 +2,8 @@
 <div class="container">
     <br/><br/><br/>
     <div class="bigheader">
-        <h1>Proxies Reporting In</h1>
+        <h1>Proxies Reporting for Duty</h1>
     </div>
-    <hr/>
     <div>
         <table border="0">
             <tbody>
@@ -61,7 +60,7 @@
                             <td class="proxy-registry-value">{{.Configuration.Registry.RequestTimeoutS}}s</td>
                         </tr>
                         <tr>
-                            <td class="proxy-registry-label" colspan="2">Instances</td>
+                            <td class="proxy-registry-label" colspan="2">Registry Instances</td>
                         </tr>
                         {{range .Configuration.Registry.Instances}}
                         <tr class="proxy-registry-instances">
@@ -78,9 +77,11 @@
                     <pre>{{.TransformsText}}</pre>
                 </td>
             </tr>
+            <tr><td colspan="2"><hr/></td></tr>
             {{end}}
             </tbody>
         </table>
+
     </div>
 </div>
 {{end}}
