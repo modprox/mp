@@ -56,4 +56,8 @@ type Transforms struct {
 		Domain string `json:"domain"`
 		Path   string `json:"path"`
 	} `json:"domain_paths,omitempty"`
+	DomainTransport []struct {
+		Domain    string `json:"domain"`
+		Transport string `json:"transport"`
+	} `json:"domain_transports,omitempty"`
 }

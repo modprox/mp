@@ -105,6 +105,7 @@ func initTransforms(p *Proxy) []upstream.Transform {
 	transforms = append(transforms, initStaticRedirectTransforms(p)...)
 	transforms = append(transforms, initSetPathTransform(p))
 	transforms = append(transforms, initHeaderTransforms(p)...)
+	transforms = append(transforms, initTransportTransforms(p)...)
 	return transforms
 }
 
@@ -140,6 +141,16 @@ func initHeaderTransforms(p *Proxy) []upstream.Transform {
 	for _, t := range p.config.Transforms.DomainHeaders {
 		transforms = append(transforms, upstream.NewDomainHeaderTransform(
 			t.Domain, t.Headers,
+		))
+	}
+	return transforms
+}
+
+func initTransportTransforms(p *Proxy) []upstream.Transform {
+	transforms := make([]upstream.Transform, 0, len(p.config.Transforms.DomainTransport))
+	for _, t := range p.config.Transforms.DomainTransport {
+		transforms = append(transforms, upstream.NewDomainTransportTransform(
+			t.Domain, t.Transport,
 		))
 	}
 	return transforms
