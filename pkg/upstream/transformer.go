@@ -454,3 +454,35 @@ func (t *DomainHeaderTransform) Modify(r *Request) (*Request, error) {
 		Headers:   newHeaders,
 	}, nil
 }
+
+func NewDomainTransportTransform(domain, transport string) Transform {
+	return &DomainTransportTransform{
+		domain:    domain,
+		transport: transport,
+		log:       loggy.New("domain-transport-transform"),
+	}
+}
+
+type DomainTransportTransform struct {
+	domain    string
+	transport string // e.g. https/http
+	log       loggy.Logger
+}
+
+func (t *DomainTransportTransform) Modify(r *Request) (*Request, error) {
+	if r.Domain != t.domain {
+		return r, nil
+	}
+
+	newTransport := t.transport
+	t.log.Tracef("setting transport of request to %q", newTransport)
+
+	return &Request{
+		Transport: newTransport,
+		Domain:    r.Domain,
+		Namespace: r.Namespace,
+		Version:   r.Version,
+		Path:      r.Path,
+		Headers:   r.Headers,
+	}, nil
+}
