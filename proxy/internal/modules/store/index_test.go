@@ -167,71 +167,71 @@ func Test_IDs(t *testing.T) {
 }
 
 func Test_ranges(t *testing.T) {
-	try := func(input []int, exp Ranges) {
+	try := func(input []int64, exp Ranges) {
 		output := ranges(input)
 		require.Equal(t, exp, output)
 	}
 
 	try(
-		[]int{},
+		[]int64{},
 		Ranges(nil),
 	)
 
 	try(
-		[]int{5},
+		[]int64{5},
 		Ranges{{5, 5}},
 	)
 
 	try(
-		[]int{7, 8},
+		[]int64{7, 8},
 		Ranges{{7, 8}},
 	)
 
 	try(
-		[]int{2, 3, 4, 7, 8, 10, 13},
+		[]int64{2, 3, 4, 7, 8, 10, 13},
 		Ranges{{2, 4}, {7, 8}, {10, 10}, {13, 13}},
 	)
 
 	try(
-		[]int{0, 4, 5, 6, 7, 8, 23, 25, 26},
+		[]int64{0, 4, 5, 6, 7, 8, 23, 25, 26},
 		Ranges{{0, 0}, {4, 8}, {23, 23}, {25, 26}},
 	)
 }
 
 func Test_first(t *testing.T) {
-	try := func(input []int, expRange Range, expLen int) {
+	try := func(input []int64, expRange Range, expLen int) {
 		incRange, lenRange := first(input)
 		require.Equal(t, expRange, incRange)
 		require.Equal(t, expLen, lenRange)
 	}
 
 	try(
-		[]int{},
+		[]int64{},
 		Range{0, 0}, 0,
 	)
 
 	try(
-		[]int{5},
+		[]int64{5},
 		Range{5, 5}, 1,
 	)
 
 	try(
-		[]int{7, 8},
+		[]int64{7, 8},
 		Range{7, 8}, 2,
 	)
 
 	try(
-		[]int{3, 6},
+		[]int64{3, 6},
 		Range{3, 3}, 1,
 	)
 
 	try(
-		[]int{3, 4, 5, 6, 8, 9, 10},
+		[]int64{3, 4, 5, 6, 8, 9, 10},
 		Range{3, 6}, 4,
 	)
 
 	try(
-		[]int{4, 7, 8, 9},
+		[]int64{4, 7, 8, 9},
 		Range{4, 4}, 1,
 	)
 }
