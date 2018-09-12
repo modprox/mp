@@ -31,13 +31,13 @@ func newAddHandler(store data.Store) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
-		"static/html/add.html",
+		"static/html/mods_add.html",
 	)
 
 	return &newHandler{
 		html:  html,
 		store: store,
-		log:   loggy.New("add-module-handler"),
+		log:   loggy.New("add-modules-handler"),
 	}
 }
 

@@ -190,6 +190,7 @@ func NewGoGetTransform(domains []string) Transform {
 	match["contrib.go.opencensus.io"] = true
 	match["go.opencensus.io"] = true
 	match["go.uber.org"] = true
+	match["git.apache.org"] = true
 
 	return &GoGetTransform{
 		domains: match,

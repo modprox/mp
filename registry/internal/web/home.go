@@ -13,13 +13,6 @@ import (
 	"github.com/modprox/mp/registry/static"
 )
 
-// todo: belongs on some other page
-// type linkable struct {
-// Module coordinates.Module
-// WebURL string
-// TagURL string
-//}
-
 type ProxyState struct {
 	Heartbeat      payloads.Heartbeat
 	Configuration  payloads.Configuration
@@ -27,8 +20,6 @@ type ProxyState struct {
 }
 
 type homePage struct {
-	// Modules []linkable // todo: somewhere else
-
 	Proxies []ProxyState
 }
 
@@ -91,22 +82,6 @@ func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.log.Errorf("failed to execute homepage template: %v", err)
 		return
 	}
-
-	// find the associated hearbeat, if any and append them to list of proxy states
-	// which will then be used in the template
-
-	// todo: move this to some other page
-	//modules, err := h.store.ListModules()
-	//if err != nil {
-	//	http.Error(w, "failed to list sources", http.StatusInternalServerError)
-	//	h.log.Tracef("failed to list sources: %v", err)
-	//	return
-	//}
-	//
-	//page := homePage{Modules: linkables(modules)}
-	//
-
-	// startupConfigs := h.store.
 }
 
 func transformsText(t config.Transforms) string {
@@ -117,26 +92,3 @@ func transformsText(t config.Transforms) string {
 	}
 	return string(bs)
 }
-
-// todo: move to some other page
-//func linkables(modules []coordinates.SerialModule) []linkable {
-//	l := make([]linkable, 0, len(modules))
-//	for _, module := range modules {
-//		webURL, tagURL := urlInfo(module.Module)
-//		l = append(l, linkable{
-//			Module: module.Module,
-//			WebURL: webURL,
-//			TagURL: tagURL,
-//		})
-//	}
-//	return l
-//}
-//
-//func urlInfo(module coordinates.Module) (string, string) {
-//	if strings.HasPrefix(module.Source, "github") {
-//		webURL := fmt.Sprintf("https://%s", module.Source)
-//		tagURL := fmt.Sprintf("https://%s/releases/tag/%s", module.Source, module.Version)
-//		return webURL, tagURL
-//	}
-//	return "#", "#"
-//}

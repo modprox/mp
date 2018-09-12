@@ -60,8 +60,9 @@ func routeAPI(store data.Store) http.Handler {
 
 func routeWebUI(csrfConfig config.CSRF, store data.Store) http.Handler {
 	sub := mux.NewRouter()
-	sub.Handle("/new", newAddHandler(store)).Methods(get, post)
-	sub.Handle("/configure/redirects", newRedirectsHandler(store)).Methods(get)
+	sub.Handle("/mods/new", newAddHandler(store)).Methods(get, post)
+	sub.Handle("/mods/list", newModsListHandler(store)).Methods(get)
+	// 	sub.Handle("/configure/redirects", newRedirectsHandler(store)).Methods(get)
 	sub.Handle("/", newHomeHandler(store)).Methods(get, post)
 	return chain(sub,
 		[]middleware{csrf.Protect(

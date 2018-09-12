@@ -1,0 +1,23 @@
+{{define "body"}}
+<div class="container">
+    <br/><br/><br/>
+    <div class="bigheader">
+        <h1>Modules in Registry</h1>
+    </div>
+    <hr/>
+    <div>
+        <table>
+            {{range $k, $v := .Mods}}
+            <tr>
+                <td class="mod-pkg-name">
+                    {{$k}}
+                </td>
+                <td>
+                    {{len $v}} versions
+                </td>
+            </tr>
+            {{end}}
+        </table>
+    </div>
+</div>
+{{end}}

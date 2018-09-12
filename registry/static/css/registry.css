@@ -74,6 +74,12 @@
     font-weight: bold;
 }
 
+.mod-pkg-name {
+    font-family: monospace;
+    font-size: large;
+    padding-bottom: 5px;
+}
+
 .mod-tbl tr td {
     padding-right: 20px;
 }
