@@ -11,18 +11,21 @@ import (
 var (
 // examples
 //  mod file style
-//   github.com/foo/bar v2.0.0
-//   github.com/tdewolff/parse v2.3.3+incompatible // indirect
-//   golang.org/x/tools v0.0.0-20180111040409-fbec762f837d
-//   gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405
+//    github.com/foo/bar v2.0.0
+//    github.com/tdewolff/parse v2.3.3+incompatible // indirect
+//    golang.org/x/tools v0.0.0-20180111040409-fbec762f837d
+//    gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405
 //  proxy request style
-//   /github.com/cpuguy83/go-md2man/@v/v1.0.6.info
+//    /github.com/cpuguy83/go-md2man/@v/v1.0.6.info
+//  zip style
+//    github.com/kr/pty@v1.1.1
 )
 
 // Parse will parse s as a module in string form.
 func Parse(s string) (coordinates.Module, error) {
 	orig := s
 	s = strings.Trim(s, "/")
+	s = strings.Replace(s, "@", " ", -1)
 	s = strings.TrimSuffix(s, ".info")
 	s = strings.TrimSuffix(s, ".zip")
 	s = strings.TrimSuffix(s, ".mod")
