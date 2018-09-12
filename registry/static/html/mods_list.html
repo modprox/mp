@@ -9,11 +9,9 @@
         <table>
             {{range $k, $v := .Mods}}
             <tr>
-                <td class="mod-pkg-name">
-                    {{$k}}
-                </td>
                 <td>
-                    {{len $v}} versions
+                    <span class="mod-pkg-name">{{$k}}</span>
+                    <span class="mod-pkg-versions">({{len $v}} versions)</span>
                 </td>
             </tr>
             {{end}}

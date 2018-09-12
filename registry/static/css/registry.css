@@ -80,6 +80,11 @@
     padding-bottom: 5px;
 }
 
+.mod-pkg-versions {
+    font-size: small;
+    padding-left: 10px;
+}
+
 .mod-tbl tr td {
     padding-right: 20px;
 }
