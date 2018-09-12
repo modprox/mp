@@ -30,7 +30,7 @@ func (h *moduleFile) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	modFile, err := h.index.Mod(mod)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 

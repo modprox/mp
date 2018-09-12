@@ -33,7 +33,7 @@ func (h *moduleList) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	listing, err := h.index.Versions(module)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 

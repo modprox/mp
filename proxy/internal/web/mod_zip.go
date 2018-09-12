@@ -34,7 +34,7 @@ func (h *moduleZip) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	zipBlob, err := h.store.GetZip(mod)
 	if err != nil {
 		h.log.Warnf("failed to get zip file of %s, %v", mod, err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 

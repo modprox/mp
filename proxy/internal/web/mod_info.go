@@ -34,7 +34,7 @@ func (h *moduleInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	revInfo, err := h.index.Info(mod)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
