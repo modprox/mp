@@ -58,7 +58,8 @@ func Test_StaticRedirectTransform(t *testing.T) {
 
 	rt := NewStaticRedirectTransform("mycompany", "code.mycompany.net")
 
-	transformed := rt.Modify(request)
+	transformed, err := rt.Modify(request)
+	require.NoError(t, err)
 	require.Equal(t, &Request{
 		Transport: "https",
 		Domain:    "code.mycompany.net",
