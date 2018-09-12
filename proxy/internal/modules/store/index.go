@@ -280,8 +280,6 @@ func ranges(ids []int64) Ranges {
 		cuts = append(cuts, r)
 		ids = ids[l:]
 	}
-
-	panic("there is a bug in this program")
 }
 
 // just get the first sequence from ids

@@ -73,7 +73,6 @@ func routeWebUI(csrfConfig config.CSRF, store data.Store) http.Handler {
 			csrf.Secure(!csrfConfig.DevelopmentMode),
 		)}...,
 	)
-	return sub
 }
 
 type middleware func(http.Handler) http.Handler
