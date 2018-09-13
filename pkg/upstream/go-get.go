@@ -89,7 +89,7 @@ func tryParseGoMetaTag(tag, content string) (goGetMeta, bool, error) {
 			return goGetMeta{
 				transport: groups[1],
 				domain:    groups[2],
-				path:      strings.Trim(groups[3], "/"),
+				path:      cleanupPath(groups[3]),
 			}, true, nil
 		}
 	}
@@ -97,4 +97,10 @@ func tryParseGoMetaTag(tag, content string) (goGetMeta, bool, error) {
 		return meta, false, err
 	}
 	return meta, false, nil
+}
+
+func cleanupPath(p string) string {
+	a := strings.TrimSuffix(p, "/")
+	b := strings.TrimSuffix(a, ".git")
+	return b
 }

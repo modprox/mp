@@ -19,7 +19,7 @@ func Test_parseGoGetMetadata(t *testing.T) {
 	try(metaHTML1, goGetMeta{
 		transport: "https",
 		domain:    "github.com",
-		path:      "apache/thrift.git",
+		path:      "apache/thrift",
 	}, false)
 
 	try(metaHTML2, goGetMeta{
