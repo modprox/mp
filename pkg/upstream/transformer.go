@@ -1,16 +1,12 @@
 package upstream
 
 import (
-	"bufio"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/shoenig/toolkit"
 
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
@@ -227,71 +223,6 @@ func (t *GoGetTransform) Modify(r *Request) (*Request, error) {
 	t.log.Tracef("modified: %s", modified)
 
 	return modified, nil
-}
-
-type goGetMeta struct {
-	transport string
-	domain    string
-	path      string
-}
-
-func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
-	var meta goGetMeta
-	uri := fmt.Sprintf("%s://%s/%s?go-get=1", r.Transport, r.Domain, strings.Join(r.Namespace, "/"))
-	request, err := http.NewRequest(http.MethodGet, uri, nil)
-	if err != nil {
-		return meta, err
-	}
-
-	response, err := t.httpClient.Do(request)
-	if err != nil {
-		return meta, err
-	}
-	defer toolkit.Drain(response.Body)
-
-	bs, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return meta, err
-	}
-
-	code := response.StatusCode
-	body := string(bs)
-
-	if code >= 400 {
-		t.log.Errorf("failed to do go-get redirect, received code %d from %s", code, uri)
-		t.log.Errorf("response body: %s", body)
-		return meta, errors.Errorf("bad response code (%d) from %s", code, uri)
-	}
-
-	return parseGoGetMetadata(body)
-}
-
-var (
-	sourceRe = regexp.MustCompile(`(http[s]?)://([\w-.]+)/([\w-./]+)`)
-)
-
-// gives us transport, domain, path
-func parseGoGetMetadata(content string) (goGetMeta, error) {
-	var meta goGetMeta
-	scanner := bufio.NewScanner(strings.NewReader(content))
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if strings.Contains(line, `name="go-source"`) {
-			groups := sourceRe.FindStringSubmatch(line)
-			if len(groups) != 4 {
-				return meta, errors.Errorf("malformed go-source meta tag: %q", line)
-			}
-			return goGetMeta{
-				transport: groups[1],
-				domain:    groups[2],
-				path:      groups[3],
-			}, nil
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return meta, err
-	}
-	return meta, errors.New("no go-source meta tag in response")
 }
 
 // A DomainPathTransform is used to generate or rewrite the URL path
