@@ -36,3 +36,19 @@ services:
       - POSTGRES_USER=docker
       - POSTGRES_PASSWORD=docker
       - POSTGRES_DB=modproxdb
+
+# A fake datadog/statsd collector which prints metrics
+# to standard out in your docker container
+  fakeadog:
+    image: johnstcn/fakeadog:latest
+    container_name: modprox-fakeadog
+    ports:
+      - target: 8125
+        published: 8125
+        protocol: udp
+        mode: host
+    tmpfs:
+      - /tmp
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8125

@@ -3,6 +3,7 @@ package web
 import (
 	"net/http"
 
+	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/shoenig/petrify/v4"
@@ -20,6 +21,7 @@ const (
 func NewRouter(
 	store data.Store,
 	csrfConfig config.CSRF,
+	statter statsd.Statter,
 ) http.Handler {
 
 	// 1) a router onto which sub-routers will be mounted
@@ -34,7 +36,7 @@ func NewRouter(
 	})))
 
 	// 3) an API handler, not CSRF protected
-	router.Handle("/v1/", routeAPI(store))
+	router.Handle("/v1/", routeAPI(store, statter))
 
 	// 4) a webUI handler, is CSRF protected
 	router.Handle("/", routeWebUI(csrfConfig, store))
@@ -49,11 +51,11 @@ func routeStatics(files http.Handler) http.Handler {
 	return sub
 }
 
-func routeAPI(store data.Store) http.Handler {
+func routeAPI(store data.Store, emitter statsd.Statter) http.Handler {
 	sub := mux.NewRouter()
 	sub.Handle("/v1/registry/sources/list", newRegistryList(store)).Methods(get, post)
 	sub.Handle("/v1/registry/sources/new", registryAdd(store)).Methods(post)
-	sub.Handle("/v1/proxy/heartbeat", newHeartbeatHandler(store)).Methods(post)
+	sub.Handle("/v1/proxy/heartbeat", newHeartbeatHandler(store, emitter)).Methods(post)
 	sub.Handle("/v1/proxy/configuration", newStartupHandler(store)).Methods(post)
 	return sub
 }

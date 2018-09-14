@@ -19,5 +19,9 @@
       "address": "localhost:5432",
       "database": "modproxdb"
     }
+  },
+  "statsd_emitter": {
+    "address": "127.0.0.1",
+    "port": 8125
   }
 }

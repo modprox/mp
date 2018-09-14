@@ -2,6 +2,7 @@ module github.com/modprox/mp
 
 require (
 	github.com/boltdb/bolt v1.3.1
+	github.com/cactus/go-statsd-client v3.1.1+incompatible
 	github.com/go-sql-driver/mysql v1.4.0
 	github.com/gorilla/csrf v1.5.1
 	github.com/gorilla/mux v1.6.2

@@ -3,15 +3,18 @@ package service
 import (
 	"os"
 
+	"github.com/cactus/go-statsd-client/statsd"
+
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/registry/config"
 	"github.com/modprox/mp/registry/internal/data"
 )
 
 type Registry struct {
-	config config.Configuration
-	store  data.Store
-	log    loggy.Logger
+	config  config.Configuration
+	store   data.Store
+	statter statsd.Statter
+	log     loggy.Logger
 }
 
 func NewRegistry(config config.Configuration) *Registry {
@@ -21,6 +24,7 @@ func NewRegistry(config config.Configuration) *Registry {
 	}
 
 	for _, f := range []initer{
+		initStatter,
 		initStore,
 		initWebServer,
 	} {

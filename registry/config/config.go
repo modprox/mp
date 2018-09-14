@@ -2,13 +2,15 @@ package config
 
 import (
 	"github.com/modprox/mp/pkg/configutil"
+	"github.com/modprox/mp/pkg/netservice"
 	"github.com/pkg/errors"
 )
 
 type Configuration struct {
-	WebServer WebServer       `json:"web_server"`
-	CSRF      CSRF            `json:"csrf"`
-	Database  PersistentStore `json:"database_storage"`
+	WebServer    WebServer       `json:"web_server"`
+	CSRF         CSRF            `json:"csrf"`
+	Database     PersistentStore `json:"database_storage"`
+	StatsEmitter Statsd          `json:"statsd_emitter"`
 }
 
 func (c Configuration) String() string {
@@ -95,3 +97,5 @@ func (dsn DSN) equal(other DSN) bool {
 	}
 	return true
 }
+
+type Statsd netservice.Instance
