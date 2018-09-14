@@ -5,6 +5,8 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/cactus/go-statsd-client/statsd"
+
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/proxy/config"
@@ -23,31 +25,32 @@ type homePage struct {
 }
 
 type homeHandler struct {
-	html  *template.Template
-	store data.Store
-	log   loggy.Logger
+	html    *template.Template
+	store   data.Store
+	statter statsd.Statter
+	log     loggy.Logger
 }
 
-func newHomeHandler(store data.Store) http.Handler {
+func newHomeHandler(store data.Store, statter statsd.Statter) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
 		"static/html/home.html",
 	)
 	return &homeHandler{
-		html:  html,
-		store: store,
-		log:   loggy.New("home-handler"),
+		html:    html,
+		store:   store,
+		statter: statter,
+		log:     loggy.New("home-handler"),
 	}
 }
 
 func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.log.Tracef("serving up the homepage, path: %s", r.URL.Path)
-
 	configs, err := h.store.ListStartConfigs()
 	if err != nil {
 		http.Error(w, "failed to list proxy configs", http.StatusInternalServerError)
 		h.log.Errorf("failed to list proxy configs: %v", err)
+		h.statter.Inc("ui-home-error", 1, 1)
 		return
 	}
 
@@ -55,6 +58,7 @@ func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "failed to list proxy heartbeats", http.StatusInternalServerError)
 		h.log.Errorf("failed to list proxy heartbeats: %v", err)
+		h.statter.Inc("ui-home-error", 1, 1)
 		return
 	}
 
@@ -81,6 +85,8 @@ func (h *homeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.log.Errorf("failed to execute homepage template: %v", err)
 		return
 	}
+
+	h.statter.Inc("ui-home-ok", 1, 1)
 }
 
 func transformsText(t config.Transforms) string {

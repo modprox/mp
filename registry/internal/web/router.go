@@ -39,7 +39,7 @@ func NewRouter(
 	router.Handle("/v1/", routeAPI(store, statter))
 
 	// 4) a webUI handler, is CSRF protected
-	router.Handle("/", routeWebUI(csrfConfig, store))
+	router.Handle("/", routeWebUI(csrfConfig, store, statter))
 
 	return router
 }
@@ -51,22 +51,22 @@ func routeStatics(files http.Handler) http.Handler {
 	return sub
 }
 
-func routeAPI(store data.Store, emitter statsd.Statter) http.Handler {
+func routeAPI(store data.Store, stats statsd.Statter) http.Handler {
 	sub := mux.NewRouter()
-	sub.Handle("/v1/registry/sources/list", newRegistryList(store)).Methods(get, post)
-	sub.Handle("/v1/registry/sources/new", registryAdd(store)).Methods(post)
-	sub.Handle("/v1/proxy/heartbeat", newHeartbeatHandler(store, emitter)).Methods(post)
-	sub.Handle("/v1/proxy/configuration", newStartupHandler(store)).Methods(post)
+	sub.Handle("/v1/registry/sources/list", newRegistryList(store, stats)).Methods(get, post)
+	sub.Handle("/v1/registry/sources/new", registryAdd(store, stats)).Methods(post)
+	sub.Handle("/v1/proxy/heartbeat", newHeartbeatHandler(store, stats)).Methods(post)
+	sub.Handle("/v1/proxy/configuration", newStartupHandler(store, stats)).Methods(post)
 	return sub
 }
 
-func routeWebUI(csrfConfig config.CSRF, store data.Store) http.Handler {
+func routeWebUI(csrfConfig config.CSRF, store data.Store, stats statsd.Statter) http.Handler {
 	sub := mux.NewRouter()
-	sub.Handle("/mods/new", newAddHandler(store)).Methods(get, post)
-	sub.Handle("/mods/list", newModsListHandler(store)).Methods(get)
-	sub.Handle("/mods/show", newShowHandler(store)).Methods(get)
+	sub.Handle("/mods/new", newAddHandler(store, stats)).Methods(get, post)
+	sub.Handle("/mods/list", newModsListHandler(store, stats)).Methods(get)
+	sub.Handle("/mods/show", newShowHandler(store, stats)).Methods(get)
 	// 	sub.Handle("/configure/redirects", newRedirectsHandler(store)).Methods(get)
-	sub.Handle("/", newHomeHandler(store)).Methods(get, post)
+	sub.Handle("/", newHomeHandler(store, stats)).Methods(get, post)
 	return chain(sub,
 		[]middleware{csrf.Protect(
 			// the key is used to generate csrf tokens to hand

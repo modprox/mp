@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/csrf"
 
 	"github.com/modprox/mp/pkg/coordinates"
@@ -22,12 +23,13 @@ type newPage struct {
 }
 
 type newHandler struct {
-	html  *template.Template
-	store data.Store
-	log   loggy.Logger
+	html    *template.Template
+	store   data.Store
+	statter statsd.Statter
+	log     loggy.Logger
 }
 
-func newAddHandler(store data.Store) http.Handler {
+func newAddHandler(store data.Store, statter statsd.Statter) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -35,15 +37,14 @@ func newAddHandler(store data.Store) http.Handler {
 	)
 
 	return &newHandler{
-		html:  html,
-		store: store,
-		log:   loggy.New("add-modules-handler"),
+		html:    html,
+		store:   store,
+		statter: statter,
+		log:     loggy.New("add-modules-handler"),
 	}
 }
 
 func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.log.Tracef("loaded page %v", r.Method)
-
 	var (
 		code int
 		err  error
@@ -60,12 +61,16 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Errorf("failed to serve add-module page: %v", err)
 		http.Error(w, err.Error(), code)
+		h.statter.Inc("ui-add-mod-error", 1, 1)
 		return
 	}
 
 	if err := h.html.Execute(w, page); err != nil {
 		h.log.Errorf("failed to execute add-module page: %v", err)
+		return
 	}
+
+	h.statter.Inc("ui-add-mod-ok", 1, 1)
 }
 
 func (h *newHandler) get(r *http.Request) (int, *newPage, error) {

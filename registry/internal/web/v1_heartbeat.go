@@ -34,13 +34,13 @@ func (h *heartbeatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Errorf("failed to accept heartbeat from %s, %v", from, err)
 		http.Error(w, response, code)
-		h.statter.Inc("heartbeat-unaccepted", 1, 1)
+		h.statter.Inc("api-heartbeat-unaccepted", 1, 1)
 		return
 	}
 
 	h.log.Tracef("accepted heartbeat from %s", from)
 	webutil.WriteJSON(w, response)
-	h.statter.Inc("heartbeat-accepted", 1, 1)
+	h.statter.Inc("api-heartbeat-accepted", 1, 1)
 }
 
 func (h *heartbeatHandler) post(r *http.Request) (int, string, netservice.Instance, error) {

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/cactus/go-statsd-client/statsd"
+
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/registry/internal/data"
@@ -16,12 +18,13 @@ type modsListPage struct {
 }
 
 type modsListHandler struct {
-	html  *template.Template
-	store data.Store
-	log   loggy.Logger
+	html    *template.Template
+	store   data.Store
+	statter statsd.Statter
+	log     loggy.Logger
 }
 
-func newModsListHandler(store data.Store) http.Handler {
+func newModsListHandler(store data.Store, statter statsd.Statter) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -29,19 +32,19 @@ func newModsListHandler(store data.Store) http.Handler {
 	)
 
 	return &modsListHandler{
-		html:  html,
-		store: store,
-		log:   loggy.New("list-modules-handler"),
+		html:    html,
+		store:   store,
+		statter: statter,
+		log:     loggy.New("list-modules-handler"),
 	}
 }
 
 func (h *modsListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.log.Tracef("loaded page %v", r.Method)
-
 	code, page, err := h.get(r)
 	if err != nil {
 		h.log.Errorf("failed to serve modules list page")
 		http.Error(w, err.Error(), code)
+		h.statter.Inc("ui-list-mods-error", 1, 1)
 		return
 	}
 
@@ -49,6 +52,8 @@ func (h *modsListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.log.Errorf("failed to execute modules list page")
 		return
 	}
+
+	h.statter.Inc("ui-list-mods-ok", 1, 1)
 }
 
 func (h *modsListHandler) get(r *http.Request) (int, *modsListPage, error) {
