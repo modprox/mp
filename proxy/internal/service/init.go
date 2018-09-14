@@ -186,6 +186,7 @@ func initHeartbeatSender(p *Proxy) error {
 	looper := heartbeat.NewLooper(
 		10*time.Second,
 		p.index,
+		p.statter,
 		sender,
 	)
 
@@ -195,7 +196,11 @@ func initHeartbeatSender(p *Proxy) error {
 }
 
 func initStartupConfigSender(p *Proxy) error {
-	sender := startup.NewSender(p.registryClient, 30*time.Second)
+	sender := startup.NewSender(
+		p.registryClient,
+		30*time.Second,
+		p.statter,
+	)
 	go sender.Send(
 		payloads.Configuration{
 			Self: netservice.Instance{

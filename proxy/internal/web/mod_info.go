@@ -3,20 +3,24 @@ package web
 import (
 	"net/http"
 
+	"github.com/cactus/go-statsd-client/statsd"
+
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/proxy/internal/modules/store"
 	"github.com/modprox/mp/proxy/internal/web/output"
 )
 
 type moduleInfo struct {
-	log   loggy.Logger
-	index store.Index
+	log     loggy.Logger
+	statter statsd.Statter
+	index   store.Index
 }
 
-func modInfo(index store.Index) http.Handler {
+func modInfo(index store.Index, statter statsd.Statter) http.Handler {
 	return &moduleInfo{
-		index: index,
-		log:   loggy.New("mod-info"),
+		index:   index,
+		statter: statter,
+		log:     loggy.New("mod-info"),
 	}
 }
 
@@ -27,6 +31,7 @@ func (h *moduleInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Warnf("bad request for info: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		h.statter.Inc("mod-info-bad-request", 1, 1)
 		return
 	}
 
@@ -35,9 +40,11 @@ func (h *moduleInfo) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	revInfo, err := h.index.Info(mod)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
+		h.statter.Inc("mod-info-not-found", 1, 1)
 		return
 	}
 
 	content := revInfo.String()
 	output.Write(w, output.JSON, content)
+	h.statter.Inc("mod-info-ok", 1, 1)
 }
