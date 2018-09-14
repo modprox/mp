@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/modprox/mp/pkg/clients/payloads"
-
+	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/stretchr/testify/require"
 
+	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/mp/pkg/webutil"
@@ -26,6 +26,9 @@ func Test_Send_firstTry(t *testing.T) {
 
 	address, port := webutil.ParseURL(t, ts.URL)
 
+	statter, err := statsd.NewNoopClient()
+	require.NoError(t, err)
+
 	client := registry.NewClient(registry.Options{
 		Timeout: 1 * time.Second,
 		Instances: []netservice.Instance{{
@@ -34,14 +37,14 @@ func Test_Send_firstTry(t *testing.T) {
 		}},
 	})
 
-	apiClient := NewSender(client, 1*time.Second)
+	apiClient := NewSender(client, 1*time.Second, statter)
 
 	instance := netservice.Instance{}
 	storage := config.Storage{}
 	registries := config.Registry{}
 	transforms := config.Transforms{}
 
-	err := apiClient.Send(payloads.Configuration{
+	err = apiClient.Send(payloads.Configuration{
 		Self:       instance,
 		Storage:    storage,
 		Registry:   registries,
@@ -69,6 +72,9 @@ func Test_Send_secondTry(t *testing.T) {
 
 	address, port := webutil.ParseURL(t, ts.URL)
 
+	statter, err := statsd.NewNoopClient()
+	require.NoError(t, err)
+
 	client := registry.NewClient(registry.Options{
 		Timeout: 1 * time.Second,
 		Instances: []netservice.Instance{{
@@ -77,14 +83,14 @@ func Test_Send_secondTry(t *testing.T) {
 		}},
 	})
 
-	apiClient := NewSender(client, 10*time.Millisecond)
+	apiClient := NewSender(client, 10*time.Millisecond, statter)
 
 	instance := netservice.Instance{}
 	storage := config.Storage{}
 	registries := config.Registry{}
 	transforms := config.Transforms{}
 
-	err := apiClient.Send(payloads.Configuration{
+	err = apiClient.Send(payloads.Configuration{
 		Self:       instance,
 		Storage:    storage,
 		Registry:   registries,
