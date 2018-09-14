@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/pkg/errors"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
@@ -21,6 +22,20 @@ import (
 )
 
 type initer func(*Proxy) error
+
+func initStatter(r *Proxy) error {
+	var err error
+	agent := r.config.Statsd.Agent
+	if agent.Port == 0 || agent.Address == "" {
+		r.statter, err = statsd.NewNoopClient()
+		r.log.Warnf("statsd statter is set to noop client")
+		return err
+	}
+	address := fmt.Sprintf("%s:%d", agent.Address, agent.Port)
+	r.statter, err = statsd.NewClient(address, "modprox-proxy")
+	r.log.Infof("statsd statter is set to %s", address)
+	return err
+}
 
 func initIndex(p *Proxy) error {
 	var err error
@@ -196,7 +211,7 @@ func initStartupConfigSender(p *Proxy) error {
 }
 
 func initWebServer(p *Proxy) error {
-	router := web.NewRouter(p.index, p.store)
+	router := web.NewRouter(p.index, p.store, p.statter)
 
 	listenOn := fmt.Sprintf(
 		"%s:%d",

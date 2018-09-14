@@ -7,10 +7,10 @@ import (
 )
 
 type Configuration struct {
-	WebServer    WebServer       `json:"web_server"`
-	CSRF         CSRF            `json:"csrf"`
-	Database     PersistentStore `json:"database_storage"`
-	StatsEmitter Statsd          `json:"statsd_emitter"`
+	WebServer WebServer       `json:"web_server"`
+	CSRF      CSRF            `json:"csrf"`
+	Database  PersistentStore `json:"database_storage"`
+	Statsd    Statsd          `json:"statsd_emitter"`
 }
 
 func (c Configuration) String() string {
@@ -98,4 +98,6 @@ func (dsn DSN) equal(other DSN) bool {
 	return true
 }
 
-type Statsd netservice.Instance
+type Statsd struct {
+	Agent netservice.Instance `json:"agent"`
+}

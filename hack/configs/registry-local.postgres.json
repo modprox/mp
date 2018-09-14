@@ -20,8 +20,10 @@
       "database": "modproxdb"
     }
   },
-  "statsd_emitter": {
-    "address": "127.0.0.1",
-    "port": 8125
+  "statsd": {
+    "agent": {
+      "address": "127.0.0.1",
+      "port": 8125
+    }
   }
 }

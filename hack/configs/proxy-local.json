@@ -8,6 +8,12 @@
     "bind_address": "127.0.0.1",
     "port": 12505
   },
+  "statsd": {
+    "agent": {
+      "address": "127.0.0.1",
+      "port": 8125
+    }
+  },
   "registry": {
     "instances": [
       {

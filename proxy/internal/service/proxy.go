@@ -3,6 +3,8 @@ package service
 import (
 	"os"
 
+	"github.com/cactus/go-statsd-client/statsd"
+
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/loggy"
@@ -13,6 +15,7 @@ import (
 
 type Proxy struct {
 	config         config.Configuration
+	statter        statsd.Statter
 	index          store.Index
 	store          store.ZipStore
 	registryClient registry.Client
@@ -28,6 +31,7 @@ func NewProxy(configuration config.Configuration) *Proxy {
 	}
 
 	for _, f := range []initer{
+		initStatter,
 		initIndex,
 		initStore,
 		initRegistryClient,
