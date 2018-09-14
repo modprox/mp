@@ -58,13 +58,13 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		h.log.Tracef("failed to serve add-module page: %v", err)
+		h.log.Errorf("failed to serve add-module page: %v", err)
 		http.Error(w, err.Error(), code)
 		return
 	}
 
 	if err := h.html.Execute(w, page); err != nil {
-		h.log.Tracef("failed to serve add-module page: %v", err)
+		h.log.Errorf("failed to execute add-module page: %v", err)
 	}
 }
 

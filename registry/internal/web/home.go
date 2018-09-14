@@ -5,10 +5,9 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/modprox/mp/proxy/config"
-
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/proxy/config"
 	"github.com/modprox/mp/registry/internal/data"
 	"github.com/modprox/mp/registry/static"
 )

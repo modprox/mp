@@ -37,6 +37,16 @@ func (s *store) ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error
 	return modulesFromRows(rows)
 }
 
+func (s *store) ListModulesBySource(source string) ([]coordinates.SerialModule, error) {
+	rows, err := s.statements[selectModulesBySource].Query(source)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	return modulesFromRows(rows)
+}
+
 func modulesFromRows(rows *sql.Rows) ([]coordinates.SerialModule, error) {
 	modules := make([]coordinates.SerialModule, 0, 10)
 	for rows.Next() {

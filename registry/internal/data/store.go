@@ -18,6 +18,7 @@ type Store interface {
 	// modules
 	ListModuleIDs() ([]int64, error)
 	ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error)
+	ListModulesBySource(source string) ([]coordinates.SerialModule, error)
 	ListModules() ([]coordinates.SerialModule, error)
 	InsertModules([]coordinates.Module) (int, error)
 

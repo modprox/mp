@@ -1,0 +1,21 @@
+{{define "body"}}
+<div class="container">
+    <br/><br/><br/>
+    <div class="bigheader">
+        <h3>versions of <span class="mod-h-source">{{$.Source}}</span></h3>
+    </div>
+    <div>
+        {{if not .Mods}}
+            <p class="mod-none">there are none</p>
+        {{end}}
+        <table class="mod-show">
+            {{range $v := .Mods}}
+            <tr>
+                <td>{{.Source}}</td>
+                <td>{{.Version}}</td>
+            </tr>
+            {{end}}
+        </table>
+    </div>
+</div>
+{{end}}

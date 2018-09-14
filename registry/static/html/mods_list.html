@@ -11,7 +11,8 @@
             <tr>
                 <td>
                     <span class="mod-pkg-name">{{$k}}</span>
-                    <span class="mod-pkg-versions">({{len $v}} versions)</span>
+                    <span class="mod-pkg-versions">({{len $v}} <a
+                    href="/mods/show?mod={{$k}}">versions</a>)</span>
                 </td>
             </tr>
             {{end}}

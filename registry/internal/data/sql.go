@@ -9,6 +9,7 @@ import (
 const (
 	insertModuleSQL = iota
 	selectModuleIDSQL
+	selectModulesBySource
 	selectModuleIDScanSQL
 	selectModulesByIDsSQL
 	selectSourcesScanSQL
@@ -47,6 +48,7 @@ var (
 	postgreSQLText = map[int]string{
 		insertModuleSQL:         `insert into modules (source, version) values ($1, $2)`,
 		selectModuleIDSQL:       `select id from modules where source=$1 and version=$2`,
+		selectModulesBySource:   `select id, source, version from modules where source=$1`,
 		selectModuleIDScanSQL:   `select id from modules order by id asc`,                                    // index scan module ids
 		selectModulesByIDsSQL:   `select id, source, version from modules where id=any($1) order by id asc;`, // $1 is array
 		selectSourcesScanSQL:    `select id, source, version from modules`,

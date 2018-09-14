@@ -89,6 +89,22 @@
     padding-right: 20px;
 }
 
+.mod-h-source {
+    color: #660066;
+    font-family: monospace;
+}
+
+.mod-none {
+    color: gray;
+    font-size: large;
+    padding-left: 10px;
+}
+
+.mod-show tr td {
+    padding-right: 10px;
+    font-size: x-large;
+}
+
 .proxy-addr {
     font-size: xx-large;
     font-family: monospace;
