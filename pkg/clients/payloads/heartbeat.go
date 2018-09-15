@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/modprox/mp/pkg/netservice"
 )
@@ -13,13 +14,26 @@ type Heartbeat struct {
 	Self        instance `json:"self"`
 	NumModules  int      `json:"num_modules"`
 	NumVersions int      `json:"num_versions"`
+	Timestamp   int      `json:"send_time"` // unix timestamp seconds
 }
 
-func (h Heartbeat) String() string {
+func (hb Heartbeat) String() string {
 	return fmt.Sprintf("[%s:%d %d %d]",
-		h.Self.Address,
-		h.Self.Port,
-		h.NumModules,
-		h.NumVersions,
+		hb.Self.Address,
+		hb.Self.Port,
+		hb.NumModules,
+		hb.NumVersions,
 	)
+}
+
+func (hb Heartbeat) TimeSince() string {
+	t1 := time.Unix(int64(hb.Timestamp), 0)
+	dur := time.Since(t1)
+	d := dur.Round(time.Second)
+	h := d / time.Hour
+	d -= h * time.Hour
+	m := d / time.Minute
+	d -= m * time.Minute
+	s := d / time.Second
+	return fmt.Sprintf("%dh%dm%ds", h, m, s)
 }

@@ -123,6 +123,7 @@ func (s *store) ListHeartbeats() ([]payloads.Heartbeat, error) {
 			&heartbeat.Self.Port,
 			&heartbeat.NumModules,
 			&heartbeat.NumVersions,
+			&heartbeat.Timestamp,
 		); err != nil {
 			return nil, err
 		}
