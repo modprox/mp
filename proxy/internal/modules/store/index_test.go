@@ -235,3 +235,35 @@ func Test_first(t *testing.T) {
 		Range{4, 4}, 1,
 	)
 }
+
+func Test_Summary_empty(t *testing.T) {
+	tmpDir, index := setupIndex(t)
+	defer cleanupIndex(t, tmpDir)
+
+	mods, versions, err := index.Summary()
+	require.NoError(t, err)
+	require.Equal(t, 0, mods)
+	require.Equal(t, 0, versions)
+}
+
+func Test_Summary(t *testing.T) {
+	tmpDir, index := setupIndex(t)
+	defer cleanupIndex(t, tmpDir)
+
+	insert(t, index, "github.com/pkg/errors", 1)
+	insert(t, index, "github.com/pkg/errors", 2)
+	insert(t, index, "github.com/pkg/errors", 3)
+	insert(t, index, "github.com/pkg/errors", 4)
+	insert(t, index, "github.com/pkg/errors", 5)
+
+	insert(t, index, "github.com/pkg/toolkit", 10)
+	insert(t, index, "github.com/pkg/toolkit", 11)
+	insert(t, index, "github.com/pkg/errors", 12)
+
+	insert(t, index, "github.com/pkg/errors", 20)
+
+	mods, versions, err := index.Summary()
+	require.NoError(t, err)
+	require.Equal(t, 2, mods)
+	require.Equal(t, 9, versions)
+}

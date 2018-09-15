@@ -56,8 +56,8 @@ func NewSender(options Options) Sender {
 func (s *sender) Send(numPackages, numModules int) error {
 	heartbeat := payloads.Heartbeat{
 		Self:        s.self,
-		NumPackages: numPackages,
-		NumModules:  numModules,
+		NumModules:  numPackages,
+		NumVersions: numModules,
 	}
 
 	s.log.Infof("sending a heartbeat: %s", heartbeat)

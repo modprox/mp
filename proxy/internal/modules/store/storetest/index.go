@@ -115,6 +115,34 @@ func (mockerySelf *Index) Put(mockeryArg0 store.ModuleAddition) error {
 	return r0
 }
 
+// Summary provides a mock function with given fields:
+func (mockerySelf *Index) Summary() (int, int, error) {
+	ret := mockerySelf.Called()
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func() int); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 int
+	if rf, ok := ret.Get(1).(func() int); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	var r2 error
+	if rf, ok := ret.Get(2).(func() error); ok {
+		r2 = rf()
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // Versions provides a mock function with given fields: module
 func (mockerySelf *Index) Versions(module string) ([]string, error) {
 	ret := mockerySelf.Called(module)
