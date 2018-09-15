@@ -5,16 +5,23 @@
         <h3>register new modules</h3>
     </div>
     <div>
+        <p class="new-module-instructions">
+            paste content of <em>go.sum</em> file<br/>
+            paste the <em>require</em> section of <em>go.mod</em> file<br/>
+            common module formats accepted
+        </p>
+    </div>
+    <div>
         <form method="POST" id="new-module" action="/mods/new">
             {{ .CSRFField }}
             <textarea
                     name="modules-input"
                     form="new-module"
-                    rows="8" cols="60"
+                    rows="16" cols="110"
                     placeholder=" e.g. github.com/pkg/errors v0.8.0"
                     required autofocus></textarea>
-            <br/>
-            <input type="submit" form="new-module" class="btn btn-basic" value="ADD">
+            <br/><br/>
+            <input type="submit" form="new-module" class="btn btn-success" value="✚ ADD">
         </form>
     </div>
 

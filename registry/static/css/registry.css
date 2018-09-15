@@ -44,6 +44,17 @@
     padding-bottom: 20px;
 }
 
+.new-module-instructions {
+    padding-left: 15px;
+    padding-bottom: 20px;
+    font-size: medium;
+}
+
+.new-module-instructions em {
+    font-style: normal;
+    font-family: monospace;
+}
+
 .list-mods tr td {
     padding-right: 20px;
 }
