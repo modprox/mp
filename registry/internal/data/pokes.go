@@ -100,10 +100,10 @@ func (s *store) SetHeartbeat(heartbeat payloads.Heartbeat) error {
 	_, err := s.statements[insertHeartbeatSQL].Exec(
 		heartbeat.Self.Address,
 		heartbeat.Self.Port,
-		heartbeat.NumPackages,
 		heartbeat.NumModules,
-		heartbeat.NumPackages, // upsert
-		heartbeat.NumModules,  // upsert
+		heartbeat.NumVersions,
+		heartbeat.NumModules,
+		heartbeat.NumVersions,
 	)
 	return err
 }
@@ -122,7 +122,7 @@ func (s *store) ListHeartbeats() ([]payloads.Heartbeat, error) {
 			&heartbeat.Self.Address,
 			&heartbeat.Self.Port,
 			&heartbeat.NumModules,
-			&heartbeat.NumPackages,
+			&heartbeat.NumVersions,
 		); err != nil {
 			return nil, err
 		}

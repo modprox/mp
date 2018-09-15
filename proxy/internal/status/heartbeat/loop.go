@@ -45,15 +45,17 @@ func (l *looper) Loop() {
 }
 
 func (l *looper) loop() error {
-	// todo: get real information, depends on proxy #14
-	// todo: when we have a boltdb and can maintain a separate
-	// todo: table with this information indexed
-	numPackages := 1
-	numModules := 2
+	modules, versions, err := l.index.Summary()
+	if err != nil {
+		return err
+	}
+
+	l.statter.Gauge("index-num-modules", int64(modules), 1)
+	l.statter.Gauge("index-num-versions", int64(versions), 1)
 
 	if err := l.sender.Send(
-		numPackages,
-		numModules,
+		modules,
+		versions,
 	); err != nil {
 		l.statter.Inc("heartbeat-send-failure", 1, 1)
 		l.log.Warnf("could not send heartbeat, will try again later: %v", err)

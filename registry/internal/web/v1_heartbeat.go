@@ -69,9 +69,9 @@ func checkHeartbeat(heartbeat payloads.Heartbeat) error {
 		return errors.New("heartbeat address cannot be empty")
 	case heartbeat.Self.Port <= 0:
 		return errors.New("heartbeat port must be positive")
-	case heartbeat.NumPackages < 0:
-		return errors.New("heartbeat num_packages must be non-negative")
 	case heartbeat.NumModules < 0:
+		return errors.New("heartbeat num_packages must be non-negative")
+	case heartbeat.NumVersions < 0:
 		return errors.New("heartbeat num_modules must be non-negative")
 	}
 	return nil

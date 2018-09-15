@@ -42,6 +42,7 @@ type Index interface {
 	Contains(coordinates.Module) (bool, error)
 	Put(ModuleAddition) error
 	IDs() (Ranges, error)
+	Summary() (int, int, error)
 }
 
 type ModuleAddition struct {
@@ -303,4 +304,31 @@ func first(ids []int64) (Range, int) {
 
 	includes := Range{seq[0], seq[len(seq)-1]}
 	return includes, len(seq)
+}
+
+func (i *boltIndex) Summary() (int, int, error) {
+	m := make(map[string]int, 1024) // module => num versions
+
+	if err := i.db.View(func(tx *bolt.Tx) error {
+		idBkt := tx.Bucket(idBktLbl)
+		return idBkt.ForEach(func(k, _ []byte) error {
+			i := bytes.Index(k, []byte("@"))
+			mod := string(k[:i])
+			m[mod]++
+			return nil
+		})
+	}); err != nil {
+		return 0, 0, err
+	}
+
+	mods, versions := count(m)
+	return mods, versions, nil
+}
+
+func count(m map[string]int) (int, int) {
+	count := 0
+	for _, v := range m {
+		count += v
+	}
+	return len(m), count
 }
