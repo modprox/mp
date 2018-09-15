@@ -36,25 +36,25 @@ func NewHTTPClient(options HTTPOptions) Client {
 	}
 }
 
-func (c *httpClient) Protocols() []string {
+func (hc *httpClient) Protocols() []string {
 	return []string{"http", "https"}
 
 }
 
-func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
+func (hc *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 	if r == nil {
 		return nil, errors.New("request is nil")
 	}
 
 	uri := r.URI()
-	c.log.Tracef("making a request to %s", uri)
+	hc.log.Tracef("making a request to %s", uri)
 
-	request, err := c.convert(r)
+	request, err := hc.convert(r)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not create request from %s", uri)
 	}
 
-	response, err := c.client.Do(request)
+	response, err := hc.client.Do(request)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not do request for %s", uri)
 	}
@@ -70,7 +70,7 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 				response.StatusCode,
 			)
 		}
-		c.log.Errorf(
+		hc.log.Errorf(
 			"bad response (%d), body: %s",
 			response.StatusCode,
 			string(bs),
@@ -86,7 +86,7 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 	return ioutil.ReadAll(response.Body)
 }
 
-func (c *httpClient) convert(r *upstream.Request) (*http.Request, error) {
+func (hc *httpClient) convert(r *upstream.Request) (*http.Request, error) {
 	uri := r.URI()
 	request, err := http.NewRequest(
 		http.MethodGet,
