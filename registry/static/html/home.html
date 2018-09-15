@@ -18,6 +18,10 @@
                     <p>Latest Heartbeat</p>
                     <table border="0">
                         <tr>
+                            <td class="proxy-heartbeat-label">Last Seen</td>
+                            <td class="proxy-heartbeat-value">{{.Heartbeat.TimeSince}}</td>
+                        </tr>
+                        <tr>
                             <td class="proxy-heartbeat-label">Modules</td>
                             <td class="proxy-heartbeat-value">{{.Heartbeat.NumModules}}</td>
                         </tr>

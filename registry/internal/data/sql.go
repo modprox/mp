@@ -55,6 +55,8 @@ var (
 		insertHeartbeatSQL:      `insert into proxy_heartbeats (hostname, port, num_packages, num_modules) values ($1, $2, $3, $4) on conflict (hostname, port) do update set num_packages=$5, num_modules=$6, ts=current_timestamp`,
 		insertStartupConfigSQL:  `insert into proxy_configurations (hostname, port, storage, registry, transforms) values ($1, $2, $3, $4, $5) on conflict (hostname, port) do update set storage=$3, registry=$4, transforms=$5`,
 		selectStartupConfigsSQL: `select hostname, port, storage, registry, transforms from proxy_configurations`,
-		selectHeartbeatsSQL:     `select hostname, port, num_packages, num_modules from proxy_heartbeats`,
+		selectHeartbeatsSQL:     `select hostname, port, num_packages, num_modules, cast(extract(epoch from ts) as integer) from proxy_heartbeats`,
 	}
 )
+
+// select cast(extract(epoch from ts) as integer) from proxy_heartbeats
