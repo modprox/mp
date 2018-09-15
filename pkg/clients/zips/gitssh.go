@@ -36,7 +36,7 @@ func NewGitClient(options GitOptions) Client {
 }
 
 func (gc *gitClient) Protocols() []string {
-	return []string{"git", "git+ssh"}
+	return []string{"git"}
 }
 
 func (gc *gitClient) Get(r *upstream.Request) (repository.Blob, error) {

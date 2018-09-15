@@ -2,9 +2,12 @@ module github.com/modprox/mp
 
 require (
 	github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 // indirect
+	github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239 // indirect
 	github.com/boltdb/bolt v1.3.1
 	github.com/cactus/go-statsd-client v3.1.1+incompatible
 	github.com/emirpasic/gods v1.9.0 // indirect
+	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
+	github.com/gliderlabs/ssh v0.1.1 // indirect
 	github.com/go-sql-driver/mysql v1.4.0
 	github.com/google/go-cmp v0.2.0 // indirect
 	github.com/gorilla/csrf v1.5.1

@@ -154,13 +154,6 @@ func (t *StaticRedirectTransform) Modify(r *Request) (*Request, error) {
 // the module is being hosted.
 //
 // Additional domains can be specified via configuration.
-// The known go-get redirectors in the wild include:
-// - golang.org
-// - google.golang.org
-// - cloud.google.com
-// - gopkg.in
-// - contrib.go.opencensus.io
-// - go.uber.org
 type GoGetTransform struct {
 	domains    map[string]bool // only implement redirect metadata
 	httpClient *http.Client
@@ -187,6 +180,8 @@ func NewGoGetTransform(domains []string) Transform {
 	match["go.opencensus.io"] = true
 	match["go.uber.org"] = true
 	match["git.apache.org"] = true
+	match["code.cloudfoundry.org"] = true
+	match["collectd.org"] = true
 
 	return &GoGetTransform{
 		domains: match,
