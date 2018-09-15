@@ -1,7 +1,3 @@
-create database if not exists modproxdb;
-
-use modproxdb;
-
 create table modules (
  -- todo: go back and do all this for mysql
 );

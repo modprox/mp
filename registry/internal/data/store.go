@@ -34,13 +34,7 @@ func Connect(kind string, dsn config.DSN) (Store, error) {
 	var err error
 
 	if kind == "mysql" {
-		db, err = connectMySQL(mysql.Config{
-			User:                 dsn.User,
-			Passwd:               dsn.Password,
-			Addr:                 dsn.Address,
-			DBName:               dsn.Database,
-			AllowNativePasswords: dsn.AllowNativePasswords,
-		})
+		db, err = connectMySQL(dsn)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to connect to mysql")
 		}
@@ -56,9 +50,16 @@ func Connect(kind string, dsn config.DSN) (Store, error) {
 	return New(kind, db)
 }
 
-func connectMySQL(config mysql.Config) (*sql.DB, error) {
-	dsn := config.FormatDSN()
-	return sql.Open("mysql", dsn)
+func connectMySQL(dsn config.DSN) (*sql.DB, error) {
+	mysqlConfig := mysql.Config{
+		User:                 dsn.User,
+		Passwd:               dsn.Password,
+		Addr:                 dsn.Address,
+		DBName:               dsn.Database,
+		AllowNativePasswords: dsn.AllowNativePasswords,
+	}
+	formattedDSN := mysqlConfig.FormatDSN()
+	return sql.Open("mysql", formattedDSN)
 }
 
 func connectPostgreSQL(dsn config.DSN) (*sql.DB, error) {
