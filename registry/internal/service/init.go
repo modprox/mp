@@ -6,8 +6,10 @@ import (
 	"os"
 
 	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 
+	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/registry/internal/data"
 	"github.com/modprox/mp/registry/internal/web"
 )
@@ -40,7 +42,33 @@ func initStore(r *Registry) error {
 }
 
 func initWebServer(r *Registry) error {
-	router := web.NewRouter(r.store, r.config.CSRF, r.statter)
+	var middleAPI []webutil.Middleware
+	if len(r.config.WebServer.APIKeys) > 0 {
+		middleAPI = append(
+			middleAPI,
+			webutil.KeyGuard(r.config.WebServer.APIKeys),
+		)
+	}
+
+	middleUI := []webutil.Middleware{
+		csrf.Protect(
+			// the key is used to generate CSRF tokens to hand
+			// out on html form loads
+			[]byte(r.config.CSRF.AuthenticationKey),
+
+			// CSRF cookies are https-only normally, so for development
+			//// mode make sure the CSRF package knows we are using http
+			csrf.Secure(!r.config.CSRF.DevelopmentMode),
+		),
+	}
+
+	router := web.NewRouter(
+		middleAPI,
+		middleUI,
+		r.store,
+		r.config.CSRF,
+		r.statter,
+	)
 
 	listenOn := fmt.Sprintf(
 		"%s:%d",

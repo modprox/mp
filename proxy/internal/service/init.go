@@ -14,6 +14,7 @@ import (
 	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/mp/pkg/upstream"
+	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/proxy/internal/modules/background"
 	"github.com/modprox/mp/proxy/internal/modules/store"
 	"github.com/modprox/mp/proxy/internal/status/heartbeat"
@@ -81,6 +82,7 @@ func initRegistryClient(p *Proxy) error {
 	p.registryClient = registry.NewClient(registry.Options{
 		Timeout:   time.Duration(clientTimeout) * time.Second,
 		Instances: p.config.Registry.Instances,
+		APIKeys:   p.config.Registry.APIKeys,
 	})
 
 	return nil
@@ -216,7 +218,14 @@ func initStartupConfigSender(p *Proxy) error {
 }
 
 func initWebServer(p *Proxy) error {
-	router := web.NewRouter(p.index, p.store, p.statter)
+	var middles []webutil.Middleware
+
+	router := web.NewRouter(
+		middles,
+		p.index,
+		p.store,
+		p.statter,
+	)
 
 	listenOn := fmt.Sprintf(
 		"%s:%d",

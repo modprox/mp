@@ -13,6 +13,7 @@ import (
 
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/netservice"
+	"github.com/modprox/mp/pkg/webutil"
 )
 
 //go:generate mockery -interface=Client -package=registrytest
@@ -26,6 +27,7 @@ type Client interface {
 
 type Options struct {
 	Instances []netservice.Instance
+	APIKeys   []string
 	Timeout   time.Duration
 }
 
@@ -36,6 +38,11 @@ type client struct {
 }
 
 func NewClient(options Options) Client {
+	if options.Timeout <= 0 {
+		// some reasonable default timeout
+		options.Timeout = 1 * time.Minute
+	}
+
 	return &client{
 		options: options,
 		httpClient: &http.Client{
@@ -99,6 +106,7 @@ func (c *client) getSingle(path string, instance netservice.Instance, w io.Write
 		c.log.Errorf("GET single create request failed: %v", err)
 		return err
 	}
+	c.setAPIKeys(request)
 
 	response, err := c.httpClient.Do(request)
 	if err != nil {
@@ -142,6 +150,7 @@ func (c *client) postSingle(
 		c.log.Errorf("POST single create request failed: %v", err)
 		return err
 	}
+	c.setAPIKeys(request)
 
 	response, err := c.httpClient.Do(request)
 	if err != nil {
@@ -167,6 +176,12 @@ func (c *client) postSingle(
 	}
 
 	return nil
+}
+
+func (c *client) setAPIKeys(r *http.Request) {
+	for _, key := range c.options.APIKeys {
+		r.Header.Add(webutil.HeaderAPIKey, key)
+	}
 }
 
 func formatURL(instance netservice.Instance, path string) string {

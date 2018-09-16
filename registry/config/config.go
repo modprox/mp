@@ -23,8 +23,9 @@ type WebServer struct {
 		Certificate string `json:"certificate"`
 		Key         string `json:"key"`
 	} `json:"tls"`
-	BindAddress string `json:"bind_address"`
-	Port        int    `json:"port"`
+	BindAddress string   `json:"bind_address"`
+	Port        int      `json:"port"`
+	APIKeys     []string `json:"api_keys"`
 }
 
 type CSRF struct {

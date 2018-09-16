@@ -8,6 +8,7 @@ import (
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/proxy/config"
 	"github.com/modprox/mp/proxy/internal/modules/background"
 	"github.com/modprox/mp/proxy/internal/modules/store"
@@ -15,6 +16,7 @@ import (
 
 type Proxy struct {
 	config         config.Configuration
+	middles        []webutil.Middleware
 	statter        statsd.Statter
 	index          store.Index
 	store          store.ZipStore

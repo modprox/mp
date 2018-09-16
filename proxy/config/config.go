@@ -36,9 +36,10 @@ type Storage struct {
 type instances = []netservice.Instance
 
 type Registry struct {
+	Instances       instances `json:"instances"`
 	PollFrequencyS  int       `json:"poll_frequency_s"`
 	RequestTimeoutS int       `json:"request_timeout_s"`
-	Instances       instances `json:"instances"`
+	APIKeys         []string  `json:"api_keys"`
 }
 
 type Transforms struct {

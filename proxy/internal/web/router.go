@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"github.com/cactus/go-statsd-client/statsd"
-
 	"github.com/gorilla/mux"
 
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/proxy/internal/modules/store"
 )
 
@@ -17,6 +17,7 @@ const (
 )
 
 func NewRouter(
+	middles []webutil.Middleware,
 	index store.Index,
 	store store.ZipStore,
 	statter statsd.Statter,
@@ -32,7 +33,7 @@ func NewRouter(
 	router.PathPrefix("/").Handler(modZip(store, statter)).MatcherFunc(suffix(".zip")).Methods(get)
 	router.PathPrefix("/").HandlerFunc(notFound(statter))
 
-	return router
+	return webutil.Chain(router, middles...)
 }
 
 func suffix(s string) mux.MatcherFunc {

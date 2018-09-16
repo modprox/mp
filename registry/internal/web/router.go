@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/cactus/go-statsd-client/statsd"
-	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 	"github.com/shoenig/petrify/v4"
 
+	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/registry/config"
 	"github.com/modprox/mp/registry/internal/data"
 	"github.com/modprox/mp/registry/static"
@@ -19,6 +19,8 @@ const (
 )
 
 func NewRouter(
+	middleAPI []webutil.Middleware,
+	middleUI []webutil.Middleware,
 	store data.Store,
 	csrfConfig config.CSRF,
 	statter statsd.Statter,
@@ -36,10 +38,10 @@ func NewRouter(
 	})))
 
 	// 3) an API handler, not CSRF protected
-	router.Handle("/v1/", routeAPI(store, statter))
+	router.Handle("/v1/", routeAPI(middleAPI, store, statter))
 
 	// 4) a webUI handler, is CSRF protected
-	router.Handle("/", routeWebUI(csrfConfig, store, statter))
+	router.Handle("/", routeWebUI(middleUI, store, statter))
 
 	return router
 }
@@ -51,41 +53,21 @@ func routeStatics(files http.Handler) http.Handler {
 	return sub
 }
 
-func routeAPI(store data.Store, stats statsd.Statter) http.Handler {
+func routeAPI(middles []webutil.Middleware, store data.Store, stats statsd.Statter) http.Handler {
 	sub := mux.NewRouter()
 	sub.Handle("/v1/registry/sources/list", newRegistryList(store, stats)).Methods(get, post)
 	sub.Handle("/v1/registry/sources/new", registryAdd(store, stats)).Methods(post)
 	sub.Handle("/v1/proxy/heartbeat", newHeartbeatHandler(store, stats)).Methods(post)
 	sub.Handle("/v1/proxy/configuration", newStartupHandler(store, stats)).Methods(post)
-	return sub
+	return webutil.Chain(sub, middles...)
 }
 
-func routeWebUI(csrfConfig config.CSRF, store data.Store, stats statsd.Statter) http.Handler {
+func routeWebUI(middles []webutil.Middleware, store data.Store, stats statsd.Statter) http.Handler {
 	sub := mux.NewRouter()
 	sub.Handle("/mods/new", newAddHandler(store, stats)).Methods(get, post)
 	sub.Handle("/mods/list", newModsListHandler(store, stats)).Methods(get)
 	sub.Handle("/mods/show", newShowHandler(store, stats)).Methods(get)
 	// 	sub.Handle("/configure/redirects", newRedirectsHandler(store)).Methods(get)
 	sub.Handle("/", newHomeHandler(store, stats)).Methods(get, post)
-	return chain(sub,
-		[]middleware{csrf.Protect(
-			// the key is used to generate csrf tokens to hand
-			// out on html form loads
-			[]byte(csrfConfig.AuthenticationKey),
-
-			// CSRF cookies are https-only normally, so for development
-			//// mode make sure the csrf package knows we are using http
-			csrf.Secure(!csrfConfig.DevelopmentMode),
-		)}...,
-	)
-}
-
-type middleware func(http.Handler) http.Handler
-
-//  chain recursively chains middleware together
-func chain(h http.Handler, m ...middleware) http.Handler {
-	if len(m) == 0 {
-		return h
-	}
-	return m[0](chain(h, m[1:cap(m)]...))
+	return webutil.Chain(sub, middles...)
 }
