@@ -6,7 +6,8 @@
       "key": ""
     },
     "bind_address": "127.0.0.1",
-    "port": 12500
+    "port": 12500,
+    "api_keys": ["abc123"]
   },
   "csrf": {
     "development_mode": true,
@@ -19,6 +20,12 @@
       "address": "localhost:3306",
       "database": "modproxdb",
       "allow_native_passwords": true
+    }
+  },
+  "statsd": {
+    "agent": {
+      "address": "127.0.0.1",
+      "port": 8125
     }
   }
 }

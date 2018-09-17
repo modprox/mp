@@ -42,7 +42,16 @@ func load(kind string, db *sql.DB) (statements, error) {
 
 var (
 	mySQLText = map[int]string{
-		// todo: implement mysql queries
+		insertModuleSQL:         `insert into modules(source, version) values (?, ?)`,
+		selectModuleIDSQL:       `select id from modules where source=? and version=?`,
+		selectModulesBySource:   `select id, source, version from modules where source=?`,
+		selectModuleIDScanSQL:   `select id from modules order by id asc`,
+		selectModulesByIDsSQL:   `select id, source, version from modules where id in(?) order by id asc`, // array how to
+		selectSourcesScanSQL:    `select id, source, version from modules`,
+		insertHeartbeatSQL:      `insert into proxy_heartbeats (hostname, port, num_modules, num_versions) values (?, ?, ?, ?) on duplicate key update num_modules=?, num_versions=?, ts=current_timestamp;`,
+		insertStartupConfigSQL:  `insert into proxy_configurations (hostname, port, storage, registry, transforms) values (?, ?, ?, ?, ?) on duplicate key update storage=?, registry=?, transforms=?`,
+		selectStartupConfigsSQL: `select hostname, port, storage, registry, transforms from proxy_configurations`,
+		selectHeartbeatsSQL:     `select hostname, port, num_modules, num_versions, (unix_timestamp(ts) / 1000) from proxy_heartbeats`,
 	}
 
 	postgreSQLText = map[int]string{
@@ -53,7 +62,7 @@ var (
 		selectModulesByIDsSQL:   `select id, source, version from modules where id=any($1) order by id asc;`, // $1 is array
 		selectSourcesScanSQL:    `select id, source, version from modules`,
 		insertHeartbeatSQL:      `insert into proxy_heartbeats (hostname, port, num_packages, num_modules) values ($1, $2, $3, $4) on conflict (hostname, port) do update set num_packages=$5, num_modules=$6, ts=current_timestamp`,
-		insertStartupConfigSQL:  `insert into proxy_configurations (hostname, port, storage, registry, transforms) values ($1, $2, $3, $4, $5) on conflict (hostname, port) do update set storage=$3, registry=$4, transforms=$5`,
+		insertStartupConfigSQL:  `insert into proxy_configurations (hostname, port, storage, registry, transforms) values ($1, $2, $3, $4, $5) on conflict (hostname, port) do update set storage=$6, registry=$7, transforms=$8`,
 		selectStartupConfigsSQL: `select hostname, port, storage, registry, transforms from proxy_configurations`,
 		selectHeartbeatsSQL:     `select hostname, port, num_packages, num_modules, cast(extract(epoch from ts) as integer) from proxy_heartbeats`,
 	}

@@ -1,41 +1,39 @@
 version: '3.4'
 
 services:
-#  mysql:
-#    image: mysql/mysql-server:5.7
-#    container_name: modprox-mysql
-#    ports:
-#      - "3306:3306"
-#    tmpfs:
-#      - /var/lib/mysql
-#      - /tmp
-#    volumes:
-#      - ./sql/mysql:/docker-entrypoint-initdb.d
-#    environment:
-#      - MYSQL_ROOT_PASSWORD=passw0rd
-#      - MYSQL_DATABASE=modproxdb
-#      - MYSQL_USER=docker
-#      - MYSQL_PASSWORD=docker
-#    entrypoint:
-#      - /entrypoint.sh
-#      - mysqld
-
-# Using only PostgreSQL for development right now
-# Support for MySQL will come back soon
-  postgres:
-    image: postgres:10.5-alpine
-    container_name: modprox-postgres
+  mysql:
+    image: mysql/mysql-server:5.7
+    container_name: modprox-mysql
     ports:
-      - "5432:5432"
+      - "3306:3306"
     tmpfs:
-      - /var/lib/postgresql
+      - /var/lib/mysql
       - /tmp
     volumes:
-      - ./sql/postgres:/docker-entrypoint-initdb.d
+      - ./sql/mysql:/docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_USER=docker
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=modproxdb
+      - MYSQL_ROOT_PASSWORD=passw0rd
+      - MYSQL_DATABASE=modproxdb
+      - MYSQL_USER=docker
+      - MYSQL_PASSWORD=docker
+    entrypoint:
+      - /entrypoint.sh
+      - mysqld
+
+#  postgres:
+#    image: postgres:10.5-alpine
+#    container_name: modprox-postgres
+#    ports:
+#      - "5432:5432"
+#    tmpfs:
+#      - /var/lib/postgresql
+#      - /tmp
+#    volumes:
+#      - ./sql/postgres:/docker-entrypoint-initdb.d
+#    environment:
+#      - POSTGRES_USER=docker
+#      - POSTGRES_PASSWORD=docker
+#      - POSTGRES_DB=modproxdb
 
 # A fake datadog/statsd collector which prints metrics
 # to standard out in your docker container

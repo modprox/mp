@@ -18,6 +18,9 @@ func (s *store) SetStartConfig(config payloads.Configuration) error {
 		storageText,
 		registriesText,
 		transformsText,
+		storageText,    // on dup
+		registriesText, // on dup
+		transformsText, // on dup
 	)
 	return err
 }

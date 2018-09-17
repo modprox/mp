@@ -3,11 +3,12 @@ package heartbeat
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/loggy"
@@ -99,6 +100,10 @@ func (s *sender) trySend(
 		bytes.NewReader(bs),
 	)
 
-	_, err = s.httpClient.Do(request)
-	return err
+	response, err := s.httpClient.Do(request)
+	if response.StatusCode >= 400 {
+		return errors.Errorf("heartbeat send got bad response code %d", response.StatusCode)
+	}
+
+	return nil
 }
