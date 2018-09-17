@@ -103,6 +103,7 @@ func (h *registryList) post(w http.ResponseWriter, r *http.Request) toSend {
 
 	// return a list of the difference
 	neededIDs := inListButNotRange(ids, inbound.IDs)
+	h.log.Tracef("needed ID ranges: %v", neededIDs)
 
 	needed, err := h.store.ListModulesByIDs(neededIDs)
 	if err != nil {
