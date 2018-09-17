@@ -2,8 +2,11 @@ package data
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/lib/pq"
+
 	"github.com/pkg/errors"
 
 	"github.com/modprox/mp/pkg/coordinates"
@@ -25,13 +28,34 @@ func (s *store) ListModules() ([]coordinates.SerialModule, error) {
 	return modulesFromRows(rows)
 }
 
+func listOfIDs(ids []int64) string {
+	s := make([]string, 0, len(ids))
+	for _, id := range ids {
+		s = append(s, fmt.Sprintf("%d", id))
+	}
+	return strings.Join(s, ",")
+}
+
 func (s *store) ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error) {
-	rows, err := s.statements[selectModulesByIDsSQL].Query(
-		pq.Array(ids),
-	)
+	var rows *sql.Rows
+	var err error
+
+	if stmt, exists := s.statements[selectModulesByIDsSQL]; exists {
+		rows, err = stmt.Query(
+			pq.Array(ids),
+		)
+	} else {
+		// generate this query by hand for mysql, who's driver still doesn't know
+		// what an argument of list is in 2018
+		text := "select id, source, version from modules where id in (%s) order by id asc"
+		q := fmt.Sprintf(text, listOfIDs(ids))
+		rows, err = s.db.Query(q)
+	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	return modulesFromRows(rows)

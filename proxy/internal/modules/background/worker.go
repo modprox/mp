@@ -92,6 +92,7 @@ func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
 
 	mods, err := w.registryRequester.ModulesNeeded(ids)
 	if err != nil {
+		w.log.Errorf("failed to acquire list of needed mods from registry, %v", err)
 		return nil, err
 	}
 	w.log.Infof("acquired list of %d mods from registry", len(mods))

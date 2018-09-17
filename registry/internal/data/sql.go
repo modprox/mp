@@ -30,11 +30,13 @@ func load(kind string, db *sql.DB) (statements, error) {
 	}
 
 	for id, text := range stmtText {
-		stmt, err := db.Prepare(text)
-		if err != nil {
-			return nil, errors.Wrapf(err, "bad sql statement: %q", text)
+		if kind == "mysql" && text != "" { // avoid loading selectModulesByIDsSQL for mysql; must be generated
+			stmt, err := db.Prepare(text)
+			if err != nil {
+				return nil, errors.Wrapf(err, "bad sql statement: %q", text)
+			}
+			loaded[id] = stmt
 		}
-		loaded[id] = stmt
 	}
 
 	return loaded, nil
@@ -46,7 +48,7 @@ var (
 		selectModuleIDSQL:       `select id from modules where source=? and version=?`,
 		selectModulesBySource:   `select id, source, version from modules where source=?`,
 		selectModuleIDScanSQL:   `select id from modules order by id asc`,
-		selectModulesByIDsSQL:   `select id, source, version from modules where id in(?) order by id asc`, // array how to
+		selectModulesByIDsSQL:   ``, // select id, source, version from modules where id in(?) order by id asc`,
 		selectSourcesScanSQL:    `select id, source, version from modules`,
 		insertHeartbeatSQL:      `insert into proxy_heartbeats (hostname, port, num_modules, num_versions) values (?, ?, ?, ?) on duplicate key update num_modules=?, num_versions=?, ts=current_timestamp;`,
 		insertStartupConfigSQL:  `insert into proxy_configurations (hostname, port, storage, registry, transforms) values (?, ?, ?, ?, ?) on duplicate key update storage=?, registry=?, transforms=?`,
