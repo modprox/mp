@@ -21,8 +21,8 @@ create table proxy_heartbeats (
   id serial primary key,
   hostname varchar(128) not null,
   port integer not null,
-  num_packages integer not null,
   num_modules integer not null,
+  num_versions integer not null,
   ts timestamp not null default current_timestamp,
   unique(hostname, port)
 );
