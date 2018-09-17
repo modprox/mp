@@ -51,7 +51,7 @@ var (
 		insertHeartbeatSQL:      `insert into proxy_heartbeats (hostname, port, num_modules, num_versions) values (?, ?, ?, ?) on duplicate key update num_modules=?, num_versions=?, ts=current_timestamp;`,
 		insertStartupConfigSQL:  `insert into proxy_configurations (hostname, port, storage, registry, transforms) values (?, ?, ?, ?, ?) on duplicate key update storage=?, registry=?, transforms=?`,
 		selectStartupConfigsSQL: `select hostname, port, storage, registry, transforms from proxy_configurations`,
-		selectHeartbeatsSQL:     `select hostname, port, num_modules, num_versions, (unix_timestamp(ts) / 1000) from proxy_heartbeats`,
+		selectHeartbeatsSQL:     `select hostname, port, num_modules, num_versions, unix_timestamp(ts) from proxy_heartbeats`,
 	}
 
 	postgreSQLText = map[int]string{
