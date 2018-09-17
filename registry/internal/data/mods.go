@@ -45,6 +45,12 @@ func (s *store) ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error
 			pq.Array(ids),
 		)
 	} else {
+		// do not execute the generated query with no elements in the list
+		// because it just breaks
+		if len(ids) == 0 {
+			return nil, nil
+		}
+
 		// generate this query by hand for mysql, who's driver still doesn't know
 		// what an argument of list is in 2018
 		text := "select id, source, version from modules where id in (%s) order by id asc"
