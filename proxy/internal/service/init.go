@@ -82,7 +82,7 @@ func initRegistryClient(p *Proxy) error {
 	p.registryClient = registry.NewClient(registry.Options{
 		Timeout:   time.Duration(clientTimeout) * time.Second,
 		Instances: p.config.Registry.Instances,
-		APIKeys:   p.config.Registry.APIKeys,
+		APIKey:    p.config.Registry.APIKey,
 	})
 
 	return nil

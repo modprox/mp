@@ -23,7 +23,7 @@
     ],
     "poll_frequency_s": 20,
     "request_timeout_s": 10,
-    "api_keys": ["abc123"]
+    "api_key": "abc123"
   },
   "module_storage": {
     "data_path": "/tmp/mod-zips",

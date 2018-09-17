@@ -112,9 +112,7 @@ func Test_KeyGuard_good_key(t *testing.T) {
 
 	request, err := http.NewRequest(http.MethodGet, "/foo", nil)
 	require.NoError(t, err)
-	request.Header.Add(HeaderAPIKey, "foo123")
-	request.Header.Add(HeaderAPIKey, "abc123")
-	request.Header.Add(HeaderAPIKey, "baz123")
+	request.Header.Set(HeaderAPIKey, "abc123")
 
 	recorder := httptest.NewRecorder()
 	protected.ServeHTTP(recorder, request)

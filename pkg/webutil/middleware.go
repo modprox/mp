@@ -35,21 +35,19 @@ func KeyGuard(keys []string) Middleware {
 	return func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// first check that the header is set
-			keys, exists := r.Header[http.CanonicalHeaderKey(HeaderAPIKey)]
-			if !exists {
+			key := r.Header.Get(HeaderAPIKey)
+			if key == "" {
 				msg := fmt.Sprintf("header %s is not set in request", HeaderAPIKey)
 				http.Error(w, msg, http.StatusForbidden)
 				return
 			}
 
-			// check all the given values for the header
-			for _, key := range keys {
-				if allowedKeys[key] {
-					// found a good key, execute the
-					// protected handler for the request
-					h.ServeHTTP(w, r)
-					return
-				}
+			// check if the given key is allowable
+			if allowedKeys[key] {
+				// found a good key, execute the
+				// protected handler for the request
+				h.ServeHTTP(w, r)
+				return
 			}
 
 			// no good key was provided, respond with an error

@@ -39,7 +39,7 @@ type Registry struct {
 	Instances       instances `json:"instances"`
 	PollFrequencyS  int       `json:"poll_frequency_s"`
 	RequestTimeoutS int       `json:"request_timeout_s"`
-	APIKeys         []string  `json:"api_keys"`
+	APIKey          string    `json:"api_key"`
 }
 
 type Transforms struct {

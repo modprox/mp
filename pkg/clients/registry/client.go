@@ -27,7 +27,7 @@ type Client interface {
 
 type Options struct {
 	Instances []netservice.Instance
-	APIKeys   []string
+	APIKey    string
 	Timeout   time.Duration
 }
 
@@ -106,7 +106,7 @@ func (c *client) getSingle(path string, instance netservice.Instance, w io.Write
 		c.log.Errorf("GET single create request failed: %v", err)
 		return err
 	}
-	c.setAPIKeys(request)
+	c.setAPIKey(request)
 
 	response, err := c.httpClient.Do(request)
 	if err != nil {
@@ -150,7 +150,7 @@ func (c *client) postSingle(
 		c.log.Errorf("POST single create request failed: %v", err)
 		return err
 	}
-	c.setAPIKeys(request)
+	c.setAPIKey(request)
 
 	response, err := c.httpClient.Do(request)
 	if err != nil {
@@ -178,10 +178,8 @@ func (c *client) postSingle(
 	return nil
 }
 
-func (c *client) setAPIKeys(r *http.Request) {
-	for _, key := range c.options.APIKeys {
-		r.Header.Add(webutil.HeaderAPIKey, key)
-	}
+func (c *client) setAPIKey(r *http.Request) {
+	r.Header.Set(webutil.HeaderAPIKey, c.options.APIKey)
 }
 
 func formatURL(instance netservice.Instance, path string) string {
