@@ -6,6 +6,7 @@ go:
 install:
   - go get github.com/shoenig/petrify/...
   - go get github.com/shoenig/mockery
+  - mkdir -p "$GOPATH/src/github.com/stretchr" && git clone http://github.com/stretchr/testify "$GOPATH/src/github.com/stretchr/testify"
 
 script:
   - go generate ./...
