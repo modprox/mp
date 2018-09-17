@@ -176,14 +176,14 @@ func initTransportTransforms(p *Proxy) []upstream.Transform {
 }
 
 func initHeartbeatSender(p *Proxy) error {
-	sender := heartbeat.NewSender(heartbeat.Options{
-		Timeout:    30 * time.Second,
-		Registries: p.config.Registry.Instances,
-		Self: netservice.Instance{
+	sender := heartbeat.NewSender(
+		netservice.Instance{
 			Address: netservice.Hostname(),
 			Port:    p.config.APIServer.Port,
 		},
-	})
+		p.registryClient,
+		p.statter,
+	)
 
 	looper := heartbeat.NewLooper(
 		10*time.Second,
