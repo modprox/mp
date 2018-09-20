@@ -22,19 +22,23 @@ var (
 	}
 )
 
-func createDB(t *testing.T, kind string) (*sql.DB, string) {
-	//if kind == "mysql" {
-	//	return createMySQL(t), ""
-	//}
+func createDB(t *testing.T, dbType string) (config.DSN, string) {
+	if dbType == "mysql" {
+		t.Fail() //todo: implement
+	}
 	return createPostgreSQL(t)
 }
 
-func cleanupDB(t *testing.T, kind, dbname string) {
-	db, err := connectPostgreSQL(postgresDSN)
-	require.NoError(t, err)
+func cleanupDB(t *testing.T, kind string, dsn config.DSN) {
+	if kind == "postgres" {
+		db, err := connectPostgreSQL(dsn)
+		require.NoError(t, err)
 
-	_, err = db.Exec(fmt.Sprintf("drop database %s", dbname))
-	require.NoError(t, err)
+		_, err = db.Exec(fmt.Sprintf("drop database %s", dsn.Database))
+		require.NoError(t, err)
+	} else {
+		// mysql
+	}
 }
 
 //
@@ -46,7 +50,7 @@ func cleanupDB(t *testing.T, kind, dbname string) {
 //	return nil
 //}
 
-func createPostgreSQL(t *testing.T) (*sql.DB, string) {
+func createPostgreSQL(t *testing.T) (config.DSN, string) {
 	dsn := config.DSN{
 		Address:  "127.0.0.1:5432",
 		User:     "docker",
@@ -77,9 +81,10 @@ func createPostgreSQL(t *testing.T) (*sql.DB, string) {
 	require.NoError(t, err)
 
 	createTables(t, db, "../../../hack/sql/postgres/modproxdb.sql")
+	err = db.Close()
+	require.NoError(t, err)
 
-	return db, dbName
-
+	return testDSN, dbName
 }
 
 func randomName() string {
@@ -103,10 +108,23 @@ func createTables(t *testing.T, db *sql.DB, file string) {
 	}
 }
 
-func Test_Create(t *testing.T) {
-	db, name := createDB(t, "postgres")
-	db.Close()
+var dbTypes = []string{
+	//	"mysql",
+	"postgres",
+}
 
-	_ = name
-	cleanupDB(t, "postgres", name)
+func Test_Create(t *testing.T) {
+	for _, dbType := range dbTypes {
+		testCreate(t, dbType)
+	}
+}
+
+func testCreate(t *testing.T, dbType string) {
+	dsn, dbName := createDB(t, dbType)
+	defer cleanupDB(t, dbType, dsn)
+
+	t.Log("creating a database of dbType:", dbType, ", name:", dbName, "dsn:", dsn)
+	store, err := Connect(dbType, dsn)
+	require.NoError(t, err)
+	_ = store
 }
