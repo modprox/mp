@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/modprox/mp/pkg/configutil"
 	"github.com/modprox/mp/pkg/netservice"
 	"github.com/pkg/errors"
@@ -97,6 +99,16 @@ func (dsn DSN) equal(other DSN) bool {
 		return false
 	}
 	return true
+}
+
+func (dsn DSN) String() string {
+	return fmt.Sprintf(
+		"dsn:[user: %s, address: %s, database: %s, allownative: %t",
+		dsn.User,
+		dsn.Address,
+		dsn.Database,
+		dsn.AllowNativePasswords,
+	)
 }
 
 type Statsd struct {

@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
@@ -35,11 +36,14 @@ func Connect(kind string, dsn config.DSN) (Store, error) {
 
 	if kind == "mysql" {
 		db, err = connectMySQL(mysql.Config{
+			Net:                  "tcp",
 			User:                 dsn.User,
 			Passwd:               dsn.Password,
 			Addr:                 dsn.Address,
 			DBName:               dsn.Database,
 			AllowNativePasswords: dsn.AllowNativePasswords,
+			ReadTimeout:          1 * time.Minute, // todo
+			WriteTimeout:         1 * time.Minute, // todo
 		})
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to connect to mysql")

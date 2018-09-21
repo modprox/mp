@@ -36,6 +36,7 @@ func initStore(r *Registry) error {
 		return errors.Wrap(err, "failed to configure database")
 	}
 	r.log.Infof("using database of kind: %q", kind)
+	r.log.Infof("database dsn: %s", dsn)
 	store, err := data.Connect(kind, dsn)
 	r.store = store
 	return err
