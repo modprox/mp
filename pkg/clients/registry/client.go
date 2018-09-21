@@ -183,6 +183,15 @@ func (c *client) setAPIKey(r *http.Request) {
 }
 
 func formatURL(instance netservice.Instance, path string) string {
+	// no port in URL
+	if instance.Port == 0 {
+		return fmt.Sprintf("%s/%s",
+			tweak(instance.Address),
+			strings.TrimPrefix(path, "/"),
+		)
+	}
+
+	// specific port in URL
 	return fmt.Sprintf(
 		"%s:%d/%s",
 		tweak(instance.Address),
