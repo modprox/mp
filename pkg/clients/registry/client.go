@@ -29,6 +29,7 @@ type Options struct {
 	Instances []netservice.Instance
 	APIKey    string
 	Timeout   time.Duration
+	Log       loggy.Logger
 }
 
 type client struct {
@@ -43,12 +44,16 @@ func NewClient(options Options) Client {
 		options.Timeout = 1 * time.Minute
 	}
 
+	if options.Log == nil {
+		options.Log = loggy.New("registry-client")
+	}
+
 	return &client{
 		options: options,
 		httpClient: &http.Client{
 			Timeout: options.Timeout,
 		},
-		log: loggy.New("registry-client"),
+		log: options.Log,
 	}
 }
 
