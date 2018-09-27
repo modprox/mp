@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/modprox/mp/pkg/since"
+
+	"github.com/cactus/go-statsd-client/statsd"
+
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/coordinates"
@@ -25,6 +29,7 @@ type Reloader interface {
 type reloadWorker struct {
 	options           Options
 	registryClient    registry.Client
+	statter           statsd.Statter
 	index             store.Index
 	store             store.ZipStore
 	downloader        zips.Client
@@ -35,6 +40,7 @@ type reloadWorker struct {
 
 func NewReloader(
 	options Options,
+	statter statsd.Statter,
 	index store.Index,
 	store store.ZipStore,
 	resolver upstream.Resolver,
@@ -43,6 +49,7 @@ func NewReloader(
 ) Reloader {
 	return &reloadWorker{
 		options:           options,
+		statter:           statter,
 		index:             index,
 		store:             store,
 		resolver:          resolver,
@@ -133,11 +140,13 @@ func (w *reloadWorker) download(mod coordinates.SerialModule) error {
 	w.log.Infof("going to download %s", request.URI())
 
 	// actually download it
+	start := time.Now()
 	blob, err := w.downloader.Get(request)
 	if err != nil {
 		return err
 	}
 
+	w.statter.Gauge("download-mod-elapsed-ms", since.MS(start), 1)
 	w.log.Infof("downloaded blob of size: %d", len(blob))
 
 	rewritten, err := zips.Rewrite(mod.Module, blob)

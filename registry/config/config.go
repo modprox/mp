@@ -12,7 +12,7 @@ type Configuration struct {
 	WebServer WebServer       `json:"web_server"`
 	CSRF      CSRF            `json:"csrf"`
 	Database  PersistentStore `json:"database_storage"`
-	Statsd    Statsd          `json:"statsd_emitter"`
+	Statsd    Statsd          `json:"statsd"`
 }
 
 func (c Configuration) String() string {
