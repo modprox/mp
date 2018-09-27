@@ -13,8 +13,11 @@ import (
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/mp/registry/config"
 )
+
+//go:generate mockery3 -interface=Store -package=datatest
 
 type Store interface {
 	// modules
@@ -29,6 +32,7 @@ type Store interface {
 	ListStartConfigs() ([]payloads.Configuration, error)
 	SetHeartbeat(payloads.Heartbeat) error
 	ListHeartbeats() ([]payloads.Heartbeat, error)
+	PurgeProxy(instance netservice.Instance) error
 }
 
 func Connect(kind string, dsn config.DSN, statter statsd.Statter) (Store, error) {

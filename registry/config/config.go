@@ -13,6 +13,7 @@ type Configuration struct {
 	CSRF      CSRF            `json:"csrf"`
 	Database  PersistentStore `json:"database_storage"`
 	Statsd    Statsd          `json:"statsd"`
+	Proxies   Proxies         `json:"proxies"`
 }
 
 func (c Configuration) String() string {
@@ -113,4 +114,8 @@ func (dsn DSN) String() string {
 
 type Statsd struct {
 	Agent netservice.Instance `json:"agent"`
+}
+
+type Proxies struct {
+	PruneAfter int `json:"prune_after_s"`
 }

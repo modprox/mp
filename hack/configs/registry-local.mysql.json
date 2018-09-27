@@ -27,5 +27,8 @@
       "address": "127.0.0.1",
       "port": 8125
     }
+  },
+  "proxies": {
+    "prune_after_s": 60
   }
 }
