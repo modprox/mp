@@ -16,7 +16,7 @@ import (
 	"github.com/modprox/mp/pkg/webutil"
 )
 
-//go:generate mockery -interface=Client -package=registrytest
+//go:generate mockery3 -interface=Client -package=registrytest
 
 // A Client is used to make requests to any one of a group of
 // registry services working together.

@@ -24,7 +24,7 @@ type Ranges = coordinates.RangeIDs
 // Range is an alias of coordinates.RangeID for brevity.
 type Range = coordinates.RangeID
 
-//go:generate mockery -interface=Index -package=storetest
+//go:generate mockery3 -interface=Index -package=storetest
 
 // The Index is used to provide:
 //  - .mod file content
