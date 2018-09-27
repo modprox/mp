@@ -71,5 +71,7 @@ var (
 		insertStartupConfigSQL:  `insert into proxy_configurations (hostname, port, storage, registry, transforms) values ($1, $2, $3, $4, $5) on conflict (hostname, port) do update set storage=$6, registry=$7, transforms=$8`,
 		selectStartupConfigsSQL: `select hostname, port, storage, registry, transforms from proxy_configurations`,
 		selectHeartbeatsSQL:     `select hostname, port, num_modules, num_versions, cast(extract(epoch from ts) as integer) from proxy_heartbeats`,
+		deleteHeartbeatSQL:      `delete from proxy_heartbeats where hostname=$1 and port=$2`,
+		deleteStartupConfigSQL:  `delete from proxy_configurations where hostname=$1 and port=$2`,
 	}
 )
