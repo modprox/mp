@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
@@ -30,7 +31,7 @@ type Store interface {
 	ListHeartbeats() ([]payloads.Heartbeat, error)
 }
 
-func Connect(kind string, dsn config.DSN) (Store, error) {
+func Connect(kind string, dsn config.DSN, statter statsd.Statter) (Store, error) {
 	var db *sql.DB
 	var err error
 
@@ -57,7 +58,7 @@ func Connect(kind string, dsn config.DSN) (Store, error) {
 		return nil, errors.Errorf("%s is not a supported database", kind)
 	}
 
-	return New(kind, db)
+	return New(kind, db, statter)
 }
 
 func connectMySQL(config mysql.Config) (*sql.DB, error) {
@@ -77,12 +78,13 @@ func connectPostgreSQL(dsn config.DSN) (*sql.DB, error) {
 	return sql.Open("postgres", connectStr)
 }
 
-func New(kind string, db *sql.DB) (Store, error) {
+func New(kind string, db *sql.DB, statter statsd.Statter) (Store, error) {
 	statements, err := load(kind, db)
 	if err != nil {
 		return nil, err
 	}
 	return &store{
+		statter:    statter,
 		db:         db,
 		statements: statements,
 		log:        loggy.New("store"),
@@ -90,6 +92,7 @@ func New(kind string, db *sql.DB) (Store, error) {
 }
 
 type store struct {
+	statter    statsd.Statter
 	db         *sql.DB
 	statements statements
 	log        loggy.Logger

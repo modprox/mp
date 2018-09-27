@@ -37,7 +37,7 @@ func initStore(r *Registry) error {
 	}
 	r.log.Infof("using database of kind: %q", kind)
 	r.log.Infof("database dsn: %s", dsn)
-	store, err := data.Connect(kind, dsn)
+	store, err := data.Connect(kind, dsn, r.statter)
 	r.store = store
 	return err
 }

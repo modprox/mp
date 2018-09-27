@@ -4,6 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
+
+	"github.com/modprox/mp/pkg/since"
 
 	"github.com/lib/pq"
 
@@ -19,13 +22,22 @@ type moduleTR struct {
 }
 
 func (s *store) ListModules() ([]coordinates.SerialModule, error) {
+	start := time.Now()
 	rows, err := s.statements[selectSourcesScanSQL].Query()
 	if err != nil {
+		s.statter.Inc("db-list-modules-failure", 1, 1)
 		return nil, err
 	}
 	defer rows.Close()
 
-	return modulesFromRows(rows)
+	mods, err := modulesFromRows(rows)
+	if err != nil {
+		s.statter.Inc("db-list-modules-failure", 1, 1)
+		return nil, err
+	}
+
+	s.statter.Gauge("db-list-modules-elapsed-ms", since.MS(start), 1)
+	return mods, nil
 }
 
 func listOfIDs(ids []int64) string {
@@ -37,6 +49,17 @@ func listOfIDs(ids []int64) string {
 }
 
 func (s *store) ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error) {
+	start := time.Now()
+	mods, err := s.listModulesByIDs(ids)
+	if err != nil {
+		s.statter.Inc("db-list-modules-by-id-failure", 1, 1)
+		return nil, err
+	}
+	s.statter.Gauge("db-list-modules-by-id-elapsed-ms", since.MS(start), 1)
+	return mods, nil
+}
+
+func (s *store) listModulesByIDs(ids []int64) ([]coordinates.SerialModule, error) {
 	var rows *sql.Rows
 	var err error
 
@@ -68,13 +91,29 @@ func (s *store) ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error
 }
 
 func (s *store) ListModulesBySource(source string) ([]coordinates.SerialModule, error) {
+	start := time.Now()
+	mods, err := s.listModulesBySource(source)
+	if err != nil {
+		s.statter.Inc("db-list-modules-by-source-failure", 1, 1)
+		return nil, err
+	}
+	s.statter.Gauge("db-list-modules-by-source-elapsed-ms", since.MS(start), 1)
+	return mods, nil
+}
+
+func (s *store) listModulesBySource(source string) ([]coordinates.SerialModule, error) {
 	rows, err := s.statements[selectModulesBySource].Query(source)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	return modulesFromRows(rows)
+	mods, err := modulesFromRows(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return mods, nil
 }
 
 func modulesFromRows(rows *sql.Rows) ([]coordinates.SerialModule, error) {
@@ -105,6 +144,17 @@ func modulesFromRows(rows *sql.Rows) ([]coordinates.SerialModule, error) {
 }
 
 func (s *store) ListModuleIDs() ([]int64, error) {
+	start := time.Now()
+	ids, err := s.listModuleIDs()
+	if err != nil {
+		s.statter.Inc("db-list-module-ids-failure", 1, 1)
+		return nil, err
+	}
+	s.statter.Gauge("db-list-module-ids-elapsed-ms", since.MS(start), 1)
+	return ids, nil
+}
+
+func (s *store) listModuleIDs() ([]int64, error) {
 	rows, err := s.statements[selectModuleIDScanSQL].Query()
 	if err != nil {
 		return nil, err
@@ -128,6 +178,17 @@ func (s *store) ListModuleIDs() ([]int64, error) {
 }
 
 func (s *store) InsertModules(modules []coordinates.Module) (int, error) {
+	start := time.Now()
+	i, err := s.insertModules(modules)
+	if err != nil {
+		s.statter.Inc("db-insert-modules-failure", 1, 1)
+		return 0, err
+	}
+	s.statter.Gauge("db-insert-modules-elapsed-ms", since.MS(start), 1)
+	return i, nil
+}
+
+func (s *store) insertModules(modules []coordinates.Module) (int, error) {
 	modulesAdded := 0
 
 	for _, mod := range modules {

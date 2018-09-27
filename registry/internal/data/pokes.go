@@ -2,9 +2,11 @@ package data
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/netservice"
+	"github.com/modprox/mp/pkg/since"
 )
 
 func (s *store) SetStartConfig(config payloads.Configuration) error {
@@ -26,6 +28,17 @@ func (s *store) SetStartConfig(config payloads.Configuration) error {
 }
 
 func (s *store) ListStartConfigs() ([]payloads.Configuration, error) {
+	start := time.Now()
+	configs, err := s.listStartConfigs()
+	if err != nil {
+		s.statter.Inc("db-list-start-configs-error", 1, 1)
+		return nil, err
+	}
+	s.statter.Gauge("db-list-start-configs-elapsed-ms", since.MS(start), 1)
+	return configs, nil
+}
+
+func (s *store) listStartConfigs() ([]payloads.Configuration, error) {
 	rows, err := s.statements[selectStartupConfigsSQL].Query()
 	if err != nil {
 		return nil, err
@@ -100,6 +113,17 @@ func newConfig(
 }
 
 func (s *store) SetHeartbeat(heartbeat payloads.Heartbeat) error {
+	start := time.Now()
+	err := s.setHeartbeat(heartbeat)
+	if err != nil {
+		s.statter.Inc("db-set-heartbeat-failure", 1, 1)
+		return err
+	}
+	s.statter.Gauge("db-set-heartbeat-elapsed-ms", since.MS(start), 1)
+	return nil
+}
+
+func (s *store) setHeartbeat(heartbeat payloads.Heartbeat) error {
 	_, err := s.statements[insertHeartbeatSQL].Exec(
 		heartbeat.Self.Address,
 		heartbeat.Self.Port,
@@ -112,6 +136,17 @@ func (s *store) SetHeartbeat(heartbeat payloads.Heartbeat) error {
 }
 
 func (s *store) ListHeartbeats() ([]payloads.Heartbeat, error) {
+	start := time.Now()
+	heartbeats, err := s.listHeartbeats()
+	if err != nil {
+		s.statter.Inc("db-list-heartbeats-failure", 1, 1)
+		return nil, err
+	}
+	s.statter.Gauge("db-list-heartbeats-elapsed-ms", since.MS(start), 1)
+	return heartbeats, nil
+}
+
+func (s *store) listHeartbeats() ([]payloads.Heartbeat, error) {
 	rows, err := s.statements[selectHeartbeatsSQL].Query()
 	if err != nil {
 		return nil, err
