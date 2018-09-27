@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/cactus/go-statsd-client/statsd"
-
 	"github.com/pkg/errors"
 	"github.com/shoenig/atomicfs"
 

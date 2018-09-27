@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/modprox/mp/pkg/since"
-
 	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/shoenig/toolkit"
 
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/since"
 	"github.com/modprox/mp/pkg/upstream"
 	"github.com/modprox/mp/proxy/internal/modules/store"
-
-	"github.com/shoenig/toolkit"
 )
 
 type Options struct {

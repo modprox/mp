@@ -6,13 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/since"
 
 	"github.com/lib/pq"
-
 	"github.com/pkg/errors"
-
-	"github.com/modprox/mp/pkg/coordinates"
 )
 
 type moduleTR struct {
