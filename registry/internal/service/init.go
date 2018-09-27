@@ -4,6 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/shoenig/toolkit"
+
+	"github.com/modprox/mp/registry/internal/proxies"
 
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/csrf"
@@ -40,6 +45,16 @@ func initStore(r *Registry) error {
 	store, err := data.Connect(kind, dsn, r.statter)
 	r.store = store
 	return err
+}
+
+func initProxyPrune(r *Registry) error {
+	maxAge := time.Duration(r.config.Proxies.PruneAfter) * time.Second
+	pruner := proxies.NewPruner(maxAge, r.store)
+	go toolkit.Interval(1*time.Minute, func() error {
+		_ = pruner.Prune(time.Now())
+		return nil
+	})
+	return nil
 }
 
 func initWebServer(r *Registry) error {

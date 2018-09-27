@@ -26,6 +26,7 @@ func NewRegistry(config config.Configuration) *Registry {
 	for _, f := range []initer{
 		initStatter,
 		initStore,
+		initProxyPrune,
 		initWebServer,
 	} {
 		if err := f(r); err != nil {

@@ -172,3 +172,29 @@ func (s *store) listHeartbeats() ([]payloads.Heartbeat, error) {
 	}
 	return heartbeats, nil
 }
+
+func (s *store) PurgeProxy(instance netservice.Instance) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// 1) remove heartbeat for proxy
+	if _, err := tx.Stmt(s.statements[deleteHeartbeatSQL]).Exec(
+		instance.Address,
+		instance.Port,
+	); err != nil {
+		return err
+	}
+
+	// 2) remove startup configuration for proxy
+	if _, err := tx.Stmt(s.statements[deleteStartupConfigSQL]).Exec(
+		instance.Address,
+		instance.Port,
+	); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
