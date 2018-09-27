@@ -5,6 +5,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
+
+	"github.com/cactus/go-statsd-client/statsd"
 
 	"github.com/pkg/errors"
 	"github.com/shoenig/atomicfs"
@@ -12,6 +15,7 @@ import (
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/repository"
+	"github.com/modprox/mp/pkg/since"
 )
 
 const (
@@ -21,6 +25,7 @@ const (
 
 type fsStore struct {
 	options Options
+	statter statsd.Statter
 	writer  atomicfs.FileWriter
 	log     loggy.Logger
 }
@@ -30,7 +35,7 @@ type Options struct {
 	TmpDirectory string
 }
 
-func NewStore(options Options) ZipStore {
+func NewStore(options Options, statter statsd.Statter) ZipStore {
 	if options.Directory == "" {
 		panic("no directory set for store")
 	}
@@ -42,6 +47,7 @@ func NewStore(options Options) ZipStore {
 
 	return &fsStore{
 		options: options,
+		statter: statter,
 		writer:  writer,
 		log:     loggy.New("fs-store"),
 	}
@@ -49,6 +55,19 @@ func NewStore(options Options) ZipStore {
 
 func (s *fsStore) GetZip(mod coordinates.Module) (repository.Blob, error) {
 	s.log.Tracef("retrieving module %s", mod)
+
+	start := time.Now()
+	blob, err := s.getZip(mod)
+	if err != nil {
+		s.statter.Inc("fsstore-getzip-failure", 1, 1)
+		return nil, err
+	}
+	s.statter.Gauge("fsstore-getzip-elapsed-ms", since.MS(start), 1)
+
+	return blob, nil
+}
+
+func (s *fsStore) getZip(mod coordinates.Module) (repository.Blob, error) {
 	zipFile := filepath.Join(
 		s.fullPathOf(mod),
 		zipName(mod),
@@ -58,6 +77,18 @@ func (s *fsStore) GetZip(mod coordinates.Module) (repository.Blob, error) {
 
 func (s *fsStore) PutZip(mod coordinates.Module, blob repository.Blob) error {
 	s.log.Infof("will save %s do disk, %d bytes", mod, len(blob))
+
+	start := time.Now()
+	if err := s.putZip(mod, blob); err != nil {
+		s.statter.Inc("fsstore-putzip-failure", 1, 1)
+		return err
+	}
+	s.statter.Gauge("fsstore-putzip-elapsed-ms", since.MS(start), 1)
+
+	return nil
+}
+
+func (s *fsStore) putZip(mod coordinates.Module, blob repository.Blob) error {
 	exists, err := s.exists(mod)
 	if err != nil {
 		return err

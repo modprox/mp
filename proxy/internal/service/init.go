@@ -57,7 +57,7 @@ func initStore(p *Proxy) error {
 	p.store = store.NewStore(store.Options{
 		Directory:    storePath,
 		TmpDirectory: tmpPath,
-	})
+	}, p.statter)
 
 	return nil
 }
@@ -106,6 +106,7 @@ func initRegistryReloader(p *Proxy) error {
 		background.Options{
 			Frequency: reloadFreqS,
 		},
+		p.statter,
 		p.index,
 		p.store,
 		upstream.NewResolver(
