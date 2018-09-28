@@ -1,6 +1,10 @@
 package coordinates
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/modprox/taggit/tags"
+)
 
 type Module struct {
 	Source  string `json:"source"`
@@ -22,4 +26,32 @@ func (mi Module) Bytes() []byte {
 type SerialModule struct {
 	Module
 	SerialID int64 `json:"id"`
+}
+
+type ModsByVersion []SerialModule
+
+func (mods ModsByVersion) Len() int      { return len(mods) }
+func (mods ModsByVersion) Swap(x, y int) { mods[x], mods[y] = mods[y], mods[x] }
+func (mods ModsByVersion) Less(x, y int) bool {
+	modX := mods[x]
+	modY := mods[y]
+
+	if modX.Source < modY.Source {
+		return true
+	} else if modX.Source > modY.Source {
+		return false
+	}
+
+	tagX, okX := tags.Parse(modX.Version)
+	tagY, okY := tags.Parse(modY.Version)
+
+	if !okX && !okY {
+		return false
+	} else if okX && !okY {
+		return false
+	} else if !okX && okY {
+		return true
+	}
+
+	return tagX.Less(tagY)
 }
