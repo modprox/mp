@@ -3,5 +3,4 @@ cmd/modprox-proxy/modprox-proxy
 
 **/cover.out
 **/generated.go
-go.sum
 hack/configs/*indeed.json
