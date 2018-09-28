@@ -4,6 +4,7 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
+	"sort"
 
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/modprox/mp/pkg/coordinates"
@@ -66,6 +67,8 @@ func (h *showHandler) get(r *http.Request) (int, *showPage, error) {
 	if err != nil {
 		return http.StatusInternalServerError, nil, err
 	}
+
+	sort.Sort(coordinates.ModsByVersion(mods))
 
 	return http.StatusOK, &showPage{
 		Source: source,
