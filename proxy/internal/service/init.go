@@ -221,26 +221,32 @@ func initStartupConfigSender(p *Proxy) error {
 func initWebServer(p *Proxy) error {
 	var middles []webutil.Middleware
 
-	router := web.NewRouter(
+	mux := web.NewRouter(
 		middles,
 		p.index,
 		p.store,
 		p.statter,
 	)
 
-	listenOn := fmt.Sprintf(
-		"%s:%d",
-		p.config.APIServer.BindAddress,
-		p.config.APIServer.Port,
-	)
+	server, err := p.config.APIServer.Server(mux)
+	if err != nil {
+		return err
+	}
 
 	go func(h http.Handler) {
-		if err := http.ListenAndServe(listenOn, h); err != nil {
-			p.log.Errorf("failed to listen and serve forever")
-			p.log.Errorf("caused by: %v", err)
-			os.Exit(1)
+		var err error
+		if p.config.APIServer.TLS.Enabled {
+			err = server.ListenAndServeTLS(
+				p.config.APIServer.TLS.Certificate,
+				p.config.APIServer.TLS.Key,
+			)
+		} else {
+			err = server.ListenAndServe()
 		}
-	}(router)
+
+		p.log.Errorf("server stopped serving: %v", err)
+		os.Exit(1)
+	}(mux)
 
 	return nil
 }
