@@ -196,3 +196,8 @@
     font-weight: bold;
     font-size: large;
 }
+
+/* --- about page --- */
+.about-text {
+    width: 40em;
+}

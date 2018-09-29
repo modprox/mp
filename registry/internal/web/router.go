@@ -67,7 +67,8 @@ func routeWebUI(middles []webutil.Middleware, store data.Store, stats statsd.Sta
 	sub.Handle("/mods/new", newAddHandler(store, stats)).Methods(get, post)
 	sub.Handle("/mods/list", newModsListHandler(store, stats)).Methods(get)
 	sub.Handle("/mods/show", newShowHandler(store, stats)).Methods(get)
-	// 	sub.Handle("/configure/redirects", newRedirectsHandler(store)).Methods(get)
+	sub.Handle("/configure/about", newAboutHandler(stats)).Methods(get)
+	sub.Handle("/configure/blocks", newBlocksHandler(stats)).Methods(get)
 	sub.Handle("/", newHomeHandler(store, stats)).Methods(get, post)
 	return webutil.Chain(sub, middles...)
 }
