@@ -78,26 +78,33 @@ func initWebServer(r *Registry) error {
 		),
 	}
 
-	router := web.NewRouter(
+	mux := web.NewRouter(
 		middleAPI,
 		middleUI,
 		r.store,
 		r.statter,
 	)
 
-	listenOn := fmt.Sprintf(
-		"%s:%d",
-		r.config.WebServer.BindAddress,
-		r.config.WebServer.Port,
-	)
+	server, err := r.config.WebServer.Server(mux)
+	if err != nil {
+		return err
+	}
 
 	go func(h http.Handler) {
-		if err := http.ListenAndServe(listenOn, h); err != nil {
-			r.log.Errorf("failed to listen and serve forever")
-			r.log.Errorf("caused by: %v", err)
-			os.Exit(1)
+		var err error
+		if r.config.WebServer.TLS.Enabled {
+			err = server.ListenAndServeTLS(
+				r.config.WebServer.TLS.Certificate,
+				r.config.WebServer.TLS.Key,
+			)
+		} else {
+			err = server.ListenAndServe()
 		}
-	}(router)
+
+		// should never get to this point
+		r.log.Errorf("server stopped serving: %v", err)
+		os.Exit(1)
+	}(mux)
 
 	return nil
 }

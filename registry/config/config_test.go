@@ -2,6 +2,7 @@ package config
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -38,4 +39,88 @@ func Test_Configuration_CSRF(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, devMode)
 	require.Equal(t, []byte(key), bs)
+}
+
+func Test_Configuration_Server_notls_defaults_ok(t *testing.T) {
+	c := Configuration{
+		WebServer: WebServer{
+			BindAddress: "1.2.3.4",
+			Port:        9999,
+		},
+	}
+
+	server, err := c.WebServer.Server(nil)
+	require.NoError(t, err)
+	require.Equal(t, "1.2.3.4:9999", server.Addr)
+	require.Equal(t, 60*time.Second, server.ReadTimeout)
+	require.Equal(t, 60*time.Second, server.WriteTimeout)
+}
+
+func Test_Configuration_Server_notls_ok(t *testing.T) {
+	c := Configuration{
+		WebServer: WebServer{
+			BindAddress:   "1.2.3.4",
+			Port:          9999,
+			ReadTimeoutS:  1,
+			WriteTimeoutS: 2,
+		},
+	}
+
+	server, err := c.WebServer.Server(nil)
+	require.NoError(t, err)
+	require.Equal(t, "1.2.3.4:9999", server.Addr)
+	require.Equal(t, 1*time.Second, server.ReadTimeout)
+	require.Equal(t, 2*time.Second, server.WriteTimeout)
+}
+
+func Test_Configuration_Server_tls_noCertificate(t *testing.T) {
+	c := Configuration{
+		WebServer: WebServer{
+			BindAddress:   "1.2.3.4",
+			Port:          9999,
+			ReadTimeoutS:  1,
+			WriteTimeoutS: 2,
+		},
+	}
+	c.WebServer.TLS.Enabled = true
+	c.WebServer.TLS.Key = "key"
+
+	_, err := c.WebServer.Server(nil)
+	require.Error(t, err)
+}
+
+func Test_Configuration_Server_tls_noKey(t *testing.T) {
+	c := Configuration{
+		WebServer: WebServer{
+			BindAddress:   "1.2.3.4",
+			Port:          9999,
+			ReadTimeoutS:  1,
+			WriteTimeoutS: 2,
+		},
+	}
+	c.WebServer.TLS.Enabled = true
+	c.WebServer.TLS.Certificate = "cert"
+
+	_, err := c.WebServer.Server(nil)
+	require.Error(t, err)
+}
+
+func Test_Configuration_Server_tls_no_files(t *testing.T) {
+	c := Configuration{
+		WebServer: WebServer{
+			BindAddress:   "1.2.3.4",
+			Port:          9999,
+			ReadTimeoutS:  1,
+			WriteTimeoutS: 2,
+		},
+	}
+	c.WebServer.TLS.Enabled = true
+	c.WebServer.TLS.Certificate = "cert"
+	c.WebServer.TLS.Key = "key"
+
+	server, err := c.WebServer.Server(nil)
+	require.NoError(t, err)
+	require.Equal(t, "1.2.3.4:9999", server.Addr)
+	require.Equal(t, 1*time.Second, server.ReadTimeout)
+	require.Equal(t, 2*time.Second, server.WriteTimeout)
 }
