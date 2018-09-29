@@ -8,7 +8,6 @@ import (
 	"github.com/shoenig/petrify/v4"
 
 	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/registry/config"
 	"github.com/modprox/mp/registry/internal/data"
 	"github.com/modprox/mp/registry/static"
 )
@@ -22,7 +21,6 @@ func NewRouter(
 	middleAPI []webutil.Middleware,
 	middleUI []webutil.Middleware,
 	store data.Store,
-	csrfConfig config.CSRF,
 	statter statsd.Statter,
 ) http.Handler {
 
