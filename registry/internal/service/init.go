@@ -82,7 +82,6 @@ func initWebServer(r *Registry) error {
 		middleAPI,
 		middleUI,
 		r.store,
-		r.config.CSRF,
 		r.statter,
 	)
 
