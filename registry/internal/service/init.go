@@ -6,16 +6,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/shoenig/toolkit"
-
-	"github.com/modprox/mp/registry/internal/proxies"
-
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
+	"github.com/shoenig/toolkit"
 
 	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/registry/internal/data"
+	"github.com/modprox/mp/registry/internal/proxies"
 	"github.com/modprox/mp/registry/internal/web"
 )
 
