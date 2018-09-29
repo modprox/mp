@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"net/http"
+	"time"
 
 	"github.com/modprox/mp/pkg/configutil"
 	"github.com/modprox/mp/pkg/netservice"
@@ -26,9 +28,53 @@ type WebServer struct {
 		Certificate string `json:"certificate"`
 		Key         string `json:"key"`
 	} `json:"tls"`
-	BindAddress string   `json:"bind_address"`
-	Port        int      `json:"port"`
-	APIKeys     []string `json:"api_keys"`
+	BindAddress   string   `json:"bind_address"`
+	Port          int      `json:"port"`
+	ReadTimeoutS  int      `json:"read_timeout_s"`
+	WriteTimeoutS int      `json:"write_timeout_s"`
+	APIKeys       []string `json:"api_keys"`
+}
+
+func (s WebServer) Server(mux http.Handler) (*http.Server, error) {
+	if s.BindAddress == "" {
+		return nil, errors.New("server bind address is not set")
+	}
+
+	if s.Port == 0 {
+		return nil, errors.New("server port is not set")
+	}
+
+	if s.TLS.Enabled {
+		if s.TLS.Certificate == "" {
+			return nil, errors.New("TLS enabled, but server TLS certificate not set")
+		}
+
+		if s.TLS.Key == "" {
+			return nil, errors.New("TLS enabled, but server TLS key not set")
+		}
+	}
+
+	if s.ReadTimeoutS == 0 {
+		s.ReadTimeoutS = 60
+	}
+
+	if s.WriteTimeoutS == 0 {
+		s.WriteTimeoutS = 60
+	}
+
+	address := fmt.Sprintf("%s:%d", s.BindAddress, s.Port)
+	server := &http.Server{
+		Addr:         address,
+		Handler:      mux,
+		ReadTimeout:  seconds(s.ReadTimeoutS),
+		WriteTimeout: seconds(s.WriteTimeoutS),
+	}
+
+	return server, nil
+}
+
+func seconds(s int) time.Duration {
+	return time.Duration(s) * time.Second
 }
 
 type CSRF struct {
