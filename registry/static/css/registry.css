@@ -201,3 +201,15 @@
 .about-text {
     width: 40em;
 }
+
+.bigheader h3 {
+    color: #505050;
+}
+
+.about-text h4 {
+    color: #565656;
+}
+
+.about-text p {
+    color: #666666;
+}
