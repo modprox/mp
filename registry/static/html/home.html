@@ -8,80 +8,92 @@
         <table border="0">
             <tbody>
             {{range .Proxies}}
-            <tr class="proxy-addr">
-                <td colspan="2">
-                {{.Configuration.Self.Address}}:{{.Configuration.Self.Port}}
-                </td>
-            </tr>
             <tr>
-                <td class="proxy-heartbeat" colspan="2">
-                    <p>Latest Heartbeat</p>
-                    <table border="0">
-                        <tr>
-                            <td class="proxy-heartbeat-label">Last Seen</td>
-                            <td class="proxy-heartbeat-value">{{.Heartbeat.TimeSince}}</td>
+                <td>
+                    <table>
+                        <tr class="proxy-addr">
+                            <td colspan="2">
+                            {{.Configuration.Self.Address}}:{{.Configuration.Self.Port}}
+                            </td>
                         </tr>
                         <tr>
-                            <td class="proxy-heartbeat-label">Modules</td>
-                            <td class="proxy-heartbeat-value">{{.Heartbeat.NumModules}}</td>
+                            <td class="proxy-heartbeat" colspan="2">
+                                <p>Latest Heartbeat</p>
+                                <table border="0">
+                                    <tr>
+                                        <td class="proxy-heartbeat-label">Last Seen</td>
+                                        <td class="proxy-heartbeat-value">{{.Heartbeat.TimeSince}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="proxy-heartbeat-label">Modules</td>
+                                        <td class="proxy-heartbeat-value">{{.Heartbeat.NumModules}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="proxy-heartbeat-label">Versions</td>
+                                        <td class="proxy-heartbeat-value">{{.Heartbeat.NumVersions}}</td>
+                                    </tr>
+                                </table>
+                            </td>
                         </tr>
                         <tr>
-                            <td class="proxy-heartbeat-label">Versions</td>
-                            <td class="proxy-heartbeat-value">{{.Heartbeat.NumVersions}}</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="proxy-storage" colspan="2">
-                    <p>Storage Configuration</p>
-                    <table border="0">
-                        <tr>
-                            <td class="proxy-storage-label">Data Path</td>
-                            <td class="proxy-storage-value">{{.Configuration.Storage.DataPath}}</td>
-                        </tr>
-                        <tr>
-                            <td class="proxy-storage-label">Index Path</td>
-                            <td class="proxy-storage-value">{{.Configuration.Storage.IndexPath}}</td>
-                        </tr>
-                        <tr>
-                            <td class="proxy-storage-label">Temp Path</td>
-                            <td class="proxy-storage-value">{{.Configuration.Storage.TmpPath}}</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="proxy-registry" colspan="2">
-                    <p>Registries Configuration</p>
-                    <table border="0">
-                        <tr>
-                            <td class="proxy-registry-label">Poll Frequency</td>
-                            <td class="proxy-registry-value">{{.Configuration.Registry.PollFrequencyS}}s</td>
+                            <td class="proxy-storage" colspan="2">
+                                <p>Storage Configuration</p>
+                                <table border="0">
+                                    <tr>
+                                        <td class="proxy-storage-label">Data Path</td>
+                                        <td class="proxy-storage-value">{{.Configuration.Storage.DataPath}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="proxy-storage-label">Index Path</td>
+                                        <td class="proxy-storage-value">{{.Configuration.Storage.IndexPath}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="proxy-storage-label">Temp Path</td>
+                                        <td class="proxy-storage-value">{{.Configuration.Storage.TmpPath}}</td>
+                                    </tr>
+                                </table>
+                            </td>
                         </tr>
                         <tr>
-                            <td class="proxy-registry-label">Request Timeout</td>
-                            <td class="proxy-registry-value">{{.Configuration.Registry.RequestTimeoutS}}s</td>
-                        </tr>
-                        <tr>
-                            <td class="proxy-registry-label" colspan="2">Registry Instances</td>
-                        </tr>
-                        {{range .Configuration.Registry.Instances}}
-                        <tr class="proxy-registry-instances">
-                            <td colspan="2">- {{.Address}}:{{.Port}}</td>
+                            <td class="proxy-registry" colspan="2">
+                                <p>Registries Configuration</p>
+                                <table border="0">
+                                    <tr>
+                                        <td class="proxy-registry-label">Poll Frequency</td>
+                                        <td class="proxy-registry-value">{{.Configuration.Registry.PollFrequencyS}}s</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="proxy-registry-label">Request Timeout</td>
+                                        <td class="proxy-registry-value">{{.Configuration.Registry.RequestTimeoutS}}s</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="proxy-registry-label" colspan="2">Registry Instances</td>
+                                    </tr>
+                                {{range .Configuration.Registry.Instances}}
+                                    <tr class="proxy-registry-instances">
+                                        <td colspan="2">- {{.Address}}:{{.Port}}</td>
 
+                                    </tr>
+                                {{end}}
+                                </table>
+                            </td>
                         </tr>
-                        {{end}}
                     </table>
-                </td>
+                </td> <!-- text config -->
+                <td>
+                    <table>
+                        <tr>
+                            <td class="proxy-transforms" colspan="2">
+                                <!--<p>Transform Configurations</p>-->
+                                <pre>{{.TransformsText}}</pre>
+                            </td>
+                        </tr>
+                    </table>
+                </td> <!-- transforms -->
             </tr>
             <tr>
-                <td class="proxy-transforms" colspan="2">
-                    <p>Transform Configurations</p>
-                    <pre>{{.TransformsText}}</pre>
-                </td>
+                <td colspan="2"><hr/></td>
             </tr>
-            <tr><td colspan="2"><hr/></td></tr>
             {{end}}
             </tbody>
         </table>
