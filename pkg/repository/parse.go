@@ -15,6 +15,8 @@ var (
 //    github.com/tdewolff/parse v2.3.3+incompatible // indirect
 //    golang.org/x/tools v0.0.0-20180111040409-fbec762f837d
 //    gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405
+//  sum file style
+//    github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 //  proxy request style
 //    /github.com/cpuguy83/go-md2man/@v/v1.0.6.info
 //  zip style
@@ -38,7 +40,7 @@ func Parse(s string) (coordinates.Module, error) {
 	}
 
 	source := strings.TrimSuffix(split[0], "/")
-	version := split[1]
+	version := strings.TrimSuffix(split[1], "/go.mod")
 
 	mod.Source = source
 	mod.Version = version
