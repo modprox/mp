@@ -89,14 +89,28 @@ func Test_parseLine(t *testing.T) {
 
 func Test_parseLines_sumFile(t *testing.T) {
 	inputLines := linesOf(t, goSumFile)
-	expLines := asMap(linesOf(t, goSumFileExp))
+	expLines := linesOf(t, goSumFileExp)
 
 	parsed := parseLines(inputLines)
 
+	checkParsed(t, parsed, expLines)
+}
+
+func Test_parseLines_modFile(t *testing.T) {
+	inputLines := linesOf(t, goModFile)
+	expLines := linesOf(t, goModFileExp)
+
+	parsed := parseLines(inputLines)
+
+	checkParsed(t, parsed, expLines)
+}
+
+func checkParsed(t *testing.T, parsed []Parsed, expLines []string) {
+	exp := asMap(expLines)
 	for _, m := range parsed {
 		s := fmt.Sprintf("%s %s", m.Module.Source, m.Module.Version)
-		_, exists := expLines[s]
-		require.True(t, exists)
+		_, exists := exp[s]
+		require.True(t, exists, "expected to contain %s", s)
 	}
 }
 
@@ -178,3 +192,19 @@ github.com/stretchr/objx v0.1.1
 github.com/stretchr/testify v1.2.2
 golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e 
 google.golang.org/appengine v1.1.0 `
+
+const goModFile = `
+module github.com/modprox/taggit
+
+require (
+	github.com/modprox/mp v0.0.5
+	github.com/pkg/errors v0.8.0
+	github.com/stretchr/testify v1.2.2
+)
+`
+
+const goModFileExp = `
+github.com/modprox/mp v0.0.5
+github.com/pkg/errors v0.8.0
+github.com/stretchr/testify v1.2.2
+`
