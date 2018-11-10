@@ -140,10 +140,25 @@ func (h *newHandler) parseTextArea(r *http.Request) ([]Parsed, error) {
 func parseLines(lines []string) []Parsed {
 	results := make([]Parsed, 0, len(lines))
 	for _, line := range lines {
-		result := parseLine(line)
-		results = append(results, result)
+		if !skipLine(line) {
+			result := parseLine(line)
+			results = append(results, result)
+		}
 	}
 	return results
+}
+
+func skipLine(line string) bool {
+	if strings.HasPrefix(line, "module ") {
+		return true
+	}
+	if strings.Contains(line, "(") {
+		return true
+	}
+	if strings.Contains(line, ")") {
+		return true
+	}
+	return false
 }
 
 func parseLine(line string) Parsed {
