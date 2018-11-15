@@ -16,6 +16,20 @@ type Store struct {
 	mock.Mock
 }
 
+// DeleteModuleByID provides a mock function with given fields: id
+func (mockerySelf *Store) DeleteModuleByID(id int) error {
+	ret := mockerySelf.Called(id)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int) error); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // InsertModules provides a mock function with given fields: mockeryArg0
 func (mockerySelf *Store) InsertModules(mockeryArg0 []coordinates.Module) (int, error) {
 	ret := mockerySelf.Called(mockeryArg0)
