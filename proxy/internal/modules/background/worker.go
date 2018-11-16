@@ -108,7 +108,7 @@ func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
 
 	for _, mod := range mods {
 		// only download mod if we do not already have it
-		exists, err := w.index.Contains(mod.Module)
+		exists, indexID, err := w.index.Contains(mod.Module)
 		if err != nil {
 			w.log.Errorf("problem with index lookups: %v", err)
 			continue // may as well try the others
@@ -116,6 +116,13 @@ func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
 
 		if exists {
 			w.log.Tracef("already have %s, not going to download it again", mod)
+			// set indexID to newID if they do not match
+			if indexID != mod.SerialID {
+				w.log.Infof("indexed ID of %d for %s does not match ID %d")
+				if err = w.index.UpdateID(mod); err != nil {
+					w.log.Errorf("problem updating index ID: %v", err)
+				}
+			}
 			continue // move on to the next one
 		}
 
