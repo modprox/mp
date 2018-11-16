@@ -15,7 +15,7 @@
                 <td>{{.Version}}</td>
                 <td>
                     <form method="POST" action="/mods/show?mod={{$.Source}}">
-                        {{$.CSRFField}}
+                        {{$.CSRF}}
                         <input type="hidden" name="delete-mod-id" value="{{.SerialID}}"/>
                         <input type="checkbox" title="delete-safety" required/>
                         <input type="submit" class="btn btn-warning btn-sm" value="✖ Remove"/>

@@ -17,9 +17,9 @@ import (
 )
 
 type showPage struct {
-	CSRFField template.HTML
-	Source    string
-	Mods      []coordinates.SerialModule
+	CSRF   template.HTML
+	Source string
+	Mods   []coordinates.SerialModule
 }
 
 type showHandler struct {
@@ -107,9 +107,9 @@ func (h *showHandler) load(r *http.Request) (int, *showPage, error) {
 	sort.Sort(coordinates.ModsByVersion(mods))
 
 	return http.StatusOK, &showPage{
-		Source:    source,
-		Mods:      mods,
-		CSRFField: csrf.TemplateField(r),
+		Source: source,
+		Mods:   mods,
+		CSRF:   csrf.TemplateField(r),
 	}, nil
 }
 

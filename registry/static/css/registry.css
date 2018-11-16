@@ -197,6 +197,42 @@
     font-size: large;
 }
 
+.find-desc {
+    padding-left: 10px;
+}
+
+.find-red {
+    color: red;
+}
+
+.find-space {
+    width: 40px;
+}
+
+.find-notfound {
+    color: gray;
+}
+
+.find-pkg {
+    font-family: monospace;
+    color: black;
+}
+
+.find-label {
+    font-weight: bold;
+}
+
+.find-code {
+    font-family: monospace;
+    padding-left: 2em;
+}
+
+.find-code-sm {
+    font-family: monospace;
+    padding-left: 2em;
+    font-size: xx-small;
+}
+
 /* --- about page --- */
 .about-text {
     width: 40em;
