@@ -39,7 +39,8 @@ type Index interface {
 	Versions(module string) ([]string, error)
 	Info(coordinates.Module) (repository.RevInfo, error)
 	Mod(coordinates.Module) (string, error) // go.mod
-	Contains(coordinates.Module) (bool, error)
+	Contains(coordinates.Module) (bool, int64, error)
+	UpdateID(coordinates.SerialModule) error
 	Put(ModuleAddition) error
 	IDs() (Ranges, error)
 	Summary() (int, int, error)
@@ -190,18 +191,22 @@ func (i *boltIndex) Mod(mod coordinates.Module) (string, error) {
 	return content, err
 }
 
-func (i *boltIndex) Contains(mod coordinates.Module) (bool, error) {
+func (i *boltIndex) Contains(mod coordinates.Module) (bool, int64, error) {
 	key := mod.Bytes()
 	var exists bool
+	var id int64
 
 	err := i.db.View(func(tx *bolt.Tx) error {
 		idBkt := tx.Bucket(idBktLbl)
 		bs := idBkt.Get(key)
 		exists = bs != nil
+		if exists {
+			id = decodeID(bs)
+		}
 		return nil
 	})
 
-	return exists, err
+	return exists, id, err
 }
 
 func (i *boltIndex) Put(add ModuleAddition) error {
@@ -229,14 +234,37 @@ func (i *boltIndex) Put(add ModuleAddition) error {
 
 		// insert the uniqueID
 		{
-			var encodedID = make([]byte, 8) // 8 bytes in uint64
-			binary.BigEndian.PutUint64(encodedID, uint64(add.UniqueID))
+			encodedID := encodeID(add.UniqueID)
 			idBkt := tx.Bucket(idBktLbl)
 			if err := idBkt.Put(key, encodedID); err != nil {
 				return err
 			}
 		}
 
+		return nil
+	})
+}
+
+func encodeID(id int64) []byte {
+	var encodedID = make([]byte, 8) // 8 bytes in uint64
+	binary.BigEndian.PutUint64(encodedID, uint64(id))
+	return encodedID
+}
+
+func decodeID(bs []byte) int64 {
+	uID := binary.BigEndian.Uint64(bs)
+	return int64(uID)
+}
+
+func (i *boltIndex) UpdateID(mod coordinates.SerialModule) error {
+	key := mod.Bytes()
+	return i.db.Update(func(tx *bolt.Tx) error {
+		encodedID := encodeID(mod.SerialID)
+		idBkt := tx.Bucket(idBktLbl)
+		// overwrite the ID for module
+		if err := idBkt.Put(key, encodedID); err != nil {
+			return err
+		}
 		return nil
 	})
 }
@@ -254,8 +282,8 @@ func (i *boltIndex) IDs() (Ranges, error) {
 	err := i.db.View(func(tx *bolt.Tx) error {
 		idBkt := tx.Bucket(idBktLbl)
 		idBkt.ForEach(func(_, v []byte) error {
-			id := binary.BigEndian.Uint64(v)
-			ids = append(ids, int64(id))
+			id := decodeID(v)
+			ids = append(ids, id)
 			return nil
 		})
 

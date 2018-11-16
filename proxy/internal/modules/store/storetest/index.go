@@ -16,7 +16,7 @@ type Index struct {
 }
 
 // Contains provides a mock function with given fields: mockeryArg0
-func (mockerySelf *Index) Contains(mockeryArg0 coordinates.Module) (bool, error) {
+func (mockerySelf *Index) Contains(mockeryArg0 coordinates.Module) (bool, int64, error) {
 	ret := mockerySelf.Called(mockeryArg0)
 
 	var r0 bool
@@ -26,14 +26,21 @@ func (mockerySelf *Index) Contains(mockeryArg0 coordinates.Module) (bool, error)
 		r0 = ret.Get(0).(bool)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(coordinates.Module) error); ok {
+	var r1 int64
+	if rf, ok := ret.Get(1).(func(coordinates.Module) int64); ok {
 		r1 = rf(mockeryArg0)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int64)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(coordinates.Module) error); ok {
+		r2 = rf(mockeryArg0)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // IDs provides a mock function with given fields:
@@ -141,6 +148,20 @@ func (mockerySelf *Index) Summary() (int, int, error) {
 	}
 
 	return r0, r1, r2
+}
+
+// UpdateID provides a mock function with given fields: mockeryArg0
+func (mockerySelf *Index) UpdateID(mockeryArg0 coordinates.SerialModule) error {
+	ret := mockerySelf.Called(mockeryArg0)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(coordinates.SerialModule) error); ok {
+		r0 = rf(mockeryArg0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // Versions provides a mock function with given fields: module

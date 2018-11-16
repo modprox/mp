@@ -58,7 +58,7 @@ func Test_Index_empty(t *testing.T) {
 	))
 	require.Error(t, err)
 
-	exists, err := index.Contains(newMod(
+	exists, _, err := index.Contains(newMod(
 		"github.com/pkg/errors",
 		"v0.8.0",
 	))
