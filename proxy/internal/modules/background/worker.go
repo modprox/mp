@@ -118,7 +118,12 @@ func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
 			w.log.Tracef("already have %s, not going to download it again", mod)
 			// set indexID to newID if they do not match
 			if indexID != mod.SerialID {
-				w.log.Infof("indexed ID of %d for %s does not match ID %d")
+				w.log.Infof(
+					"indexed ID of %d for %s does not match ID %d, will update",
+					indexID,
+					mod,
+					mod.SerialID,
+				)
 				if err = w.index.UpdateID(mod); err != nil {
 					w.log.Errorf("problem updating index ID: %v", err)
 				}
