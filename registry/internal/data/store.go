@@ -26,6 +26,7 @@ type Store interface {
 	ListModulesBySource(source string) ([]coordinates.SerialModule, error)
 	ListModules() ([]coordinates.SerialModule, error)
 	InsertModules([]coordinates.Module) (int, error)
+	DeleteModuleByID(id int) error
 
 	// startup configs and payloads
 	SetStartConfig(payloads.Configuration) error

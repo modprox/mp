@@ -274,3 +274,8 @@ func (s *store) insertModuleInDB(tx *sql.Tx, mod coordinates.Module) error {
 	)
 	return err
 }
+
+func (s *store) DeleteModuleByID(id int) error {
+	_, err := s.statements[deleteModuleByIDSQL].Exec(id)
+	return err
+}

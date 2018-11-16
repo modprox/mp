@@ -5,8 +5,11 @@ import (
 	"html/template"
 	"net/http"
 	"sort"
+	"strconv"
 
 	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/gorilla/csrf"
+
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/registry/internal/data"
@@ -14,8 +17,9 @@ import (
 )
 
 type showPage struct {
-	Source string
-	Mods   []coordinates.SerialModule
+	CSRFField template.HTML
+	Source    string
+	Mods      []coordinates.SerialModule
 }
 
 type showHandler struct {
@@ -41,8 +45,19 @@ func newShowHandler(store data.Store, statter statsd.Statter) http.Handler {
 }
 
 func (h *showHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// for now this is get only
-	code, page, err := h.get(r)
+	var (
+		code int
+		page *showPage
+		err  error
+	)
+
+	switch r.Method {
+	case http.MethodGet:
+		code, page, err = h.get(r)
+	case http.MethodPost:
+		code, page, err = h.post(r)
+	}
+
 	if err != nil {
 		h.log.Errorf("failed to serve show modules page: %v", err)
 		http.Error(w, err.Error(), code)
@@ -58,6 +73,27 @@ func (h *showHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *showHandler) get(r *http.Request) (int, *showPage, error) {
+	return h.load(r)
+}
+
+func (h *showHandler) post(r *http.Request) (int, *showPage, error) {
+	id, err := h.parseModToDelete(r)
+	if err != nil {
+		return http.StatusBadRequest, nil, err
+	}
+
+	h.log.Infof("will delete module of id: %d", id)
+	if err := h.store.DeleteModuleByID(id); err != nil {
+		return http.StatusInternalServerError, nil, err
+	}
+
+	// after deletion just load the show page for that package again
+	return h.load(r)
+}
+
+// both get and post will load the mod show page
+// which can be rendered with this load function
+func (h *showHandler) load(r *http.Request) (int, *showPage, error) {
 	source, err := h.parseQuery(r)
 	if err != nil {
 		return http.StatusBadRequest, nil, err
@@ -71,8 +107,9 @@ func (h *showHandler) get(r *http.Request) (int, *showPage, error) {
 	sort.Sort(coordinates.ModsByVersion(mods))
 
 	return http.StatusOK, &showPage{
-		Source: source,
-		Mods:   mods,
+		Source:    source,
+		Mods:      mods,
+		CSRFField: csrf.TemplateField(r),
 	}, nil
 }
 
@@ -83,4 +120,9 @@ func (h *showHandler) parseQuery(r *http.Request) (string, error) {
 		return "", errors.New("mod query parameter required")
 	}
 	return m, nil
+}
+
+func (h *showHandler) parseModToDelete(r *http.Request) (int, error) {
+	idText := r.FormValue("delete-mod-id")
+	return strconv.Atoi(idText)
 }

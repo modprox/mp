@@ -19,6 +19,7 @@ const (
 	selectHeartbeatsSQL
 	deleteHeartbeatSQL
 	deleteStartupConfigSQL
+	deleteModuleByIDSQL
 )
 
 type statements map[int]*sql.Stmt
@@ -58,6 +59,7 @@ var (
 		selectHeartbeatsSQL:     `select hostname, port, num_modules, num_versions, unix_timestamp(ts) from proxy_heartbeats`,
 		deleteHeartbeatSQL:      `delete from proxy_heartbeats where hostname=? and port=? limit 1`,
 		deleteStartupConfigSQL:  `delete from proxy_configurations where hostname=? and port=? limit 1`,
+		deleteModuleByIDSQL:     `delete from modules where id=?`,
 	}
 
 	postgreSQLTexts = map[int]string{
@@ -73,5 +75,6 @@ var (
 		selectHeartbeatsSQL:     `select hostname, port, num_modules, num_versions, (cast( -extract(timezone from now()) + extract(epoch from ts) as integer)) from proxy_heartbeats`,
 		deleteHeartbeatSQL:      `delete from proxy_heartbeats where hostname=$1 and port=$2`,
 		deleteStartupConfigSQL:  `delete from proxy_configurations where hostname=$1 and port=$2`,
+		// todo: deleteModuleByIDSQL
 	}
 )
