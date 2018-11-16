@@ -10,4 +10,5 @@ import (
 type ZipStore interface {
 	PutZip(coordinates.Module, repository.Blob) error
 	GetZip(coordinates.Module) (repository.Blob, error)
+	DelZip(coordinates.Module) error
 }

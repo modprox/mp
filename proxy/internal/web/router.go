@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	get = http.MethodGet
+	get  = http.MethodGet
+	post = http.MethodPost
 )
 
 func NewRouter(
@@ -33,6 +34,7 @@ func NewRouter(
 	router.PathPrefix("/").Handler(modZip(store, statter)).MatcherFunc(suffix(".zip")).Methods(get)
 	router.PathPrefix("/").HandlerFunc(notFound(statter))
 
+	router.PathPrefix("/").Handler(modRM(index, store, statter)).MatcherFunc(suffix(".rm")).Methods(post)
 	return webutil.Chain(router, middles...)
 }
 

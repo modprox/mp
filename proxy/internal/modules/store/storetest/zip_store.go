@@ -14,6 +14,20 @@ type ZipStore struct {
 	mock.Mock
 }
 
+// DelZip provides a mock function with given fields: mockeryArg0
+func (mockerySelf *ZipStore) DelZip(mockeryArg0 coordinates.Module) error {
+	ret := mockerySelf.Called(mockeryArg0)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(coordinates.Module) error); ok {
+		r0 = rf(mockeryArg0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // GetZip provides a mock function with given fields: mockeryArg0
 func (mockerySelf *ZipStore) GetZip(mockeryArg0 coordinates.Module) (repository.Blob, error) {
 	ret := mockerySelf.Called(mockeryArg0)

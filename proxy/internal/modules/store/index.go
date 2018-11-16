@@ -38,9 +38,10 @@ type Range = coordinates.RangeID
 type Index interface {
 	Versions(module string) ([]string, error)
 	Info(coordinates.Module) (repository.RevInfo, error)
-	Mod(coordinates.Module) (string, error) // go.mod
 	Contains(coordinates.Module) (bool, int64, error)
 	UpdateID(coordinates.SerialModule) error
+	Mod(coordinates.Module) (string, error) // go.mod file
+	Remove(coordinates.Module) error
 	Put(ModuleAddition) error
 	IDs() (Ranges, error)
 	Summary() (int, int, error)
@@ -207,6 +208,45 @@ func (i *boltIndex) Contains(mod coordinates.Module) (bool, int64, error) {
 	})
 
 	return exists, id, err
+}
+
+func (i *boltIndex) Remove(mod coordinates.Module) error {
+	key := mod.Bytes()
+	return i.db.Update(func(tx *bolt.Tx) error {
+		// need to remove the mod from each bucket
+
+		// 1) remove from mods bucket
+		if err := i.removeFromMods(key, tx); err != nil {
+			return err
+		}
+
+		// 2) remove from info bucket
+		if err := i.removeFromInfos(key, tx); err != nil {
+			return err
+		}
+
+		// 3) remove from ids bucket
+		if err := i.removeFromIDs(key, tx); err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
+func (i *boltIndex) removeFromMods(key []byte, tx *bolt.Tx) error {
+	modsBkt := tx.Bucket(modsBktLbl)
+	return modsBkt.Delete(key)
+}
+
+func (i *boltIndex) removeFromInfos(key []byte, tx *bolt.Tx) error {
+	infoBkt := tx.Bucket(infoBktLbl)
+	return infoBkt.Delete(key)
+}
+
+func (i *boltIndex) removeFromIDs(key []byte, tx *bolt.Tx) error {
+	idBkt := tx.Bucket(idBktLbl)
+	return idBkt.Delete(key)
 }
 
 func (i *boltIndex) Put(add ModuleAddition) error {

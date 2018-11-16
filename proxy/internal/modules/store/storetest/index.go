@@ -122,6 +122,20 @@ func (mockerySelf *Index) Put(mockeryArg0 store.ModuleAddition) error {
 	return r0
 }
 
+// Remove provides a mock function with given fields: mockeryArg0
+func (mockerySelf *Index) Remove(mockeryArg0 coordinates.Module) error {
+	ret := mockerySelf.Called(mockeryArg0)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(coordinates.Module) error); ok {
+		r0 = rf(mockeryArg0)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Summary provides a mock function with given fields:
 func (mockerySelf *Index) Summary() (int, int, error) {
 	ret := mockerySelf.Called()
