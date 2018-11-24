@@ -1,3 +1,5 @@
+/* postgres is not currently supported (issue #103) */
+
 create table modules (
   id serial primary key,
   source varchar(1024) not null,

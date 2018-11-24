@@ -2,7 +2,6 @@ package data
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/cactus/go-statsd-client/statsd"
@@ -40,7 +39,9 @@ func Connect(kind string, dsn config.DSN, statter statsd.Statter) (Store, error)
 	var db *sql.DB
 	var err error
 
-	if kind == "mysql" {
+	switch kind {
+	case "mysql":
+
 		db, err = connectMySQL(mysql.Config{
 			Net:                  "tcp",
 			User:                 dsn.User,
@@ -54,12 +55,13 @@ func Connect(kind string, dsn config.DSN, statter statsd.Statter) (Store, error)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to connect to mysql")
 		}
-	} else if kind == "postgres" {
-		db, err = connectPostgreSQL(dsn)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to connect to postgres")
-		}
-	} else {
+	case "postgres":
+		return nil, errors.New("postgres is not supported (issue #103)")
+		//db, err = connectPostgreSQL(dsn)
+		//if err != nil {
+		//	return nil, errors.Wrap(err, "failed to connect to postgres")
+		//}
+	default:
 		return nil, errors.Errorf("%s is not a supported database", kind)
 	}
 
@@ -71,17 +73,17 @@ func connectMySQL(config mysql.Config) (*sql.DB, error) {
 	return sql.Open("mysql", dsn)
 }
 
-func connectPostgreSQL(dsn config.DSN) (*sql.DB, error) {
-	// "postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full"
-	connectStr := fmt.Sprintf(
-		"postgres://%s:%s@%s/%s?sslmode=disable", // todo: enable ssl
-		dsn.User,
-		dsn.Password,
-		dsn.Address,
-		dsn.Database,
-	)
-	return sql.Open("postgres", connectStr)
-}
+//func connectPostgreSQL(dsn config.DSN) (*sql.DB, error) {
+//	// "postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full"
+//	connectStr := fmt.Sprintf(
+//		"postgres://%s:%s@%s/%s?sslmode=disable", // todo: enable ssl
+//		dsn.User,
+//		dsn.Password,
+//		dsn.Address,
+//		dsn.Database,
+//	)
+//	return sql.Open("postgres", connectStr)
+//}
 
 func New(kind string, db *sql.DB, statter statsd.Statter) (Store, error) {
 	statements, err := load(kind, db)

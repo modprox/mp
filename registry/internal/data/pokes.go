@@ -31,10 +31,10 @@ func (s *store) ListStartConfigs() ([]payloads.Configuration, error) {
 	start := time.Now()
 	configs, err := s.listStartConfigs()
 	if err != nil {
-		s.statter.Inc("db-list-start-configs-error", 1, 1)
+		_ = s.statter.Inc("db-list-start-configs-error", 1, 1)
 		return nil, err
 	}
-	s.statter.Gauge("db-list-start-configs-elapsed-ms", since.MS(start), 1)
+	_ = s.statter.Gauge("db-list-start-configs-elapsed-ms", since.MS(start), 1)
 	return configs, nil
 }
 
@@ -116,10 +116,10 @@ func (s *store) SetHeartbeat(heartbeat payloads.Heartbeat) error {
 	start := time.Now()
 	err := s.setHeartbeat(heartbeat)
 	if err != nil {
-		s.statter.Inc("db-set-heartbeat-failure", 1, 1)
+		_ = s.statter.Inc("db-set-heartbeat-failure", 1, 1)
 		return err
 	}
-	s.statter.Gauge("db-set-heartbeat-elapsed-ms", since.MS(start), 1)
+	_ = s.statter.Gauge("db-set-heartbeat-elapsed-ms", since.MS(start), 1)
 	return nil
 }
 
@@ -139,10 +139,10 @@ func (s *store) ListHeartbeats() ([]payloads.Heartbeat, error) {
 	start := time.Now()
 	heartbeats, err := s.listHeartbeats()
 	if err != nil {
-		s.statter.Inc("db-list-heartbeats-failure", 1, 1)
+		_ = s.statter.Inc("db-list-heartbeats-failure", 1, 1)
 		return nil, err
 	}
-	s.statter.Gauge("db-list-heartbeats-elapsed-ms", since.MS(start), 1)
+	_ = s.statter.Gauge("db-list-heartbeats-elapsed-ms", since.MS(start), 1)
 	return heartbeats, nil
 }
 
