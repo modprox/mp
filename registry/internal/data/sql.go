@@ -29,7 +29,8 @@ func load(kind string, db *sql.DB) (statements, error) {
 
 	stmtTexts := mySQLTexts
 	if kind == "postgres" {
-		stmtTexts = postgreSQLTexts
+		return loaded, errors.New("postgres is not supports (issue #103)")
+		// stmtTexts = postgreSQLTexts
 	}
 
 	for id, text := range stmtTexts {
@@ -62,6 +63,7 @@ var (
 		deleteModuleByIDSQL:     `delete from modules where id=?`,
 	}
 
+	/* issue #103 : put postgres on the shelf for now
 	postgreSQLTexts = map[int]string{
 		insertModuleSQL:         `insert into modules (source, version) values ($1, $2)`,
 		selectModuleIDSQL:       `select id from modules where source=$1 and version=$2`,
@@ -77,4 +79,5 @@ var (
 		deleteStartupConfigSQL:  `delete from proxy_configurations where hostname=$1 and port=$2`,
 		// todo: deleteModuleByIDSQL
 	}
+	*/
 )
