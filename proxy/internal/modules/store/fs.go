@@ -74,6 +74,28 @@ func (s *fsStore) getZip(mod coordinates.Module) (repository.Blob, error) {
 	return ioutil.ReadFile(zipFile)
 }
 
+func (s *fsStore) DelZip(mod coordinates.Module) error {
+	s.log.Tracef("removing module %s", mod)
+
+	start := time.Now()
+	err := s.removeZip(mod)
+	if err != nil {
+		s.statter.Inc("fsstore-rmzip-failure", 1, 1)
+		return err
+	}
+	s.statter.Gauge("fsstore-rmzip-elapsed-ms", since.MS(start), 1)
+
+	return nil
+}
+
+func (s *fsStore) removeZip(mod coordinates.Module) error {
+	zipFile := filepath.Join(
+		s.fullPathOf(mod),
+		zipName(mod),
+	)
+	return os.Remove(zipFile)
+}
+
 func (s *fsStore) PutZip(mod coordinates.Module, blob repository.Blob) error {
 	s.log.Infof("will save %s do disk, %d bytes", mod, len(blob))
 

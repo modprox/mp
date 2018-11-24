@@ -250,6 +250,8 @@ func Test_Summary(t *testing.T) {
 	tmpDir, index := setupIndex(t)
 	defer cleanupIndex(t, tmpDir)
 
+	checkSummary(t, index, 0, 0)
+
 	insert(t, index, "github.com/pkg/errors", 1)
 	insert(t, index, "github.com/pkg/errors", 2)
 	insert(t, index, "github.com/pkg/errors", 3)
@@ -262,8 +264,50 @@ func Test_Summary(t *testing.T) {
 
 	insert(t, index, "github.com/pkg/errors", 20)
 
+	checkSummary(t, index, 2, 9)
+}
+
+func checkSummary(t *testing.T, index Index, expMods, expVers int) {
 	mods, versions, err := index.Summary()
 	require.NoError(t, err)
-	require.Equal(t, 2, mods)
-	require.Equal(t, 9, versions)
+	require.Equal(t, expMods, mods)
+	require.Equal(t, expVers, versions)
+}
+
+func Test_Remove(t *testing.T) {
+	tmpDir, index := setupIndex(t)
+	defer cleanupIndex(t, tmpDir)
+
+	checkSummary(t, index, 0, 0)
+
+	insert(t, index, "github.com/pkg/errors", 1)
+	insert(t, index, "github.com/pkg/errors", 2)
+	insert(t, index, "github.com/pkg/errors", 3)
+	insert(t, index, "github.com/pkg/errors", 4)
+	insert(t, index, "github.com/pkg/errors", 5)
+	insert(t, index, "github.com/pkg/toolkit", 10)
+	insert(t, index, "github.com/pkg/toolkit", 11)
+	insert(t, index, "github.com/pkg/errors", 12)
+	insert(t, index, "github.com/pkg/errors", 20)
+
+	checkSummary(t, index, 2, 9)
+
+	m1 := coordinates.Module{
+		Source:  "github.com/pkg/toolkit",
+		Version: "v0.0.10",
+	}
+
+	exists, id, err := index.Contains(m1)
+	require.NoError(t, err)
+	require.True(t, exists)
+	require.Equal(t, int64(10), id)
+
+	err = index.Remove(m1)
+	require.NoError(t, err)
+
+	exists, _, err = index.Contains(m1)
+	require.NoError(t, err)
+	require.False(t, exists)
+
+	checkSummary(t, index, 2, 8)
 }
