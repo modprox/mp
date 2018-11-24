@@ -29,14 +29,14 @@ type Tag struct {
 	Commit string
 }
 
-//go:generate -interface=Versions -package=findertest
+//go:generate mockery3 -interface=Versions -package=findertest
 
 type Versions interface {
 	// Request the list of semver tags set in the source git repository.
 	Request(source string) (*Result, error)
 }
 
-//go:generate -interface=Finder -package=findertest
+//go:generate mockery3 -interface=Finder -package=findertest
 
 type Finder interface {
 	// Find returns the special form module name for the latest commit,
