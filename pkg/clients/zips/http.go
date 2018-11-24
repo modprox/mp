@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/shoenig/toolkit"
+	"github.com/shoenig/httplus/responses"
 
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/repository"
@@ -58,7 +58,7 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not do request for %s", uri)
 	}
-	defer toolkit.Drain(response.Body)
+	defer responses.Drain(response)
 
 	// if we get a bad response code, try to read the body and log it
 	if response.StatusCode >= 400 {

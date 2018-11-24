@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/shoenig/toolkit"
+	"github.com/shoenig/httplus/responses"
 
 	"github.com/modprox/mp/pkg/loggy"
 )
@@ -67,7 +67,7 @@ func (g *github) requestTags(uri string) ([]Tag, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer toolkit.Drain(response.Body)
+	defer responses.Drain(response)
 
 	return g.decodeTags(response.Body)
 }
@@ -77,7 +77,7 @@ func (g *github) requestHead(uri string) (Head, error) {
 	if err != nil {
 		return Head{}, err
 	}
-	defer toolkit.Drain(response.Body)
+	defer responses.Drain(response)
 
 	return g.decodeHead(response.Body)
 }

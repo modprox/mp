@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/shoenig/toolkit"
+	"github.com/shoenig/httplus/responses"
 )
 
 type goGetMeta struct {
@@ -30,7 +30,7 @@ func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
 	if err != nil {
 		return meta, err
 	}
-	defer toolkit.Drain(response.Body)
+	defer responses.Drain(response)
 
 	bs, err := ioutil.ReadAll(response.Body)
 	if err != nil {

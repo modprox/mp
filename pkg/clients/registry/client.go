@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/shoenig/toolkit"
+	"github.com/shoenig/httplus/responses"
 
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/netservice"
@@ -118,7 +118,7 @@ func (c *client) getSingle(path string, instance netservice.Instance, w io.Write
 		c.log.Errorf("GET single request failed: %v", err)
 		return err
 	}
-	defer toolkit.Drain(response.Body)
+	defer responses.Drain(response)
 
 	c.log.Tracef("GET single response code: %d", response.StatusCode)
 
@@ -162,7 +162,7 @@ func (c *client) postSingle(
 		c.log.Errorf("POST single request failed: %v", err)
 		return err
 	}
-	defer toolkit.Drain(response.Body)
+	defer responses.Drain(response)
 
 	c.log.Tracef("POST single response code: %d", response.StatusCode)
 

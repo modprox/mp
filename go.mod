@@ -11,7 +11,10 @@ require (
 	github.com/modprox/taggit v0.0.5
 	github.com/pkg/errors v0.8.0
 	github.com/shoenig/atomicfs v0.1.1
+	github.com/shoenig/httplus v0.0.0
 	github.com/shoenig/petrify/v4 v4.0.2
 	github.com/shoenig/toolkit v1.0.0
 	github.com/stretchr/testify v1.2.2
+	golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b // indirect
+	google.golang.org/appengine v1.3.0 // indirect
 )
