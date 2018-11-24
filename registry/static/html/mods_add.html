@@ -13,7 +13,7 @@
     </div>
     <div>
         <form method="POST" id="new-module" action="/mods/new">
-            {{.CSRFField}}
+            {{.CSRF}}
             <textarea
                     name="modules-input"
                     form="new-module"

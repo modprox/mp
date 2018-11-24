@@ -22,8 +22,10 @@ func compareErr(t *testing.T, expErr, gotErr error) {
 }
 
 func Test_parseLine(t *testing.T) {
+	h := &newHandler{}
+
 	try := func(input string, exp Parsed) {
-		parsed := parseLine(input)
+		parsed := h.parseLine(input)
 		require.Equal(t, exp.Text, parsed.Text)
 		require.Equal(t, exp.Module, parsed.Module)
 		compareErr(t, exp.Err, parsed.Err)
@@ -88,19 +90,21 @@ func Test_parseLine(t *testing.T) {
 }
 
 func Test_parseLines_sumFile(t *testing.T) {
+	h := &newHandler{}
 	inputLines := linesOf(t, goSumFile)
 	expLines := linesOf(t, goSumFileExp)
 
-	parsed := parseLines(inputLines)
+	parsed := h.parseLines(inputLines)
 
 	checkParsed(t, parsed, expLines)
 }
 
 func Test_parseLines_modFile(t *testing.T) {
+	h := &newHandler{}
 	inputLines := linesOf(t, goModFile)
 	expLines := linesOf(t, goModFileExp)
 
-	parsed := parseLines(inputLines)
+	parsed := h.parseLines(inputLines)
 
 	checkParsed(t, parsed, expLines)
 }

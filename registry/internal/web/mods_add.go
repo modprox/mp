@@ -1,7 +1,6 @@
 package web
 
 import (
-	"bufio"
 	"errors"
 	"html/template"
 	"net/http"
@@ -18,8 +17,8 @@ import (
 )
 
 type newPage struct {
-	Mods      []Parsed
-	CSRFField template.HTML
+	Mods []Parsed
+	CSRF template.HTML
 }
 
 type newHandler struct {
@@ -61,7 +60,7 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Errorf("failed to serve add-module page: %v", err)
 		http.Error(w, err.Error(), code)
-		h.statter.Inc("ui-add-mod-error", 1, 1)
+		_ = h.statter.Inc("ui-add-mod-error", 1, 1)
 		return
 	}
 
@@ -70,13 +69,13 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.statter.Inc("ui-add-mod-ok", 1, 1)
+	_ = h.statter.Inc("ui-add-mod-ok", 1, 1)
 }
 
 func (h *newHandler) get(r *http.Request) (int, *newPage, error) {
 	return http.StatusOK, &newPage{
-		Mods:      nil,
-		CSRFField: csrf.TemplateField(r),
+		Mods: nil,
+		CSRF: csrf.TemplateField(r),
 	}, nil
 }
 
@@ -94,8 +93,8 @@ func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
 	h.log.Infof("added %d new modules", modulesAdded)
 
 	return http.StatusOK, &newPage{
-		Mods:      mods,
-		CSRFField: csrf.TemplateField(r),
+		Mods: mods,
+		CSRF: csrf.TemplateField(r),
 	}, nil
 }
 
@@ -132,23 +131,23 @@ func (h *newHandler) parseTextArea(r *http.Request) ([]Parsed, error) {
 	if len(lines) == 0 {
 		return nil, errors.New("no modules listed")
 	}
-	results := parseLines(lines)
+	results := h.parseLines(lines)
 
 	return results, nil
 }
 
-func parseLines(lines []string) []Parsed {
+func (h *newHandler) parseLines(lines []string) []Parsed {
 	results := make([]Parsed, 0, len(lines))
 	for _, line := range lines {
-		if !skipLine(line) {
-			result := parseLine(line)
+		if !h.skipLine(line) {
+			result := h.parseLine(line)
 			results = append(results, result)
 		}
 	}
 	return results
 }
 
-func skipLine(line string) bool {
+func (h *newHandler) skipLine(line string) bool {
 	if strings.HasPrefix(line, "module ") {
 		return true
 	}
@@ -161,23 +160,11 @@ func skipLine(line string) bool {
 	return false
 }
 
-func parseLine(line string) Parsed {
+func (h *newHandler) parseLine(line string) Parsed {
 	mod, err := repository.Parse(line)
 	return Parsed{
 		Text:   line,
 		Module: mod,
 		Err:    err,
 	}
-}
-
-func linesOfText(text string) []string {
-	lines := make([]string, 0, 1)
-	scanner := bufio.NewScanner(strings.NewReader(text))
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line != "" {
-			lines = append(lines, scanner.Text())
-		}
-	}
-	return lines
 }

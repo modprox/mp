@@ -1,0 +1,101 @@
+{{define "body"}}
+<div class="container">
+    <br/><br/><br/>
+    <div class="bigheader">
+        <h3>find modules</h3>
+    </div>
+    <div>
+        <div class="find-desc">
+            <p>find module versions for packages</p>
+            <p>
+                <span class="glyphicon glyphicon-exclamation-sign find-red" aria-hidden="true"></span>
+                this only works with <strong>github</strong> for now
+            </p>
+        </div>
+        <form method="POST" id="find-module" action="/mods/find">
+            {{.CSRF}}
+            <textarea
+                name="sources-input"
+                form="find-module"
+                rows="5" cols="70"
+                placeholder="e.g. github.com/pkg/errors"
+                required autofocus></textarea>
+            <br/><br/>
+            <input type="submit" form="find-module" class="btn btn-success" value="⌕ Find">
+        </form>
+    </div>
+
+    <hr/>
+
+    <div>
+        {{if not .Found}}
+            <span class="find-notfound">
+                no results
+            </span>
+        {{else}}
+        <table> <!-- outer list of things -->
+            {{range .Found}}
+                <tr>
+                    <td>
+                        <table> <!-- left and right side -->
+                            <tr>
+                                <td> <!-- package name -->
+                                    <h4>
+                                        <a href="https://{{.Text}}" class="find-pkg" target="_blank" rel="noreferrer">
+                                            {{.Text}}
+                                        </a>
+                                    </h4>
+                                </td>
+                                <td class="find-space"></td>
+                                <td> <!-- whats in the package -->
+                                    {{if .Err}}
+                                        <span class="find-label">
+                                            error message
+                                        </span>
+                                        <br/>
+                                        <span class="find-code">
+                                            failed to lookup package information
+                                        </span>
+                                    {{else}}
+                                        <span class="find-label">
+                                            latest commit
+                                        </span>
+                                        <br/>
+                                        <span class="find-code">
+                                            {{.Result.Latest.Custom}}
+                                        </span>
+                                        <br/>
+                                        {{if not .Result.Tags}}
+                                            no tags
+                                        {{else}}
+                                            <span class="find-label">
+                                            latest tag
+                                            </span>
+                                            <br/>
+                                            <span class="find-code">
+                                                {{(index .Result.Tags 0).SemVer}}
+                                            </span>
+                                            <br/>
+                                            <span class="find-label">
+                                                older tags
+                                            </span>
+                                            <br/>
+                                            <span class="find-code sm">
+                                                {{range .Result.Tags}}
+                                                    {{.SemVer}}
+                                                {{end}}
+                                            </span>
+                                        {{end}}
+                                    {{end}}
+                                </td>
+                            </tr>
+                        </table>
+                        <hr/>
+                    </td>
+                </tr>
+            {{end}}
+        </table>
+        {{end}}
+    </div>
+</div>
+{{end}}
