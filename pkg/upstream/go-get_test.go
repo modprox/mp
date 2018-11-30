@@ -6,6 +6,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_formatContent(t *testing.T) {
+	try := func(input, exp string) {
+		result := formatContent(input)
+		require.Equal(t, exp, result)
+	}
+
+	try("foobar", "foobar")
+	try("a\nb", "a b")
+	try("<meta>\n foo\n bar</meta>", "<meta>\n  foo  bar</meta>\n")
+}
+
 func Test_parseGoGetMetadata(t *testing.T) {
 	try := func(input string, exp goGetMeta, expErr bool) {
 		output, err := parseGoGetMetadata(input)
@@ -68,6 +79,12 @@ func Test_parseGoGetMetadata(t *testing.T) {
 		transport: "https",
 		domain:    "github.com",
 		path:      "google/google-api-go-client",
+	}, false)
+
+	try(metaHTML10, goGetMeta{
+		transport: "https",
+		domain:    "github.com",
+		path:      "kubernetes/klog",
 	}, false)
 }
 
@@ -136,15 +153,16 @@ const (
 </head>
 
 `
-)
 
-/*
-match["golang.org"] = true
-match["cloud.google.com"] = true
-match["google.golang.org"] = true
-match["gopkg.in"] = true
-match["contrib.go.opencensus.io"] = true
-match["go.opencensus.io"] = true
-match["go.uber.org"] = true
-match["git.apache.org"] = true
-*/
+	metaHTML10 = `
+<head>
+<meta name="go-import"
+	content="k8s.io/klog
+	git https://github.com/kubernetes/klog">
+<meta name="go-source"
+	content="k8s.io/klog
+	https://github.com/kubernetes/klog
+	https://github.com/kubernetes/klog/tree/master{/dir}
+	https://github.com/kubernetes/klog/blob/master{/dir}/{file}#L{line}">
+</head>`
+)

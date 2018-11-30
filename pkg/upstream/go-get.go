@@ -76,6 +76,8 @@ func parseGoGetMetadata(content string) (goGetMeta, error) {
 // only when this does not work do we use the go-import line, which
 // may redirect to a vcs protocol.
 func tryParseGoMetaTag(tag, content string) (goGetMeta, bool, error) {
+	content = formatContent(content) // pre-process html
+
 	var meta goGetMeta
 	scanner := bufio.NewScanner(strings.NewReader(content))
 	for scanner.Scan() {
@@ -103,4 +105,11 @@ func cleanupPath(p string) string {
 	a := strings.TrimSuffix(p, "/")
 	b := strings.TrimSuffix(a, ".git")
 	return b
+}
+
+// need to rewrite newlines not preceded by closing angle bracket to be spaces
+func formatContent(content string) string {
+	content = strings.Replace(content, "\n", " ", -1)
+	content = strings.Replace(content, ">", ">\n", -1)
+	return content
 }
