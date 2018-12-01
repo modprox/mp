@@ -4,7 +4,6 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/modprox/mp/pkg/loggy"
@@ -123,11 +122,8 @@ func (h *findHandler) processLines(lines []string) []findResult {
 	return results
 }
 
-// only github.com things are supported for now
-var findableRe = regexp.MustCompile(`github\.com/[[:alnum:]]+/[[:alnum:]]+`)
-
 func (h *findHandler) processLine(line string) findResult {
-	if !findableRe.MatchString(line) {
+	if !finder.Compatible(line) {
 		return findResult{
 			Text: line,
 			Err:  errors.New("does not match regexp"),

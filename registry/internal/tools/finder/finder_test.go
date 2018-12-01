@@ -10,13 +10,36 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_Compatible(t *testing.T) {
+	try := func(input string, exp bool) {
+		result := Compatible(input)
+		require.Equal(t, exp, result)
+	}
+
+	// github OK
+	try("github.com/foo/bar", true)
+	try("github.com/foo/bar/baz", true)
+	try("github.com/sean-/seed", true)
+
+	// github NOT OK
+	try("github.com/foo", false)
+	try("github.com", false)
+	try("github", false)
+
+	// nothing else supported
+	try("golang.org/x/y", false)
+	try("", false)
+}
+
 func Test_finder_Find(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			if strings.HasSuffix(r.URL.String(), "/tags") {
-				w.Write([]byte(tags))
+				_, err := w.Write([]byte(tags))
+				require.NoError(t, err)
 			} else {
-				w.Write([]byte(head))
+				_, err := w.Write([]byte(head))
+				require.NoError(t, err)
 			}
 		}),
 	)
