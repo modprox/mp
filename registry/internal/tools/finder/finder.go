@@ -99,3 +99,8 @@ func (f *finder) forSource(source string) (Versions, error) {
 	}
 	return versions, nil
 }
+
+func Compatible(source string) bool {
+	// as more things are added, add them here
+	return githubPkgRe.MatchString(source)
+}

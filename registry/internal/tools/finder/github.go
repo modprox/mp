@@ -141,7 +141,7 @@ func (g *github) decodeTags(r io.Reader) ([]Tag, error) {
 }
 
 // only github.com things are supported for now
-var findableRe = regexp.MustCompile(`(github\.com)/([[:alnum:]_-]+)/([[:alnum:]_-]+)`)
+var githubPkgRe = regexp.MustCompile(`(github\.com)/([[:alnum:]_-]+)/([[:alnum:]_-]+)`)
 
 func (g *github) headURI(source string) (string, error) {
 	namespace, project, err := g.parseSource(source)
@@ -176,7 +176,7 @@ func (g *github) tagsURI(source string) (string, error) {
 }
 
 func (g *github) parseSource(source string) (string, string, error) {
-	groups := findableRe.FindStringSubmatch(source)
+	groups := githubPkgRe.FindStringSubmatch(source)
 	if len(groups) != 4 {
 		return "", "", errors.New("source does not conform to format")
 	}
