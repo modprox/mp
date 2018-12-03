@@ -26,15 +26,16 @@ func NewRouter(
 
 	router := mux.NewRouter()
 
-	// e.g. GET http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.info
+	// e.g. GET  http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.info
+	// e.g. GET  http://localhost:9000/github.com/shoenig/toolkit/@v.list
+	// e.g. POST http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.rm
 
 	router.PathPrefix("/").Handler(modList(index, statter)).MatcherFunc(suffix("list")).Methods(get)
 	router.PathPrefix("/").Handler(modInfo(index, statter)).MatcherFunc(suffix(".info")).Methods(get)
 	router.PathPrefix("/").Handler(modFile(index, statter)).MatcherFunc(suffix(".mod")).Methods(get)
 	router.PathPrefix("/").Handler(modZip(store, statter)).MatcherFunc(suffix(".zip")).Methods(get)
-	router.PathPrefix("/").HandlerFunc(notFound(statter))
-
 	router.PathPrefix("/").Handler(modRM(index, store, statter)).MatcherFunc(suffix(".rm")).Methods(post)
+	router.PathPrefix("/").HandlerFunc(notFound(statter))
 	return webutil.Chain(router, middles...)
 }
 
