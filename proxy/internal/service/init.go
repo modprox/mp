@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/modprox/mp/proxy/internal/problems"
+
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/pkg/errors"
 
@@ -24,18 +26,24 @@ import (
 
 type initer func(*Proxy) error
 
-func initStatter(r *Proxy) error {
+func initStatter(p *Proxy) error {
 	var err error
-	agent := r.config.Statsd.Agent
+	agent := p.config.Statsd.Agent
 	if agent.Port == 0 || agent.Address == "" {
-		r.statter, err = statsd.NewNoopClient()
-		r.log.Warnf("statsd statter is set to noop client")
+		p.statter, err = statsd.NewNoopClient()
+		p.log.Warnf("statsd statter is set to noop client")
 		return err
 	}
 	address := fmt.Sprintf("%s:%d", agent.Address, agent.Port)
-	r.statter, err = statsd.NewClient(address, "modprox-proxy")
-	r.log.Infof("statsd statter is set to %s", address)
+	p.statter, err = statsd.NewClient(address, "modprox-proxy")
+	p.log.Infof("statsd statter is set to %s", address)
 	return err
+}
+
+func initTrackers(p *Proxy) error {
+	dlTracker := problems.New("downloads")
+	p.dlProblems = dlTracker
+	return nil
 }
 
 func initIndex(p *Proxy) error {
@@ -98,15 +106,16 @@ func initZipsClient(p *Proxy) error {
 	return nil
 }
 
-func initRegistryReloader(p *Proxy) error {
+func initRegistryReloadWorker(p *Proxy) error {
 	reloadFreqS := time.Duration(p.config.Registry.PollFrequencyS) * time.Second
 	registryRequester := background.NewRegistryAPI(p.registryClient, p.index)
 
-	p.reloader = background.NewReloader(
+	p.reloader = background.NewReloadWorker(
 		background.Options{
 			Frequency: reloadFreqS,
 		},
 		p.statter,
+		p.dlProblems,
 		p.index,
 		p.store,
 		upstream.NewResolver(
@@ -204,17 +213,19 @@ func initStartupConfigSender(p *Proxy) error {
 		30*time.Second,
 		p.statter,
 	)
-	go sender.Send(
-		payloads.Configuration{
-			Self: netservice.Instance{
-				Address: netservice.Hostname(),
-				Port:    p.config.APIServer.Port,
+	go func() {
+		_ = sender.Send(
+			payloads.Configuration{
+				Self: netservice.Instance{
+					Address: netservice.Hostname(),
+					Port:    p.config.APIServer.Port,
+				},
+				Storage:    p.config.ModuleStorage,
+				Registry:   p.config.Registry,
+				Transforms: p.config.Transforms,
 			},
-			Storage:    p.config.ModuleStorage,
-			Registry:   p.config.Registry,
-			Transforms: p.config.Transforms,
-		},
-	)
+		)
+	}()
 	return nil
 }
 
@@ -226,6 +237,7 @@ func initWebServer(p *Proxy) error {
 		p.index,
 		p.store,
 		p.statter,
+		p.dlProblems,
 	)
 
 	server, err := p.config.APIServer.Server(mux)

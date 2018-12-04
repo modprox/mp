@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/modprox/mp/proxy/internal/problems"
+
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/mux"
 
@@ -22,20 +24,30 @@ func NewRouter(
 	index store.Index,
 	store store.ZipStore,
 	statter statsd.Statter,
+	dlProblems problems.Tracker,
 ) http.Handler {
 
 	router := mux.NewRouter()
 
+	// mod operations
+	//
 	// e.g. GET  http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.info
 	// e.g. GET  http://localhost:9000/github.com/shoenig/toolkit/@v.list
 	// e.g. POST http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.rm
-
 	router.PathPrefix("/").Handler(modList(index, statter)).MatcherFunc(suffix("list")).Methods(get)
 	router.PathPrefix("/").Handler(modInfo(index, statter)).MatcherFunc(suffix(".info")).Methods(get)
 	router.PathPrefix("/").Handler(modFile(index, statter)).MatcherFunc(suffix(".mod")).Methods(get)
 	router.PathPrefix("/").Handler(modZip(store, statter)).MatcherFunc(suffix(".zip")).Methods(get)
 	router.PathPrefix("/").Handler(modRM(index, store, statter)).MatcherFunc(suffix(".rm")).Methods(post)
+
+	// api operations
+	//
+	router.PathPrefix("/v1/problems/downloads").Handler(newDownloadProblems(dlProblems, statter)).Methods(get)
+
+	// default behavior (404)
 	router.PathPrefix("/").HandlerFunc(notFound(statter))
+
+	// force middleware
 	return webutil.Chain(router, middles...)
 }
 

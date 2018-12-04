@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/modprox/mp/proxy/internal/problems"
+
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/shoenig/toolkit"
 
@@ -20,7 +22,7 @@ type Options struct {
 	Frequency time.Duration
 }
 
-type Reloader interface {
+type ReloadWorker interface {
 	Start()
 }
 
@@ -28,6 +30,7 @@ type reloadWorker struct {
 	options           Options
 	registryClient    registry.Client
 	statter           statsd.Statter
+	dlTracker         problems.Tracker
 	index             store.Index
 	store             store.ZipStore
 	downloader        zips.Client
@@ -36,18 +39,20 @@ type reloadWorker struct {
 	log               loggy.Logger
 }
 
-func NewReloader(
+func NewReloadWorker(
 	options Options,
 	statter statsd.Statter,
+	dlTracker problems.Tracker,
 	index store.Index,
 	store store.ZipStore,
 	resolver upstream.Resolver,
 	registryRequester RegistryAPI,
 	downloader zips.Client,
-) Reloader {
+) ReloadWorker {
 	return &reloadWorker{
 		options:           options,
 		statter:           statter,
+		dlTracker:         dlTracker,
 		index:             index,
 		store:             store,
 		resolver:          resolver,
@@ -58,14 +63,16 @@ func NewReloader(
 }
 
 func (w *reloadWorker) Start() {
-	go toolkit.Interval(w.options.Frequency, func() error {
-		if err := w.loop(); err != nil {
-			w.log.Errorf("worker loop iteration had error: %v", err)
-			// never return an error, which would stop the worker
-			// instead, we remain hopeful the next iteration will work
-		}
-		return nil
-	})
+	go func() {
+		_ = toolkit.Interval(w.options.Frequency, func() error {
+			if err := w.loop(); err != nil {
+				w.log.Errorf("worker loop iteration had error: %v", err)
+				// never return an error, which would stop the worker
+				// instead, we remain hopeful the next iteration will work
+			}
+			return nil
+		})
+	}()
 }
 
 func (w *reloadWorker) loop() error {
@@ -133,6 +140,7 @@ func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
 
 		if err := w.download(mod); err != nil {
 			w.log.Errorf("failed to download %s, %v", mod, err)
+			w.dlTracker.Set(problems.Create(mod.Module, err))
 			continue // may as well try the others
 		}
 		w.log.Tracef("downloaded %s!", mod)
