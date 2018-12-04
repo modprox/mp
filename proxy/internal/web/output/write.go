@@ -1,6 +1,7 @@
 package output
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -26,7 +27,14 @@ const (
 func Write(w http.ResponseWriter, mime, content string) {
 	w.Header().Set(headerContentType, mime)
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(content))
+	_, _ = w.Write([]byte(content))
+}
+
+func WriteJSON(w http.ResponseWriter, i interface{}) {
+	w.Header().Set(headerContentType, JSON)
+	if err := json.NewEncoder(w).Encode(i); err != nil {
+		panic("failure to encode json response: " + err.Error())
+	}
 }
 
 func WriteZip(w http.ResponseWriter, blob repository.Blob) {
@@ -37,5 +45,5 @@ func WriteZip(w http.ResponseWriter, blob repository.Blob) {
 	w.Header().Set(headerContentLength, strconv.Itoa(len(blob)))
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(blob)
+	_, _ = w.Write(blob)
 }

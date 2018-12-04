@@ -12,6 +12,7 @@ import (
 	"github.com/modprox/mp/proxy/config"
 	"github.com/modprox/mp/proxy/internal/modules/background"
 	"github.com/modprox/mp/proxy/internal/modules/store"
+	"github.com/modprox/mp/proxy/internal/problems"
 )
 
 type Proxy struct {
@@ -22,7 +23,8 @@ type Proxy struct {
 	store          store.ZipStore
 	registryClient registry.Client
 	zipsClient     zips.Client
-	reloader       background.Reloader
+	reloader       background.ReloadWorker
+	dlProblems     problems.Tracker
 	log            loggy.Logger
 }
 
@@ -34,11 +36,12 @@ func NewProxy(configuration config.Configuration) *Proxy {
 
 	for _, f := range []initer{
 		initStatter,
+		initTrackers,
 		initIndex,
 		initStore,
 		initRegistryClient,
 		initZipsClient,
-		initRegistryReloader,
+		initRegistryReloadWorker,
 		initHeartbeatSender,
 		initStartupConfigSender,
 		initWebServer,
