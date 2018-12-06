@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/modprox/mp/pkg/configutil"
-	"github.com/modprox/mp/pkg/netservice"
+	"github.com/modprox/mp/pkg/metrics/stats"
+
 	"github.com/pkg/errors"
 )
 
@@ -14,7 +15,7 @@ type Configuration struct {
 	WebServer WebServer       `json:"web_server"`
 	CSRF      CSRF            `json:"csrf"`
 	Database  PersistentStore `json:"database_storage"`
-	Statsd    Statsd          `json:"statsd"`
+	Statsd    stats.Statsd    `json:"statsd"`
 	Proxies   Proxies         `json:"proxies"`
 }
 
@@ -156,10 +157,6 @@ func (dsn DSN) String() string {
 		dsn.Database,
 		dsn.AllowNativePasswords,
 	)
-}
-
-type Statsd struct {
-	Agent netservice.Instance `json:"agent"`
 }
 
 type Proxies struct {

@@ -1,14 +1,14 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/modprox/mp/pkg/metrics/stats"
+
 	"github.com/modprox/mp/proxy/internal/problems"
 
-	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/pkg/errors"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
@@ -26,18 +26,20 @@ import (
 
 type initer func(*Proxy) error
 
-func initStatter(p *Proxy) error {
-	var err error
-	agent := p.config.Statsd.Agent
-	if agent.Port == 0 || agent.Address == "" {
-		p.statter, err = statsd.NewNoopClient()
-		p.log.Warnf("statsd statter is set to noop client")
+func initSender(p *Proxy) error {
+	cfg := p.config.Statsd.Agent
+	if cfg.Port == 0 || cfg.Address == "" {
+		p.emitter = stats.Discard()
+		p.log.Warnf("stats emitter is set to discard client - no metrics will be reported")
+		return nil
+	}
+
+	emitter, err := stats.New(stats.Proxy, p.config.Statsd)
+	if err != nil {
 		return err
 	}
-	address := fmt.Sprintf("%s:%d", agent.Address, agent.Port)
-	p.statter, err = statsd.NewClient(address, "modprox-proxy")
-	p.log.Infof("statsd statter is set to %s", address)
-	return err
+	p.emitter = emitter
+	return nil
 }
 
 func initTrackers(p *Proxy) error {
@@ -65,7 +67,7 @@ func initStore(p *Proxy) error {
 	p.store = store.NewStore(store.Options{
 		Directory:    storePath,
 		TmpDirectory: tmpPath,
-	}, p.statter)
+	}, p.emitter)
 
 	return nil
 }
@@ -114,7 +116,7 @@ func initRegistryReloadWorker(p *Proxy) error {
 		background.Options{
 			Frequency: reloadFreqS,
 		},
-		p.statter,
+		p.emitter,
 		p.dlProblems,
 		p.index,
 		p.store,
@@ -192,13 +194,13 @@ func initHeartbeatSender(p *Proxy) error {
 			Port:    p.config.APIServer.Port,
 		},
 		p.registryClient,
-		p.statter,
+		p.emitter,
 	)
 
 	looper := heartbeat.NewLooper(
 		10*time.Second,
 		p.index,
-		p.statter,
+		p.emitter,
 		sender,
 	)
 
@@ -211,7 +213,7 @@ func initStartupConfigSender(p *Proxy) error {
 	sender := startup.NewSender(
 		p.registryClient,
 		30*time.Second,
-		p.statter,
+		p.emitter,
 	)
 	go func() {
 		_ = sender.Send(
@@ -236,7 +238,7 @@ func initWebServer(p *Proxy) error {
 		middles,
 		p.index,
 		p.store,
-		p.statter,
+		p.emitter,
 		p.dlProblems,
 	)
 

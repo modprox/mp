@@ -6,7 +6,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/modprox/mp/pkg/metrics/stats"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/loggy"
@@ -16,14 +16,14 @@ import (
 
 type startupHandler struct {
 	store   data.Store
-	statter statsd.Statter
+	emitter stats.Sender
 	log     loggy.Logger
 }
 
-func newStartupHandler(store data.Store, statter statsd.Statter) http.Handler {
+func newStartupHandler(store data.Store, emitter stats.Sender) http.Handler {
 	return &startupHandler{
 		store:   store,
-		statter: statter,
+		emitter: emitter,
 		log:     loggy.New("startup-config-handler"),
 	}
 }
@@ -35,13 +35,13 @@ func (h *startupHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Errorf("failed to accept startup configuration from %s, %v", r.RemoteAddr, err)
 		http.Error(w, msg, code)
-		h.statter.Inc("api-proxy-start-config-error", 1, 1)
+		h.emitter.Count("api-proxy-start-config-error", 1)
 		return
 	}
 
 	h.log.Tracef("accepted startup configuration from %s", r.RemoteAddr)
-	io.WriteString(w, "ok")
-	h.statter.Inc("api-proxy-start-config-ok", 1, 1)
+	_, _ = io.WriteString(w, "ok")
+	h.emitter.Count("api-proxy-start-config-ok", 1)
 }
 
 func (h *startupHandler) post(r *http.Request) (int, string, error) {

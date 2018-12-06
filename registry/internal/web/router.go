@@ -3,7 +3,8 @@ package web
 import (
 	"net/http"
 
-	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/modprox/mp/pkg/metrics/stats"
+
 	"github.com/gorilla/mux"
 	"github.com/shoenig/petrify/v4"
 
@@ -21,7 +22,7 @@ func NewRouter(
 	middleAPI []webutil.Middleware,
 	middleUI []webutil.Middleware,
 	store data.Store,
-	statter statsd.Statter,
+	emitter stats.Sender,
 ) http.Handler {
 
 	// 1) a router onto which sub-routers will be mounted
@@ -36,10 +37,10 @@ func NewRouter(
 	})))
 
 	// 3) an API handler, not CSRF protected
-	router.Handle("/v1/", routeAPI(middleAPI, store, statter))
+	router.Handle("/v1/", routeAPI(middleAPI, store, emitter))
 
 	// 4) a webUI handler, is CSRF protected
-	router.Handle("/", routeWebUI(middleUI, store, statter))
+	router.Handle("/", routeWebUI(middleUI, store, emitter))
 
 	return router
 }
@@ -51,23 +52,23 @@ func routeStatics(files http.Handler) http.Handler {
 	return sub
 }
 
-func routeAPI(middles []webutil.Middleware, store data.Store, stats statsd.Statter) http.Handler {
+func routeAPI(middles []webutil.Middleware, store data.Store, emitter stats.Sender) http.Handler {
 	sub := mux.NewRouter()
-	sub.Handle("/v1/registry/sources/list", newRegistryList(store, stats)).Methods(get, post)
-	sub.Handle("/v1/registry/sources/new", registryAdd(store, stats)).Methods(post)
-	sub.Handle("/v1/proxy/heartbeat", newHeartbeatHandler(store, stats)).Methods(post)
-	sub.Handle("/v1/proxy/configuration", newStartupHandler(store, stats)).Methods(post)
+	sub.Handle("/v1/registry/sources/list", newRegistryList(store, emitter)).Methods(get, post)
+	sub.Handle("/v1/registry/sources/new", registryAdd(store, emitter)).Methods(post)
+	sub.Handle("/v1/proxy/heartbeat", newHeartbeatHandler(store, emitter)).Methods(post)
+	sub.Handle("/v1/proxy/configuration", newStartupHandler(store, emitter)).Methods(post)
 	return webutil.Chain(sub, middles...)
 }
 
-func routeWebUI(middles []webutil.Middleware, store data.Store, stats statsd.Statter) http.Handler {
+func routeWebUI(middles []webutil.Middleware, store data.Store, emitter stats.Sender) http.Handler {
 	sub := mux.NewRouter()
-	sub.Handle("/mods/new", newAddHandler(store, stats)).Methods(get, post)
-	sub.Handle("/mods/list", newModsListHandler(store, stats)).Methods(get)
-	sub.Handle("/mods/show", newShowHandler(store, stats)).Methods(get, post)
-	sub.Handle("/mods/find", newFindHandler(stats)).Methods(get, post)
-	sub.Handle("/configure/about", newAboutHandler(stats)).Methods(get)
-	sub.Handle("/configure/blocks", newBlocksHandler(stats)).Methods(get)
-	sub.Handle("/", newHomeHandler(store, stats)).Methods(get, post)
+	sub.Handle("/mods/new", newAddHandler(store, emitter)).Methods(get, post)
+	sub.Handle("/mods/list", newModsListHandler(store, emitter)).Methods(get)
+	sub.Handle("/mods/show", newShowHandler(store, emitter)).Methods(get, post)
+	sub.Handle("/mods/find", newFindHandler(emitter)).Methods(get, post)
+	sub.Handle("/configure/about", newAboutHandler(emitter)).Methods(get)
+	sub.Handle("/configure/blocks", newBlocksHandler(emitter)).Methods(get)
+	sub.Handle("/", newHomeHandler(store, emitter)).Methods(get, post)
 	return webutil.Chain(sub, middles...)
 }

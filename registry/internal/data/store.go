@@ -4,14 +4,16 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
+
+	// no postgres for now
+	//	_ "github.com/lib/pq"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/mp/registry/config"
 )
@@ -35,7 +37,7 @@ type Store interface {
 	PurgeProxy(instance netservice.Instance) error
 }
 
-func Connect(kind string, dsn config.DSN, statter statsd.Statter) (Store, error) {
+func Connect(kind string, dsn config.DSN, emitter stats.Sender) (Store, error) {
 	var db *sql.DB
 	var err error
 
@@ -65,7 +67,7 @@ func Connect(kind string, dsn config.DSN, statter statsd.Statter) (Store, error)
 		return nil, errors.Errorf("%s is not a supported database", kind)
 	}
 
-	return New(kind, db, statter)
+	return New(kind, db, emitter)
 }
 
 func connectMySQL(config mysql.Config) (*sql.DB, error) {
@@ -85,13 +87,13 @@ func connectMySQL(config mysql.Config) (*sql.DB, error) {
 //	return sql.Open("postgres", connectStr)
 //}
 
-func New(kind string, db *sql.DB, statter statsd.Statter) (Store, error) {
+func New(kind string, db *sql.DB, emitter stats.Sender) (Store, error) {
 	statements, err := load(kind, db)
 	if err != nil {
 		return nil, err
 	}
 	return &store{
-		statter:    statter,
+		emitter:    emitter,
 		db:         db,
 		statements: statements,
 		log:        loggy.New("store"),
@@ -99,7 +101,7 @@ func New(kind string, db *sql.DB, statter statsd.Statter) (Store, error) {
 }
 
 type store struct {
-	statter    statsd.Statter
+	emitter    stats.Sender
 	db         *sql.DB
 	statements statements
 	log        loggy.Logger

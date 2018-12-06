@@ -6,7 +6,6 @@ import (
 
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/pkg/since"
 )
 
 func (s *store) SetStartConfig(config payloads.Configuration) error {
@@ -31,10 +30,11 @@ func (s *store) ListStartConfigs() ([]payloads.Configuration, error) {
 	start := time.Now()
 	configs, err := s.listStartConfigs()
 	if err != nil {
-		_ = s.statter.Inc("db-list-start-configs-error", 1, 1)
+		s.emitter.Count("db-list-start-configs-error", 1)
 		return nil, err
 	}
-	_ = s.statter.Gauge("db-list-start-configs-elapsed-ms", since.MS(start), 1)
+
+	s.emitter.GaugeMS("db-list-start-configs-elapsed-ms", start)
 	return configs, nil
 }
 
@@ -116,10 +116,11 @@ func (s *store) SetHeartbeat(heartbeat payloads.Heartbeat) error {
 	start := time.Now()
 	err := s.setHeartbeat(heartbeat)
 	if err != nil {
-		_ = s.statter.Inc("db-set-heartbeat-failure", 1, 1)
+		s.emitter.Count("db-set-heartbeat-failure", 1)
 		return err
 	}
-	_ = s.statter.Gauge("db-set-heartbeat-elapsed-ms", since.MS(start), 1)
+
+	s.emitter.GaugeMS("db-set-heartbeat-elapsed-ms", start)
 	return nil
 }
 
@@ -139,10 +140,11 @@ func (s *store) ListHeartbeats() ([]payloads.Heartbeat, error) {
 	start := time.Now()
 	heartbeats, err := s.listHeartbeats()
 	if err != nil {
-		_ = s.statter.Inc("db-list-heartbeats-failure", 1, 1)
+		s.emitter.Count("db-list-heartbeats-failure", 1)
 		return nil, err
 	}
-	_ = s.statter.Gauge("db-list-heartbeats-elapsed-ms", since.MS(start), 1)
+
+	s.emitter.GaugeMS("db-list-heartbeats-elapsed-ms", start)
 	return heartbeats, nil
 }
 

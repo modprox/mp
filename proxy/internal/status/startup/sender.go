@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/modprox/mp/pkg/metrics/stats"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/clients/registry"
@@ -24,19 +24,19 @@ type Sender interface {
 type sender struct {
 	registryClient registry.Client
 	retryInterval  time.Duration
-	statter        statsd.Statter
+	emitter        stats.Sender
 	log            loggy.Logger
 }
 
 func NewSender(
 	registryClient registry.Client,
 	retryInterval time.Duration,
-	statter statsd.Statter,
+	emitter stats.Sender,
 ) Sender {
 	return &sender{
 		registryClient: registryClient,
 		retryInterval:  retryInterval,
-		statter:        statter,
+		emitter:        emitter,
 		log:            loggy.New("startup-config-sender"),
 	}
 }
@@ -71,11 +71,11 @@ func (s *sender) trySend(configuration payloads.Configuration) error {
 	reader := bytes.NewReader(bs)
 	response := bytes.NewBuffer(nil)
 	if err := s.registryClient.Post(configurationPath, reader, response); err != nil {
-		s.statter.Inc("startup-config-send-failure", 1, 1)
+		s.emitter.Count("startup-config-send-failure", 1)
 		return err
 	}
 
 	s.log.Infof("startup configuration successfully sent!")
-	s.statter.Inc("startup-config-send-ok", 1, 1)
+	s.emitter.Count("startup-config-send-ok", 1)
 	return nil
 }

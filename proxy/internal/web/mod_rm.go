@@ -5,23 +5,22 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/cactus/go-statsd-client/statsd"
-
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/proxy/internal/modules/store"
 )
 
 type removeModule struct {
 	index   store.Index
 	store   store.ZipStore
-	statter statsd.Statter
+	emitter stats.Sender
 	log     loggy.Logger
 }
 
-func modRM(index store.Index, store store.ZipStore, statter statsd.Statter) http.Handler {
+func modRM(index store.Index, store store.ZipStore, emitter stats.Sender) http.Handler {
 	return &removeModule{
 		store:   store,
-		statter: statter,
+		emitter: emitter,
 		index:   index,
 		log:     loggy.New("mod-rm"),
 	}
@@ -33,7 +32,7 @@ func (h *removeModule) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mod, err := modInfoFromPath(r.URL.Path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		_ = h.statter.Inc("mod-rm-bad-request", 1, 1)
+		h.emitter.Count("mod-rm-bad-request", 1)
 		return
 	}
 

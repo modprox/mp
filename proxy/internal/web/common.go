@@ -13,26 +13,12 @@ func moduleFromPath(p string) (string, error) {
 	p = demangle(p)
 	mod, err := repository.Parse(p)
 	return mod.Source, err
-	//
-	//vIdx := strings.Index(p, "@v")
-	//if vIdx <= 0 {
-	//	return "", errors.Errorf("malformed path: %q", p)
-	//}
-	//return p[0:vIdx], nil
 }
 
 func modInfoFromPath(p string) (coordinates.Module, error) {
 	p = demangle(p)
 	return repository.Parse(p)
 }
-
-//func trimExt(v string) string {
-//	dotIdx := strings.LastIndex(v, ".")
-//	if dotIdx <= 0 {
-//		return v
-//	}
-//	return v[:dotIdx]
-//}
 
 // from the Go documentation: https://tip.golang.org/cmd/go/#hdr-Module_proxy_protocol
 //

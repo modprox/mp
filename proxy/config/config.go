@@ -7,15 +7,16 @@ import (
 	"time"
 
 	"github.com/modprox/mp/pkg/configutil"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/pkg/netservice"
 )
 
 type Configuration struct {
-	APIServer     APIServer  `json:"api_server"`
-	Registry      Registry   `json:"registry"`
-	Statsd        Statsd     `json:"statsd"`
-	ModuleStorage Storage    `json:"module_storage"`
-	Transforms    Transforms `json:"transforms"`
+	APIServer     APIServer    `json:"api_server"`
+	Registry      Registry     `json:"registry"`
+	Statsd        stats.Statsd `json:"statsd"`
+	ModuleStorage Storage      `json:"module_storage"`
+	Transforms    Transforms   `json:"transforms"`
 }
 
 func (c Configuration) String() string {
@@ -111,8 +112,4 @@ type Transforms struct {
 		Domain    string `json:"domain"`
 		Transport string `json:"transport"`
 	} `json:"domain_transports,omitempty"`
-}
-
-type Statsd struct {
-	Agent netservice.Instance `json:"agent"`
 }

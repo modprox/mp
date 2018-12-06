@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/modprox/mp/pkg/metrics/stats"
 
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/proxy/internal/modules/store"
@@ -12,14 +12,14 @@ import (
 
 type moduleZip struct {
 	store   store.ZipStore
-	statter statsd.Statter
+	emitter stats.Sender
 	log     loggy.Logger
 }
 
-func modZip(store store.ZipStore, statter statsd.Statter) http.Handler {
+func modZip(store store.ZipStore, emitter stats.Sender) http.Handler {
 	return &moduleZip{
 		store:   store,
-		statter: statter,
+		emitter: emitter,
 		log:     loggy.New("mod-zip"),
 	}
 }
@@ -30,7 +30,7 @@ func (h *moduleZip) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mod, err := modInfoFromPath(r.URL.Path)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		h.statter.Inc("mod-zip-bad-request", 1, 1)
+		h.emitter.Count("mod-zip-bad-request", 1)
 		return
 	}
 
@@ -40,11 +40,11 @@ func (h *moduleZip) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Warnf("failed to get zip file of %s, %v", mod, err)
 		http.Error(w, err.Error(), http.StatusNotFound)
-		h.statter.Inc("mod-zip-not-found", 1, 1)
+		h.emitter.Count("mod-zip-not-found", 1)
 		return
 	}
 
 	h.log.Infof("sending zip which is %d bytes", len(zipBlob))
 	output.WriteZip(w, zipBlob)
-	h.statter.Inc("mod-zip-ok", 1, 1)
+	h.emitter.Count("mod-zip-ok", 1)
 }

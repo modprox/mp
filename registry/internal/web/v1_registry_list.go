@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/modprox/mp/pkg/metrics/stats"
 
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/coordinates"
@@ -15,14 +15,14 @@ import (
 
 type registryList struct {
 	store   data.Store
-	statter statsd.Statter
+	emitter stats.Sender
 	log     loggy.Logger
 }
 
-func newRegistryList(store data.Store, statter statsd.Statter) http.Handler {
+func newRegistryList(store data.Store, emitter stats.Sender) http.Handler {
 	return &registryList{
 		store:   store,
-		statter: statter,
+		emitter: emitter,
 		log:     loggy.New("registry-list-api"),
 	}
 }
@@ -40,7 +40,7 @@ func (h *registryList) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if send.err != nil {
 		h.log.Errorf("failed to serve request: %v", send.err)
 		http.Error(w, send.err.Error(), send.code)
-		h.statter.Inc("api-listmods-error", 1, 1)
+		h.emitter.Count("api-listmods-error", 1)
 		return
 	}
 
@@ -49,7 +49,7 @@ func (h *registryList) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	webutil.WriteJSON(w, response)
-	h.statter.Inc("api-listmods-ok", 1, 1)
+	h.emitter.Count("api-listmods-ok", 1)
 }
 
 type toSend struct {

@@ -7,11 +7,11 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/csrf"
 
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/registry/internal/data"
 	"github.com/modprox/mp/registry/static"
 )
@@ -25,11 +25,11 @@ type showPage struct {
 type showHandler struct {
 	html    *template.Template
 	store   data.Store
-	statter statsd.Statter
+	emitter stats.Sender
 	log     loggy.Logger
 }
 
-func newShowHandler(store data.Store, statter statsd.Statter) http.Handler {
+func newShowHandler(store data.Store, emitter stats.Sender) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -39,7 +39,7 @@ func newShowHandler(store data.Store, statter statsd.Statter) http.Handler {
 	return &showHandler{
 		html:    html,
 		store:   store,
-		statter: statter,
+		emitter: emitter,
 		log:     loggy.New("show-module-h"),
 	}
 }
@@ -61,7 +61,7 @@ func (h *showHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Errorf("failed to serve show modules page: %v", err)
 		http.Error(w, err.Error(), code)
-		h.statter.Inc("ui-show-mod-error", 1, 1)
+		h.emitter.Count("ui-show-mod-error", 1)
 		return
 	}
 
@@ -69,7 +69,7 @@ func (h *showHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.log.Errorf("failed to execute show modules page: %v", err)
 	}
 
-	h.statter.Inc("ui-show-mod-ok", 1, 1)
+	h.emitter.Count("ui-show-mod-ok", 1)
 }
 
 func (h *showHandler) get(r *http.Request) (int, *showPage, error) {
