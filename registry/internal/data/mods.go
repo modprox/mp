@@ -6,10 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/since"
-
 	"github.com/lib/pq"
+	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/pkg/errors"
 )
 
@@ -23,18 +21,18 @@ func (s *store) ListModules() ([]coordinates.SerialModule, error) {
 	start := time.Now()
 	rows, err := s.statements[selectSourcesScanSQL].Query()
 	if err != nil {
-		s.statter.Inc("db-list-modules-failure", 1, 1)
+		s.emitter.Count("db-list-modules-failure", 1)
 		return nil, err
 	}
 	defer rows.Close()
 
 	mods, err := modulesFromRows(rows)
 	if err != nil {
-		s.statter.Inc("db-list-modules-failure", 1, 1)
+		s.emitter.Count("db-list-modules-failure", 1)
 		return nil, err
 	}
 
-	s.statter.Gauge("db-list-modules-elapsed-ms", since.MS(start), 1)
+	s.emitter.GaugeMS("db-list-modules-elapsed-ms", start)
 	return mods, nil
 }
 
@@ -50,10 +48,11 @@ func (s *store) ListModulesByIDs(ids []int64) ([]coordinates.SerialModule, error
 	start := time.Now()
 	mods, err := s.listModulesByIDs(ids)
 	if err != nil {
-		s.statter.Inc("db-list-modules-by-id-failure", 1, 1)
+		s.emitter.Count("db-list-modules-by-id-failure", 1)
 		return nil, err
 	}
-	s.statter.Gauge("db-list-modules-by-id-elapsed-ms", since.MS(start), 1)
+
+	s.emitter.GaugeMS("db-list-modules-by-id-elapsed-ms", start)
 	return mods, nil
 }
 
@@ -92,10 +91,11 @@ func (s *store) ListModulesBySource(source string) ([]coordinates.SerialModule, 
 	start := time.Now()
 	mods, err := s.listModulesBySource(source)
 	if err != nil {
-		s.statter.Inc("db-list-modules-by-source-failure", 1, 1)
+		s.emitter.Count("db-list-modules-by-source-failure", 1)
 		return nil, err
 	}
-	s.statter.Gauge("db-list-modules-by-source-elapsed-ms", since.MS(start), 1)
+
+	s.emitter.GaugeMS("db-list-modules-by-source-elapsed-ms", start)
 	return mods, nil
 }
 
@@ -145,10 +145,11 @@ func (s *store) ListModuleIDs() ([]int64, error) {
 	start := time.Now()
 	ids, err := s.listModuleIDs()
 	if err != nil {
-		s.statter.Inc("db-list-module-ids-failure", 1, 1)
+		s.emitter.Count("db-list-module-ids-failure", 1)
 		return nil, err
 	}
-	s.statter.Gauge("db-list-module-ids-elapsed-ms", since.MS(start), 1)
+
+	s.emitter.GaugeMS("db-list-module-ids-elapsed-ms", start)
 	return ids, nil
 }
 
@@ -179,10 +180,11 @@ func (s *store) InsertModules(modules []coordinates.Module) (int, error) {
 	start := time.Now()
 	i, err := s.insertModules(modules)
 	if err != nil {
-		s.statter.Inc("db-insert-modules-failure", 1, 1)
+		s.emitter.Count("db-insert-modules-failure", 1)
 		return 0, err
 	}
-	s.statter.Gauge("db-insert-modules-elapsed-ms", since.MS(start), 1)
+
+	s.emitter.GaugeMS("db-insert-modules-elapsed-ms", start)
 	return i, nil
 }
 

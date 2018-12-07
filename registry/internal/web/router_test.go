@@ -4,10 +4,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/registry/internal/data/datatest"
-
-	"github.com/cactus/go-statsd-client/statsd"
-	"github.com/stretchr/testify/require"
 )
 
 type mocks struct {
@@ -25,11 +23,11 @@ func (m mocks) assertions(t *testing.T) {
 }
 
 func makeRouter(t *testing.T) (http.Handler, mocks) {
-	statter, err := statsd.NewNoop()
-	require.NoError(t, err)
+	// emitter := &statstest.Sender{}
+	emitter := stats.Discard()
 
 	mocks := newMocks()
 
-	router := NewRouter(nil, nil, mocks.store, statter)
+	router := NewRouter(nil, nil, mocks.store, emitter)
 	return router, mocks
 }

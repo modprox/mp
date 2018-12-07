@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/csrf"
 
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/pkg/repository"
 	"github.com/modprox/mp/registry/internal/data"
 	"github.com/modprox/mp/registry/static"
@@ -24,11 +24,11 @@ type newPage struct {
 type newHandler struct {
 	html    *template.Template
 	store   data.Store
-	statter statsd.Statter
+	emitter stats.Sender
 	log     loggy.Logger
 }
 
-func newAddHandler(store data.Store, statter statsd.Statter) http.Handler {
+func newAddHandler(store data.Store, emitter stats.Sender) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -38,7 +38,7 @@ func newAddHandler(store data.Store, statter statsd.Statter) http.Handler {
 	return &newHandler{
 		html:    html,
 		store:   store,
-		statter: statter,
+		emitter: emitter,
 		log:     loggy.New("add-modules-handler"),
 	}
 }
@@ -60,7 +60,7 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Errorf("failed to serve add-module page: %v", err)
 		http.Error(w, err.Error(), code)
-		_ = h.statter.Inc("ui-add-mod-error", 1, 1)
+		h.emitter.Count("ui-add-mod-error", 1)
 		return
 	}
 
@@ -69,7 +69,7 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = h.statter.Inc("ui-add-mod-ok", 1, 1)
+	h.emitter.Count("ui-add-mod-ok", 1)
 }
 
 func (h *newHandler) get(r *http.Request) (int, *newPage, error) {

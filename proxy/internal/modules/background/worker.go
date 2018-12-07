@@ -6,14 +6,13 @@ import (
 
 	"github.com/modprox/mp/proxy/internal/problems"
 
-	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/shoenig/toolkit"
 
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/since"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/pkg/upstream"
 	"github.com/modprox/mp/proxy/internal/modules/store"
 )
@@ -29,7 +28,7 @@ type ReloadWorker interface {
 type reloadWorker struct {
 	options           Options
 	registryClient    registry.Client
-	statter           statsd.Statter
+	emitter           stats.Sender
 	dlTracker         problems.Tracker
 	index             store.Index
 	store             store.ZipStore
@@ -41,7 +40,7 @@ type reloadWorker struct {
 
 func NewReloadWorker(
 	options Options,
-	statter statsd.Statter,
+	emitter stats.Sender,
 	dlTracker problems.Tracker,
 	index store.Index,
 	store store.ZipStore,
@@ -51,7 +50,7 @@ func NewReloadWorker(
 ) ReloadWorker {
 	return &reloadWorker{
 		options:           options,
-		statter:           statter,
+		emitter:           emitter,
 		dlTracker:         dlTracker,
 		index:             index,
 		store:             store,
@@ -164,7 +163,7 @@ func (w *reloadWorker) download(mod coordinates.SerialModule) error {
 		return err
 	}
 
-	w.statter.Gauge("download-mod-elapsed-ms", since.MS(start), 1)
+	w.emitter.GaugeMS("download-mod-elapsed-ms", start)
 	w.log.Infof("downloaded blob of size: %d", len(blob))
 
 	rewritten, err := zips.Rewrite(mod.Module, blob)

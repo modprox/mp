@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/modprox/mp/pkg/metrics/stats"
+
 	"github.com/modprox/mp/proxy/internal/problems"
 
-	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/mux"
 
 	"github.com/modprox/mp/pkg/loggy"
@@ -23,7 +24,7 @@ func NewRouter(
 	middles []webutil.Middleware,
 	index store.Index,
 	store store.ZipStore,
-	statter statsd.Statter,
+	emitter stats.Sender,
 	dlProblems problems.Tracker,
 ) http.Handler {
 
@@ -34,18 +35,18 @@ func NewRouter(
 	// e.g. GET  http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.info
 	// e.g. GET  http://localhost:9000/github.com/shoenig/toolkit/@v.list
 	// e.g. POST http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.rm
-	router.PathPrefix("/").Handler(modList(index, statter)).MatcherFunc(suffix("list")).Methods(get)
-	router.PathPrefix("/").Handler(modInfo(index, statter)).MatcherFunc(suffix(".info")).Methods(get)
-	router.PathPrefix("/").Handler(modFile(index, statter)).MatcherFunc(suffix(".mod")).Methods(get)
-	router.PathPrefix("/").Handler(modZip(store, statter)).MatcherFunc(suffix(".zip")).Methods(get)
-	router.PathPrefix("/").Handler(modRM(index, store, statter)).MatcherFunc(suffix(".rm")).Methods(post)
+	router.PathPrefix("/").Handler(modList(index, emitter)).MatcherFunc(suffix("list")).Methods(get)
+	router.PathPrefix("/").Handler(modInfo(index, emitter)).MatcherFunc(suffix(".info")).Methods(get)
+	router.PathPrefix("/").Handler(modFile(index, emitter)).MatcherFunc(suffix(".mod")).Methods(get)
+	router.PathPrefix("/").Handler(modZip(store, emitter)).MatcherFunc(suffix(".zip")).Methods(get)
+	router.PathPrefix("/").Handler(modRM(index, store, emitter)).MatcherFunc(suffix(".rm")).Methods(post)
 
 	// api operations
 	//
-	router.PathPrefix("/v1/problems/downloads").Handler(newDownloadProblems(dlProblems, statter)).Methods(get)
+	router.PathPrefix("/v1/problems/downloads").Handler(newDownloadProblems(dlProblems, emitter)).Methods(get)
 
 	// default behavior (404)
-	router.PathPrefix("/").HandlerFunc(notFound(statter))
+	router.PathPrefix("/").HandlerFunc(notFound(emitter))
 
 	// force middleware
 	return webutil.Chain(router, middles...)
@@ -61,11 +62,11 @@ func suffix(s string) mux.MatcherFunc {
 	}
 }
 
-func notFound(statter statsd.Statter) http.HandlerFunc {
+func notFound(emitter stats.Sender) http.HandlerFunc {
 	log := loggy.New("not-found")
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Infof("request from %s wanted %q which is not found", r.RemoteAddr, r.URL.String())
 		http.Error(w, "not found", http.StatusNotFound)
-		statter.Inc("path-not-found", 1, 1)
+		emitter.Count("path-not-found", 1)
 	}
 }

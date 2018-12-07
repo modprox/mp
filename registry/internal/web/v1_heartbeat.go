@@ -5,10 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/cactus/go-statsd-client/statsd"
-
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/registry/internal/data"
@@ -16,14 +15,14 @@ import (
 
 type heartbeatHandler struct {
 	store   data.Store
-	statter statsd.Statter
+	emitter stats.Sender
 	log     loggy.Logger
 }
 
-func newHeartbeatHandler(store data.Store, statter statsd.Statter) http.Handler {
+func newHeartbeatHandler(store data.Store, emitter stats.Sender) http.Handler {
 	return &heartbeatHandler{
 		store:   store,
-		statter: statter,
+		emitter: emitter,
 		log:     loggy.New("heartbeat-update-handler"),
 	}
 }
@@ -34,13 +33,13 @@ func (h *heartbeatHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Errorf("failed to accept heartbeat from %s, %v", from, err)
 		http.Error(w, response, code)
-		h.statter.Inc("api-heartbeat-unaccepted", 1, 1)
+		h.emitter.Count("api-heartbeat-unaccepted", 1)
 		return
 	}
 
 	h.log.Tracef("accepted heartbeat from %s", from)
 	webutil.WriteJSON(w, response)
-	h.statter.Inc("api-heartbeat-accepted", 1, 1)
+	h.emitter.Count("api-heartbeat-accepted", 1)
 }
 
 func (h *heartbeatHandler) post(r *http.Request) (int, string, netservice.Instance, error) {

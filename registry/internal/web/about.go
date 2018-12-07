@@ -4,19 +4,18 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/cactus/go-statsd-client/statsd"
-
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/registry/static"
 )
 
 type aboutHandler struct {
 	html    *template.Template
-	statter statsd.Statter
+	emitter stats.Sender
 	log     loggy.Logger
 }
 
-func newAboutHandler(statter statsd.Statter) http.Handler {
+func newAboutHandler(emitter stats.Sender) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -24,7 +23,7 @@ func newAboutHandler(statter statsd.Statter) http.Handler {
 	)
 	return &aboutHandler{
 		html:    html,
-		statter: statter,
+		emitter: emitter,
 		log:     loggy.New("about-handler"),
 	}
 }
@@ -35,5 +34,5 @@ func (h *aboutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.statter.Inc("ui-about-ok", 1, 1)
+	h.emitter.Count("ui-about-ok", 1)
 }

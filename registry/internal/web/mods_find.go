@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/registry/internal/tools/finder"
 	"github.com/modprox/mp/registry/static"
 
-	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/gorilla/csrf"
 )
 
@@ -21,12 +21,12 @@ type findPage struct {
 
 type findHandler struct {
 	html    *template.Template
-	statter statsd.Statter
+	emitter stats.Sender
 	finder  finder.Finder
 	log     loggy.Logger
 }
 
-func newFindHandler(statter statsd.Statter) http.Handler {
+func newFindHandler(emitter stats.Sender) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -35,7 +35,7 @@ func newFindHandler(statter statsd.Statter) http.Handler {
 
 	return &findHandler{
 		html:    html,
-		statter: statter,
+		emitter: emitter,
 		finder: finder.New(finder.Options{
 			Timeout: 1 * time.Minute,
 		}),
@@ -60,7 +60,7 @@ func (h *findHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.log.Errorf("failed to serve find-module page: %v", err)
 		http.Error(w, err.Error(), code)
-		_ = h.statter.Inc("ui-find-mod-error", 1, 1)
+		h.emitter.Count("ui-find-mod-error", 1)
 		return
 	}
 
@@ -69,7 +69,7 @@ func (h *findHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = h.statter.Inc("ui-find-mod-ok", 1, 1)
+	h.emitter.Count("ui-find-mod-ok", 1)
 }
 
 func (h *findHandler) get(r *http.Request) (int, *findPage, error) {

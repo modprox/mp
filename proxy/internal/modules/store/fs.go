@@ -7,14 +7,13 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/pkg/errors"
 	"github.com/shoenig/atomicfs"
 
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/pkg/repository"
-	"github.com/modprox/mp/pkg/since"
 )
 
 const (
@@ -24,7 +23,7 @@ const (
 
 type fsStore struct {
 	options Options
-	statter statsd.Statter
+	emitter stats.Sender
 	writer  atomicfs.FileWriter
 	log     loggy.Logger
 }
@@ -34,7 +33,7 @@ type Options struct {
 	TmpDirectory string
 }
 
-func NewStore(options Options, statter statsd.Statter) ZipStore {
+func NewStore(options Options, emitter stats.Sender) ZipStore {
 	if options.Directory == "" {
 		panic("no directory set for store")
 	}
@@ -46,7 +45,7 @@ func NewStore(options Options, statter statsd.Statter) ZipStore {
 
 	return &fsStore{
 		options: options,
-		statter: statter,
+		emitter: emitter,
 		writer:  writer,
 		log:     loggy.New("fs-store"),
 	}
@@ -58,11 +57,11 @@ func (s *fsStore) GetZip(mod coordinates.Module) (repository.Blob, error) {
 	start := time.Now()
 	blob, err := s.getZip(mod)
 	if err != nil {
-		s.statter.Inc("fsstore-getzip-failure", 1, 1)
+		s.emitter.Count("fsstore-getzip-failure", 1)
 		return nil, err
 	}
-	s.statter.Gauge("fsstore-getzip-elapsed-ms", since.MS(start), 1)
 
+	s.emitter.GaugeMS("fsstore-getzip-elapsed-ms", start)
 	return blob, nil
 }
 
@@ -80,11 +79,11 @@ func (s *fsStore) DelZip(mod coordinates.Module) error {
 	start := time.Now()
 	err := s.removeZip(mod)
 	if err != nil {
-		s.statter.Inc("fsstore-rmzip-failure", 1, 1)
+		s.emitter.Count("fsstore-rmzip-failure", 1)
 		return err
 	}
-	s.statter.Gauge("fsstore-rmzip-elapsed-ms", since.MS(start), 1)
 
+	s.emitter.GaugeMS("fsstore-rmzip-elapsed-ms", start)
 	return nil
 }
 
@@ -101,11 +100,11 @@ func (s *fsStore) PutZip(mod coordinates.Module, blob repository.Blob) error {
 
 	start := time.Now()
 	if err := s.putZip(mod, blob); err != nil {
-		s.statter.Inc("fsstore-putzip-failure", 1, 1)
+		s.emitter.Count("fsstore-putzip-failure", 1)
 		return err
 	}
-	s.statter.Gauge("fsstore-putzip-elapsed-ms", since.MS(start), 1)
 
+	s.emitter.GaugeMS("fsstore-putzip-elapsed-ms", start)
 	return nil
 }
 

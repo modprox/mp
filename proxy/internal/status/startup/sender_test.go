@@ -6,7 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/modprox/mp/pkg/metrics/stats"
+
 	"github.com/stretchr/testify/require"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
@@ -19,15 +20,14 @@ import (
 func Test_Send_firstTry(t *testing.T) {
 	ts := httptest.NewServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("some reply"))
+			_, _ = w.Write([]byte("some reply"))
 		}),
 	)
 	defer ts.Close()
 
 	address, port := webutil.ParseURL(t, ts.URL)
 
-	statter, err := statsd.NewNoopClient()
-	require.NoError(t, err)
+	emitter := stats.Discard()
 
 	client := registry.NewClient(registry.Options{
 		Timeout: 1 * time.Second,
@@ -37,14 +37,14 @@ func Test_Send_firstTry(t *testing.T) {
 		}},
 	})
 
-	apiClient := NewSender(client, 1*time.Second, statter)
+	apiClient := NewSender(client, 1*time.Second, emitter)
 
 	instance := netservice.Instance{}
 	storage := config.Storage{}
 	registries := config.Registry{}
 	transforms := config.Transforms{}
 
-	err = apiClient.Send(payloads.Configuration{
+	err := apiClient.Send(payloads.Configuration{
 		Self:       instance,
 		Storage:    storage,
 		Registry:   registries,
@@ -63,7 +63,7 @@ func Test_Send_secondTry(t *testing.T) {
 				firstTry = false
 			} else {
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("some reply"))
+				_, _ = w.Write([]byte("some reply"))
 				executedSecondTry = true
 			}
 		}),
@@ -72,8 +72,7 @@ func Test_Send_secondTry(t *testing.T) {
 
 	address, port := webutil.ParseURL(t, ts.URL)
 
-	statter, err := statsd.NewNoopClient()
-	require.NoError(t, err)
+	emitter := stats.Discard()
 
 	client := registry.NewClient(registry.Options{
 		Timeout: 1 * time.Second,
@@ -83,14 +82,14 @@ func Test_Send_secondTry(t *testing.T) {
 		}},
 	})
 
-	apiClient := NewSender(client, 10*time.Millisecond, statter)
+	apiClient := NewSender(client, 10*time.Millisecond, emitter)
 
 	instance := netservice.Instance{}
 	storage := config.Storage{}
 	registries := config.Registry{}
 	transforms := config.Transforms{}
 
-	err = apiClient.Send(payloads.Configuration{
+	err := apiClient.Send(payloads.Configuration{
 		Self:       instance,
 		Storage:    storage,
 		Registry:   registries,

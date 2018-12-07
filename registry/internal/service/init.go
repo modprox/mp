@@ -1,12 +1,12 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/modprox/mp/pkg/metrics/stats"
+
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"github.com/shoenig/toolkit"
@@ -19,18 +19,20 @@ import (
 
 type initer func(*Registry) error
 
-func initStatter(r *Registry) error {
-	var err error
-	agent := r.config.Statsd.Agent
-	if agent.Port == 0 || agent.Address == "" {
-		r.statter, err = statsd.NewNoopClient()
-		r.log.Warnf("statsd statter is set to noop client")
+func initSender(r *Registry) error {
+	cfg := r.config.Statsd.Agent
+	if cfg.Port == 0 || cfg.Address == "" {
+		r.emitter = stats.Discard()
+		r.log.Warnf("stats emitter is set to discard client - no metrics will be reported")
+		return nil
+	}
+
+	emitter, err := stats.New(stats.Registry, r.config.Statsd)
+	if err != nil {
 		return err
 	}
-	address := fmt.Sprintf("%s:%d", agent.Address, agent.Port)
-	r.statter, err = statsd.NewClient(address, "modprox-registry")
-	r.log.Infof("statsd statter is set to %s", address)
-	return err
+	r.emitter = emitter
+	return nil
 }
 
 func initStore(r *Registry) error {
@@ -40,7 +42,7 @@ func initStore(r *Registry) error {
 	}
 	r.log.Infof("using database of kind: %q", kind)
 	r.log.Infof("database dsn: %s", dsn)
-	store, err := data.Connect(kind, dsn, r.statter)
+	store, err := data.Connect(kind, dsn, r.emitter)
 	r.store = store
 	return err
 }
@@ -48,10 +50,12 @@ func initStore(r *Registry) error {
 func initProxyPrune(r *Registry) error {
 	maxAge := time.Duration(r.config.Proxies.PruneAfter) * time.Second
 	pruner := proxies.NewPruner(maxAge, r.store)
-	go toolkit.Interval(1*time.Minute, func() error {
-		_ = pruner.Prune(time.Now())
-		return nil
-	})
+	go func() {
+		_ = toolkit.Interval(1*time.Minute, func() error {
+			_ = pruner.Prune(time.Now())
+			return nil
+		})
+	}()
 	return nil
 }
 
@@ -80,7 +84,7 @@ func initWebServer(r *Registry) error {
 		middleAPI,
 		middleUI,
 		r.store,
-		r.statter,
+		r.emitter,
 	)
 
 	server, err := r.config.WebServer.Server(mux)
