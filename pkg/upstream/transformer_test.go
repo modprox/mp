@@ -20,23 +20,18 @@ func ns(path string) Namespace {
 
 func Test_NewRedirectTransform200(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if data, err := ioutil.ReadFile("testdata/fuse.html"); err == nil {
-			w.WriteHeader(200)
+		data, err := ioutil.ReadFile("../../hack/html/fuse.html")
+		require.NoError(t, err)
 
-			if _, err := w.Write(data); err != nil {
-				w.WriteHeader(500)
-			}
-		} else {
-			w.WriteHeader(500)
-		}
+		_, err = w.Write(data)
+		require.NoError(t, err)
 	}))
-
 	defer ts.Close()
 
 	transform := &GoGetTransform{
-		redirectAll: true,
-		httpClient:  ts.Client(),
-		log:         loggy.New("log"),
+		autoRedirect: true,
+		httpClient:   ts.Client(),
+		log:          loggy.New("log"),
 	}
 
 	uri, err := url.ParseRequestURI(ts.URL)
@@ -67,9 +62,9 @@ func Test_NewRedirectTransform404(t *testing.T) {
 	defer ts.Close()
 
 	transform := &GoGetTransform{
-		redirectAll: true,
-		httpClient:  ts.Client(),
-		log:         loggy.New("log"),
+		autoRedirect: true,
+		httpClient:   ts.Client(),
+		log:          loggy.New("log"),
 	}
 
 	uri, err := url.ParseRequestURI(ts.URL)
