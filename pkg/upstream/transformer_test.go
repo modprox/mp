@@ -18,11 +18,12 @@ func ns(path string) Namespace {
 	return strings.Split(path, "/")
 }
 
-func Test_NewRedirectTransform200(t *testing.T) {
+func Test_NewAutomaticGoGetTransform200(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data, err := ioutil.ReadFile("../../hack/html/fuse.html")
 		require.NoError(t, err)
 
+		w.WriteHeader(200)
 		_, err = w.Write(data)
 		require.NoError(t, err)
 	}))
@@ -54,7 +55,7 @@ func Test_NewRedirectTransform200(t *testing.T) {
 	}, newRequest)
 }
 
-func Test_NewRedirectTransform404(t *testing.T) {
+func Test_NewAutomaticGoGetTransform404(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		w.Write([]byte{})
