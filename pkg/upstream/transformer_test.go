@@ -1,6 +1,11 @@
 package upstream
 
 import (
+	"github.com/modprox/mp/pkg/loggy"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -11,6 +16,80 @@ import (
 
 func ns(path string) Namespace {
 	return strings.Split(path, "/")
+}
+
+func Test_NewRedirectTransform200(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if data, err := ioutil.ReadFile("testdata/fuse.html"); err == nil {
+			w.WriteHeader(200)
+
+			if _, err := w.Write(data); err != nil {
+				w.WriteHeader(500)
+			}
+		} else {
+			w.WriteHeader(500)
+		}
+	}))
+
+	defer ts.Close()
+
+	transform := &GoGetTransform{
+		redirectAll: true,
+		httpClient: ts.Client(),
+		log: loggy.New("log"),
+	}
+
+	uri, err := url.ParseRequestURI(ts.URL)
+	require.NoError(t, err)
+
+	request := &Request{
+		Transport: uri.Scheme,
+		Domain:    uri.Host,
+		Namespace: ns("fuse"),
+		Version:   "latest",
+	}
+
+	newRequest, err := transform.Modify(request)
+	require.NoError(t, err)
+	require.Equal(t, &Request{
+		Transport: "https",
+		Domain: "github.com",
+		Namespace: ns("bazil/bazil"),
+		Version: "latest",
+	}, newRequest)
+}
+
+func Test_NewRedirectTransform404(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+		w.Write([]byte{})
+	}))
+	defer ts.Close()
+
+	transform := &GoGetTransform{
+		redirectAll: true,
+		httpClient: ts.Client(),
+		log: loggy.New("log"),
+	}
+
+	uri, err := url.ParseRequestURI(ts.URL)
+	require.NoError(t, err)
+
+	request := &Request{
+		Transport: uri.Scheme,
+		Domain:    uri.Host,
+		Namespace: ns("fuse"),
+		Version:   "latest",
+	}
+
+	newRequest, err := transform.Modify(request)
+	require.NoError(t, err)
+	require.Equal(t, &Request{
+		Transport: uri.Scheme,
+		Domain:    uri.Host,
+		Namespace: ns("fuse"),
+		Version: "latest",
+	}, newRequest)
 }
 
 func Test_NewRequest(t *testing.T) {

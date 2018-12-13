@@ -141,6 +141,10 @@ func initTransforms(p *Proxy) []upstream.Transform {
 }
 
 func initGoGetTransform(p *Proxy) upstream.Transform {
+	if p.config.Transforms.AutomaticRedirect {
+		return upstream.NewRedirectTransform()
+	}
+
 	goGetDomains := make([]string, 0, len(p.config.Transforms.DomainGoGet))
 	for _, domain := range p.config.Transforms.DomainGoGet {
 		goGetDomains = append(goGetDomains, domain.Domain)

@@ -12,6 +12,7 @@ require (
 	github.com/pkg/errors v0.8.0
 	github.com/shoenig/atomicfs v0.1.1
 	github.com/shoenig/httplus v0.0.0
+	github.com/shoenig/mockery3 v0.0.0-20180929002219-8b2d2c71cf53 // indirect
 	github.com/shoenig/petrify/v4 v4.0.2
 	github.com/shoenig/toolkit v1.0.0
 	github.com/stretchr/testify v1.2.2
