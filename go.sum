@@ -30,15 +30,12 @@ github.com/shoenig/atomicfs v0.1.1 h1:MYIOQjG1qIW5J1dsI1dginEVGC9lnDTOtls9sKNHm4
 github.com/shoenig/atomicfs v0.1.1/go.mod h1:aw1MEIbywlavaTMRvnai/OLCh2dV5XWNcNBYf6iLDno=
 github.com/shoenig/httplus v0.0.0 h1:WrkAZNjv4Sv6juOB4Mb0KhTTlyKIPkODiCaAU3pnMCI=
 github.com/shoenig/httplus v0.0.0/go.mod h1:1RATT1GFHcr+r7R/Bjc5Z266PHtyukMD6avWsREh0Is=
-github.com/shoenig/mockery3 v0.0.0-20180929002219-8b2d2c71cf53 h1:ERKw7osiCyBTfpWaCbSU5fSrq3n8oWcmpygXDPPdDcc=
-github.com/shoenig/mockery3 v0.0.0-20180929002219-8b2d2c71cf53/go.mod h1:dtYJ/iTmU+4L+TYpYobg9jMNV1Fb48QgTwhGLFGa+ls=
 github.com/shoenig/petrify/v4 v4.0.2 h1:LHwcLkhu80vp01EfenJC2zKvujQJS5SNhuh0rbORM38=
 github.com/shoenig/petrify/v4 v4.0.2/go.mod h1:xTXgxRisT/LPHgtw0yWpLdVJPyocAlhAPwTKktpm6f4=
 github.com/shoenig/toolkit v1.0.0 h1:bevOHX/3xqlV3AGTGkFSYu1a+v8bWMJAZ7kUEj1f7d4=
 github.com/shoenig/toolkit v1.0.0/go.mod h1:AzSCIBam5p35X6rgoLpLG/PDQPC6sMUr6nPz8zHWDNk=
 github.com/stretchr/objx v0.1.1 h1:2vfRuCMp5sSVIDSqO8oNnWJq7mPa6KVP3iPIwFBuy8A=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
-github.com/stretchr/testify v1.2.0/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 golang.org/x/net v0.0.0-20180724234803-3673e40ba225/go.mod h1:mL1N/T3taQHkDXs73rZJwtUhF3w3ftmwwsq0BUmARs4=
@@ -46,8 +43,6 @@ golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e/go.mod h1:STP8DvDyc/dI5b8T5h
 golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b h1:MQE+LT/ABUuuvEZ+YQAMSXindAdUh7slEmAkup74op4=
 golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
-golang.org/x/tools v0.0.0-20180924175601-e93be7f42f9f h1:1Tu2OIs5RYkvlYaAutNHsrhpkwJCc5Hek3/+YR4QbIo=
-golang.org/x/tools v0.0.0-20180924175601-e93be7f42f9f/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
 google.golang.org/appengine v1.1.0/go.mod h1:EbEs0AVv82hx2wNQdGPgUI5lhzA/G0D9YwlJXL52JkM=
 google.golang.org/appengine v1.3.0 h1:FBSsiFRMz3LBeXIomRnVzrQwSDj4ibvcRexLG0LZGQk=
 google.golang.org/appengine v1.3.0/go.mod h1:xpcJRLb0r/rnEns0DIKYYv+WjYCduHsrkT7/EB5XEv4=

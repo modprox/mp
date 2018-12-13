@@ -1,7 +1,6 @@
 package upstream
 
 import (
-	"github.com/modprox/mp/pkg/loggy"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/loggy"
 
 	"github.com/stretchr/testify/require"
 )
@@ -35,8 +35,8 @@ func Test_NewRedirectTransform200(t *testing.T) {
 
 	transform := &GoGetTransform{
 		redirectAll: true,
-		httpClient: ts.Client(),
-		log: loggy.New("log"),
+		httpClient:  ts.Client(),
+		log:         loggy.New("log"),
 	}
 
 	uri, err := url.ParseRequestURI(ts.URL)
@@ -53,9 +53,9 @@ func Test_NewRedirectTransform200(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, &Request{
 		Transport: "https",
-		Domain: "github.com",
+		Domain:    "github.com",
 		Namespace: ns("bazil/bazil"),
-		Version: "latest",
+		Version:   "latest",
 	}, newRequest)
 }
 
@@ -68,8 +68,8 @@ func Test_NewRedirectTransform404(t *testing.T) {
 
 	transform := &GoGetTransform{
 		redirectAll: true,
-		httpClient: ts.Client(),
-		log: loggy.New("log"),
+		httpClient:  ts.Client(),
+		log:         loggy.New("log"),
 	}
 
 	uri, err := url.ParseRequestURI(ts.URL)
@@ -88,7 +88,7 @@ func Test_NewRedirectTransform404(t *testing.T) {
 		Transport: uri.Scheme,
 		Domain:    uri.Host,
 		Namespace: ns("fuse"),
-		Version: "latest",
+		Version:   "latest",
 	}, newRequest)
 }
 
