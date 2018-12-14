@@ -162,9 +162,23 @@ func (t *StaticRedirectTransform) Modify(r *Request) (*Request, error) {
 // - contrib.go.opencensus.io
 // - go.uber.org
 type GoGetTransform struct {
-	domains    map[string]bool // only implement redirect metadata
-	httpClient *http.Client
-	log        loggy.Logger
+	autoRedirect bool
+	domains      map[string]bool // only implement redirect metadata
+	httpClient   *http.Client
+	log          loggy.Logger
+}
+
+// NewAutomaticGoGetTransform creates a GoGetTransform where any module URI
+// will be redirected to wherever the go-get meta HTML tag in the domain
+// indicates.
+func NewAutomaticGoGetTransform() Transform {
+	return &GoGetTransform{
+		autoRedirect: true,
+		httpClient: &http.Client{
+			Timeout: 30 * time.Second,
+		},
+		log: loggy.New("auto-go-get-transform"),
+	}
 }
 
 // NewGoGetTransform creates a GoGetTransform where any module URIs
@@ -200,16 +214,20 @@ func NewGoGetTransform(domains []string) Transform {
 }
 
 func (t *GoGetTransform) Modify(r *Request) (*Request, error) {
-	if !t.domains[r.Domain] {
+	if !t.autoRedirect && !t.domains[r.Domain] {
 		t.log.Tracef("domain %s is not set for go-get redirects", r.Domain)
 		return r, nil
 	}
+
 	t.log.Infof("doing go-get redirect lookup for domain %s", r.Domain)
 
 	meta, err := t.doGoGetRequest(r)
-	if err != nil {
+	if !t.autoRedirect && err != nil {
 		t.log.Errorf("unable to do go-get redirect for domain %s: %v", r.Domain, err)
 		return nil, err
+	} else if err != nil {
+		t.log.Warnf("unable to do go-get redirect for domain: %s. leaving request unmodified: %v", r.Domain, err)
+		return r, nil
 	}
 
 	t.log.Infof("redirect to: %s", meta)

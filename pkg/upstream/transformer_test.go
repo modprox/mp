@@ -1,16 +1,91 @@
 package upstream
 
 import (
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
 	"github.com/modprox/mp/pkg/coordinates"
+	"github.com/modprox/mp/pkg/loggy"
 
 	"github.com/stretchr/testify/require"
 )
 
 func ns(path string) Namespace {
 	return strings.Split(path, "/")
+}
+
+func Test_NewAutomaticGoGetTransform200(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		data, err := ioutil.ReadFile("../../hack/html/fuse.html")
+		require.NoError(t, err)
+
+		w.WriteHeader(200)
+		_, err = w.Write(data)
+		require.NoError(t, err)
+	}))
+	defer ts.Close()
+
+	transform := &GoGetTransform{
+		autoRedirect: true,
+		httpClient:   ts.Client(),
+		log:          loggy.New("log"),
+	}
+
+	uri, err := url.ParseRequestURI(ts.URL)
+	require.NoError(t, err)
+
+	request := &Request{
+		Transport: uri.Scheme,
+		Domain:    uri.Host,
+		Namespace: ns("fuse"),
+		Version:   "latest",
+	}
+
+	newRequest, err := transform.Modify(request)
+	require.NoError(t, err)
+	require.Equal(t, &Request{
+		Transport: "https",
+		Domain:    "github.com",
+		Namespace: ns("bazil/bazil"),
+		Version:   "latest",
+	}, newRequest)
+}
+
+func Test_NewAutomaticGoGetTransform404(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(404)
+		w.Write([]byte{})
+	}))
+	defer ts.Close()
+
+	transform := &GoGetTransform{
+		autoRedirect: true,
+		httpClient:   ts.Client(),
+		log:          loggy.New("log"),
+	}
+
+	uri, err := url.ParseRequestURI(ts.URL)
+	require.NoError(t, err)
+
+	request := &Request{
+		Transport: uri.Scheme,
+		Domain:    uri.Host,
+		Namespace: ns("fuse"),
+		Version:   "latest",
+	}
+
+	newRequest, err := transform.Modify(request)
+	require.NoError(t, err)
+	require.Equal(t, &Request{
+		Transport: uri.Scheme,
+		Domain:    uri.Host,
+		Namespace: ns("fuse"),
+		Version:   "latest",
+	}, newRequest)
 }
 
 func Test_NewRequest(t *testing.T) {

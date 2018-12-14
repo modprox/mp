@@ -93,7 +93,8 @@ type Registry struct {
 }
 
 type Transforms struct {
-	DomainGoGet []struct {
+	AutomaticRedirect bool `json:"auto_redirect"`
+	DomainGoGet       []struct {
 		Domain string `json:"domain"`
 	} `json:"domain_go-get,omitempty"`
 	DomainRedirects []struct {

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Bazil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Filesystem hacking in Go">
+    <meta name="go-import" content="bazil.org/bazil git https://github.com/bazil/bazil">
+    <meta name="go-import" content="bazil.org/fuse git https://github.com/bazil/fuse">
+    <meta name="go-import" content="bazil.org/bolt-mount git https://github.com/bazil/bolt-mount">
+    <link rel="canonical" href="https://bazil.org/fuse/index.html">
+    <link href="/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="/css/bazil.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+    <link rel="icon" type="image/svg+xml" href="/img/logo.svg"/>
+    <link rel="icon" type="image/png" href="/img/logo.512x512.png"/>
+    <link href="/css/bootstrap-responsive.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+      <div class="navbar-header">
+	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#site-top-nav">
+	  <span class="sr-only">Toggle navigation</span>
+	  <span class="icon-bar"></span>
+	  <span class="icon-bar"></span>
+	  <span class="icon-bar"></span>
+	</button>
+	<a class="navbar-brand" href="/">Bazil<img src="/img/logo-white.svg" style="height: 24px; margin-left: 10px; vertical-align: top;"/></a>
+      </div>
+      <div class="collapse navbar-collapse" id="site-top-nav">
+	<ul class="nav navbar-nav">
+	  
+	    
+	      
+	        <li class=""><a href="/doc">documentation</a></li>
+	      
+	    
+	  
+	    
+	      
+	        <li class="active"><a href="/fuse">fuse</a></li>
+	      
+	    
+	  
+	    
+	      
+	        <li class=""><a href="/talks">talks</a></li>
+	      
+	    
+	  
+	</ul>
+      </div>
+    </nav>
+
+    <div class="container-fluid bazil-top-container">
+      <div class="row">
+	<div class="col-md-2">
+	  
+	  
+	</div>
+	<div class="col-md-6">
+	  <h1>Go FUSE file system library</h1>
+	  <p><code>bazil.org/fuse</code> is a Go library for writing filesystems. It is a
+from-scratch implementation of the kernel-userspace communication
+protocol, and does not use the C library from the project called
+<a href="http://fuse.sourceforge.net/">FUSE</a>. <code>bazil.org/fuse</code> embraces Go
+fully for safety and ease of programming.</p>
+
+<p>Here&rsquo;s how to get going:</p>
+
+<pre><code>go get bazil.org/fuse
+</code></pre>
+
+<p>Github repository: <a href="https://github.com/bazil/fuse">https://github.com/bazil/fuse</a></p>
+
+<p>API docs: <a href="http://godoc.org/bazil.org/fuse">http://godoc.org/bazil.org/fuse</a></p>
+
+<p>Our thanks to <a href="http://swtch.com/~rsc/">Russ Cox</a> for his <a href="https://code.google.com/p/rsc/source/browse/#hg%2Ffuse">fuse
+library</a>, which
+this project is based on.</p>
+
+	</div>
+	<div class="col-md-1"></div>
+	<div class="col-md-2">
+	  <h3>Projects</h3>
+
+<p>
+  <a href="/doc">Bazil</a> is a distributed file system designed
+  for single-person disconnected operation. It lets you share your
+  files across all your computers, with or without cloud services.
+</p>
+
+<p>
+  <a href="/fuse">FUSE</a> is a programming library for writing file
+  systems in userspace, in Go.
+</p>
+
+	</div>
+	<div class="col-md-1"></div>
+      </div>
+    </div>
+
+    <script src="/js/jquery-1.9.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-39802734-1', 'bazil.org');
+  ga('send', 'pageview');
+</script>
+
+
+<a href="https://github.com/bazil/fuse"><img style="position: absolute; top: 0; right: 0; border: 0; z-index: 1030" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+<a href="http://golang.org/"><img  title="Gopher image by Renee French" style="position:absolute; top: 95px; right: 0; width: 90px; z-index: 1031" src="/img/gopher-project.png"></a>
+
+
+  </body>
+</html>
