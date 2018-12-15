@@ -12,7 +12,7 @@ import (
 	"github.com/modprox/mp/proxy/internal/modules/store"
 )
 
-//go:generate mockery3 -interface Downloader -package fetchtest
+//go:generate mockery3 -interface Downloader -package gettest
 
 type Downloader interface {
 	Download(module coordinates.SerialModule) error
