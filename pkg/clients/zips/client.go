@@ -7,6 +7,10 @@ import (
 	"github.com/modprox/mp/pkg/upstream"
 )
 
+//go:generate mockery3 -interface Client -package zipstest
+
+// Client is used to download .zip files from an upstream origin
+// (e.g. github.com).
 type Client interface {
 	Get(*upstream.Request) (repository.Blob, error)
 	Protocols() []string

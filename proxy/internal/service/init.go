@@ -5,20 +5,20 @@ import (
 	"os"
 	"time"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
-
-	"github.com/modprox/mp/proxy/internal/problems"
+	"github.com/modprox/mp/proxy/internal/modules/bg"
 
 	"github.com/pkg/errors"
 
 	"github.com/modprox/mp/pkg/clients/payloads"
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/clients/zips"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/mp/pkg/upstream"
 	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/proxy/internal/modules/background"
+	"github.com/modprox/mp/proxy/internal/modules/get"
 	"github.com/modprox/mp/proxy/internal/modules/store"
+	"github.com/modprox/mp/proxy/internal/problems"
 	"github.com/modprox/mp/proxy/internal/status/heartbeat"
 	"github.com/modprox/mp/proxy/internal/status/startup"
 	"github.com/modprox/mp/proxy/internal/web"
@@ -44,7 +44,7 @@ func initSender(p *Proxy) error {
 
 func initTrackers(p *Proxy) error {
 	dlTracker := problems.New("downloads")
-	p.dlProblems = dlTracker
+	p.dlTracker = dlTracker
 	return nil
 }
 
@@ -108,25 +108,39 @@ func initZipsClient(p *Proxy) error {
 	return nil
 }
 
-func initRegistryReloadWorker(p *Proxy) error {
+func initBGWorker(p *Proxy) error {
 	reloadFreqS := time.Duration(p.config.Registry.PollFrequencyS) * time.Second
-	registryRequester := background.NewRegistryAPI(p.registryClient, p.index)
+	registryRequester := get.NewRegistryAPI(
+		p.registryClient,
+		p.index,
+	)
 
-	p.reloader = background.NewReloadWorker(
-		background.Options{
-			Frequency: reloadFreqS,
-		},
+	resolver := upstream.NewResolver(
+		initTransforms(p)...,
+	)
+
+	downloader := get.New(
+		p.zipsClient,
+		resolver,
+		p.store,
+		p.index,
 		p.emitter,
-		p.dlProblems,
+	)
+
+	p.bgWorker = bg.New(
+		p.emitter,
+		p.dlTracker,
 		p.index,
 		p.store,
-		upstream.NewResolver(
-			initTransforms(p)...,
-		),
 		registryRequester,
-		p.zipsClient,
+		downloader,
 	)
-	p.reloader.Start()
+
+	// start the background worker polling the registry
+	p.bgWorker.Start(bg.Options{
+		Frequency: reloadFreqS,
+	})
+
 	return nil
 }
 
@@ -243,7 +257,7 @@ func initWebServer(p *Proxy) error {
 		p.index,
 		p.store,
 		p.emitter,
-		p.dlProblems,
+		p.dlTracker,
 	)
 
 	server, err := p.config.APIServer.Server(mux)

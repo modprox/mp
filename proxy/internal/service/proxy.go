@@ -3,14 +3,15 @@ package service
 import (
 	"os"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
+	"github.com/modprox/mp/proxy/internal/modules/get"
 
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/loggy"
+	"github.com/modprox/mp/pkg/metrics/stats"
 	"github.com/modprox/mp/pkg/webutil"
 	"github.com/modprox/mp/proxy/config"
-	"github.com/modprox/mp/proxy/internal/modules/background"
+	"github.com/modprox/mp/proxy/internal/modules/bg"
 	"github.com/modprox/mp/proxy/internal/modules/store"
 	"github.com/modprox/mp/proxy/internal/problems"
 )
@@ -23,8 +24,9 @@ type Proxy struct {
 	store          store.ZipStore
 	registryClient registry.Client
 	zipsClient     zips.Client
-	reloader       background.ReloadWorker
-	dlProblems     problems.Tracker
+	downloader     get.Downloader
+	bgWorker       bg.Worker
+	dlTracker      problems.Tracker
 	log            loggy.Logger
 }
 
@@ -41,7 +43,7 @@ func NewProxy(configuration config.Configuration) *Proxy {
 		initStore,
 		initRegistryClient,
 		initZipsClient,
-		initRegistryReloadWorker,
+		initBGWorker,
 		initHeartbeatSender,
 		initStartupConfigSender,
 		initWebServer,
