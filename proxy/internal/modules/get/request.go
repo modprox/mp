@@ -13,6 +13,8 @@ import (
 // Range is an alias of coordinates.RangeIDs for brevity.
 type Ranges = coordinates.RangeIDs
 
+//go:generate mockery3 -interface RegistryAPI -package gettest
+
 // RegistryAPI is used to issue API request from the registry
 type RegistryAPI interface {
 	ModulesNeeded(Ranges) ([]coordinates.SerialModule, error)
