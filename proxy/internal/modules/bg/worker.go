@@ -1,69 +1,68 @@
-package background
+package bg
 
 import (
-	"fmt"
 	"time"
-
-	"github.com/modprox/mp/proxy/internal/problems"
 
 	"github.com/shoenig/toolkit"
 
 	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/clients/zips"
 	"github.com/modprox/mp/pkg/coordinates"
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/pkg/upstream"
+	"github.com/modprox/mp/proxy/internal/modules/get"
 	"github.com/modprox/mp/proxy/internal/modules/store"
+	"github.com/modprox/mp/proxy/internal/problems"
 )
 
 type Options struct {
+	// Frequency determines how often the worker will check in
+	// with the registry, looking for new modules that need to be
+	// downloaded by this instance of the proxy. A typical value
+	// would be something like 30 seconds - not too slow, but also
+	// not spamming the network with polling traffic.
 	Frequency time.Duration
 }
 
-type ReloadWorker interface {
-	Start()
+// A Worker runs in the background, polling the registry for new
+// modules that need to be downloaded, and downloading those modules
+// as needed.
+type Worker interface {
+	Start(options Options)
 }
 
-type reloadWorker struct {
-	options           Options
+type worker struct {
 	registryClient    registry.Client
 	emitter           stats.Sender
 	dlTracker         problems.Tracker
 	index             store.Index
 	store             store.ZipStore
-	downloader        zips.Client
-	resolver          upstream.Resolver
-	registryRequester RegistryAPI
+	downloader        get.Downloader
+	registryRequester get.RegistryAPI
 	log               loggy.Logger
 }
 
-func NewReloadWorker(
-	options Options,
+func New(
 	emitter stats.Sender,
 	dlTracker problems.Tracker,
 	index store.Index,
 	store store.ZipStore,
-	resolver upstream.Resolver,
-	registryRequester RegistryAPI,
-	downloader zips.Client,
-) ReloadWorker {
-	return &reloadWorker{
-		options:           options,
+	registryRequester get.RegistryAPI,
+	downloader get.Downloader,
+) Worker {
+	return &worker{
 		emitter:           emitter,
 		dlTracker:         dlTracker,
 		index:             index,
 		store:             store,
-		resolver:          resolver,
 		downloader:        downloader,
 		registryRequester: registryRequester,
-		log:               loggy.New("reload-worker"),
+		log:               loggy.New("bg-worker"),
 	}
 }
 
-func (w *reloadWorker) Start() {
+func (w *worker) Start(options Options) {
 	go func() {
-		_ = toolkit.Interval(w.options.Frequency, func() error {
+		_ = toolkit.Interval(options.Frequency, func() error {
 			if err := w.loop(); err != nil {
 				w.log.Errorf("worker loop iteration had error: %v", err)
 				// never return an error, which would stop the worker
@@ -74,7 +73,7 @@ func (w *reloadWorker) Start() {
 	}()
 }
 
-func (w *reloadWorker) loop() error {
+func (w *worker) loop() error {
 	w.log.Infof("worker loop starting")
 
 	mods, err := w.acquireMods()
@@ -95,7 +94,7 @@ func (w *reloadWorker) loop() error {
 	return nil
 }
 
-func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
+func (w *worker) acquireMods() ([]coordinates.SerialModule, error) {
 	ids, err := w.index.IDs()
 	if err != nil {
 		return nil, err
@@ -137,7 +136,7 @@ func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
 			continue // move on to the next one
 		}
 
-		if err := w.download(mod); err != nil {
+		if err := w.downloader.Download(mod); err != nil {
 			w.log.Errorf("failed to download %s, %v", mod, err)
 			w.dlTracker.Set(problems.Create(mod.Module, err))
 			continue // may as well try the others
@@ -146,60 +145,4 @@ func (w *reloadWorker) acquireMods() ([]coordinates.SerialModule, error) {
 	}
 
 	return mods, nil
-}
-
-func (w *reloadWorker) download(mod coordinates.SerialModule) error {
-	request, err := w.resolver.Resolve(mod.Module)
-	if err != nil {
-		return err
-	}
-
-	w.log.Infof("going to download %s", request.URI())
-
-	// actually download it
-	start := time.Now()
-	blob, err := w.downloader.Get(request)
-	if err != nil {
-		return err
-	}
-
-	w.emitter.GaugeMS("download-mod-elapsed-ms", start)
-	w.log.Infof("downloaded blob of size: %d", len(blob))
-
-	rewritten, err := zips.Rewrite(mod.Module, blob)
-	if err != nil {
-		w.log.Errorf("failed to rewrite blob for %s, %v", mod, err)
-		return err
-	}
-
-	if err := w.store.PutZip(mod.Module, rewritten); err != nil {
-		w.log.Errorf("failed to save blob to zip store for %s, %v", mod, err)
-		return err
-	}
-
-	modFile, exists, err := rewritten.ModFile()
-	if err != nil {
-		w.log.Errorf("failed to re-read re-written zip file for %s, %v", mod, err)
-		return err
-	}
-	if !exists {
-		modFile = emptyModFile(mod)
-	}
-
-	ma := store.ModuleAddition{
-		Mod:      mod.Module,
-		UniqueID: mod.SerialID,
-		ModFile:  modFile,
-	}
-
-	if err := w.index.Put(ma); err != nil {
-		w.log.Errorf("failed to updated index for %s, %v", mod, err)
-		return err
-	}
-
-	return nil
-}
-
-func emptyModFile(mod coordinates.SerialModule) string {
-	return fmt.Sprintf("module %s\n", mod.Module.Source)
 }

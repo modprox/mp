@@ -12,6 +12,8 @@ import (
 	"github.com/modprox/mp/pkg/loggy"
 )
 
+//go:generate mockery3 --interface Resolver --package upstreamtest
+
 // A Resolver is able to turn the globally unique identifier of
 // a Go module (which includes a Source and a Version) and applies
 // a set of Transform operations until a Request is created
