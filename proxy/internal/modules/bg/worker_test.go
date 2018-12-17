@@ -1,7 +1,7 @@
 package bg
 
 import (
-	"fmt"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -117,7 +117,57 @@ func Test_Worker_acquireMods_ok(t *testing.T) {
 
 	mods, err := w.(*worker).acquireMods()
 	require.NoError(t, err)
+	require.Equal(t, 3, len(mods))
+}
 
-	fmt.Println("mods:", mods)
+func Test_Worker_IDs_bad(t *testing.T) {
+	mocks := newMocks()
+	defer mocks.assertions(t)
 
+	mocks.index.On("IDs").Return(
+		nil, errors.New("index ids error"),
+	).Once()
+
+	w := New(
+		mocks.emitter,
+		mocks.dlTracker,
+		mocks.index,
+		mocks.store,
+		mocks.regRequester,
+		mocks.downloader,
+	)
+
+	mods, err := w.(*worker).acquireMods()
+	require.Error(t, err)
+	require.Equal(t, 0, len(mods))
+}
+
+func Test_Worker_ModulesNeeded_bad(t *testing.T) {
+	mocks := newMocks()
+	defer mocks.assertions(t)
+
+	ranges := store.Ranges{
+		[2]int64{2, 3},
+		[2]int64{8, 8},
+	}
+
+	mocks.index.On("IDs").Return(ranges, nil).Once()
+	mocks.regRequester.On("ModulesNeeded", ranges).Return(
+		nil, errors.New("error fetching modules needed"),
+	)
+	// todo, this should emit something
+	// yay
+
+	w := New(
+		mocks.emitter,
+		mocks.dlTracker,
+		mocks.index,
+		mocks.store,
+		mocks.regRequester,
+		mocks.downloader,
+	)
+
+	mods, err := w.(*worker).acquireMods()
+	require.Error(t, err)
+	require.Equal(t, 0, len(mods))
 }
