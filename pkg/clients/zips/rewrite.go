@@ -118,23 +118,9 @@ func Rewrite(mod coordinates.Module, b repository.Blob) (repository.Blob, error)
 
 	haveModLicense := false
 	for _, zf := range unZip.File {
-		// TODO: I think we already calculated topPrefix above, so we shouldn't need to do it here
-		if topPrefix == "" {
-			i := strings.Index(zf.Name, "/")
-			if i < 0 {
-				return nil, errors.Errorf("upstream missing top-level directory prefix")
-			}
-			topPrefix = zf.Name[:i+1]
-		}
-
 		if strings.HasSuffix(zf.Name, "/") {
 			// drop directory dummy entries
 			continue
-		}
-
-		// TODO: didn't we already check this earlier?
-		if !strings.HasPrefix(zf.Name, topPrefix) {
-			return nil, errors.Errorf("upstream zip file contains multiple top-level directories")
 		}
 
 		name := strings.TrimPrefix(zf.Name, topPrefix)
@@ -154,7 +140,6 @@ func Rewrite(mod coordinates.Module, b repository.Blob) (repository.Blob, error)
 			}
 		}
 
-		// TODO: should do this in the earlier loop since it's searching for go.mod files
 		base := path.Base(name)
 		if strings.ToLower(base) == goModFile && base != goModFile {
 			return nil, errors.Errorf("upstream zip file contains %s, want all lower-case go.mod", zf.Name)
@@ -170,7 +155,6 @@ func Rewrite(mod coordinates.Module, b repository.Blob) (repository.Blob, error)
 		}
 
 		unversionedName := strings.TrimPrefix(name, versionPrefix)
-
 		w, err := reZip.Create(mod.Source + "@" + mod.Version + "/" + unversionedName) // source@version/path
 		if err != nil {
 			return nil, err
