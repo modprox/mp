@@ -3,6 +3,7 @@ package upstream
 import (
 	"bufio"
 	"fmt"
+	"github.com/modprox/mp/pkg/loggy"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -51,6 +52,7 @@ func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
 
 var (
 	sourceRe = regexp.MustCompile(`(http[s]?)://([\w-.]+)/([\w-./]+)`)
+	log = loggy.New("go-get")
 )
 
 // gives us transport, domain, path
@@ -58,12 +60,14 @@ func parseGoGetMetadata(content string) (goGetMeta, error) {
 	if ggm, exists, err := tryParseGoMetaTag("go-source", content); err != nil {
 		return ggm, err
 	} else if exists {
+		log.Infof("found go-source tag: %#v", ggm)
 		return ggm, nil
 	}
 
 	if ggm, exists, err := tryParseGoMetaTag("go-import", content); err != nil {
 		return ggm, err
 	} else if exists {
+		log.Infof("found go-import tag %#v", ggm)
 		return ggm, nil
 	}
 

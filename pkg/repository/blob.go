@@ -10,9 +10,9 @@ import (
 )
 
 // A Blob is an in-memory zip archive, representative of
-// a repository that was downloaded from upstream.
+// a module that was extracted from a repository that was downloaded from upstream.
 //
-// There might not be a go.mod file.
+// There might not be a go.mod file, but there should not be more than one.
 type Blob []byte
 
 func (b Blob) ModFile() (string, bool, error) {
@@ -23,9 +23,6 @@ func (b Blob) ModFile() (string, bool, error) {
 	}
 
 	for _, f := range unzip.File {
-
-		// todo: BUG - there could be more than 1 go.mod file, must choose
-		// todo: the correct one (hmmm, what if they want a nested module?)
 		filename := filepath.Base(f.Name)
 		if filename == "go.mod" {
 			rc, err := f.Open()

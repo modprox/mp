@@ -96,7 +96,7 @@ func (s *fsStore) removeZip(mod coordinates.Module) error {
 }
 
 func (s *fsStore) PutZip(mod coordinates.Module, blob repository.Blob) error {
-	s.log.Infof("will save %s do disk, %d bytes", mod, len(blob))
+	s.log.Infof("will save %s to disk, %d bytes", mod, len(blob))
 
 	start := time.Now()
 	if err := s.putZip(mod, blob); err != nil {
