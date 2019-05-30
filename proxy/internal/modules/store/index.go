@@ -129,6 +129,8 @@ type boltIndex struct {
 func (i *boltIndex) Versions(module string) ([]string, error) {
 	// produces an ordered list of version strings
 
+	// needs packageOf(module) and use bytes.Equal.
+
 	prefix := []byte(module)
 	var versions []string
 
