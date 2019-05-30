@@ -31,6 +31,7 @@
     "tmp_path": "/tmp"
   },
   "transforms": {
+    "auto_redirect": true,
     "domain_paths": [{
       "domain": "code.internal.company.net",
       "path": "ELEM1/ELEM2/-/archive/VERSION/ELEM2-VERSION.zip"
