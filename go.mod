@@ -12,9 +12,17 @@ require (
 	github.com/pkg/errors v0.8.0
 	github.com/shoenig/atomicfs v0.1.1
 	github.com/shoenig/httplus v0.0.0
-	github.com/shoenig/petrify/v4 v4.0.2
+	github.com/shoenig/petrify/v4 v4.1.0
 	github.com/shoenig/toolkit v1.0.0
 	github.com/stretchr/testify v1.2.2
-	golang.org/x/sys v0.0.0-20181122145206-62eef0e2fa9b // indirect
 	google.golang.org/appengine v1.3.0 // indirect
+)
+
+exclude (
+	// Version of petrify/v4 before v4.1.0 are bad, but libraries keep pulling them into go.sum.
+	// This was caused by the go1.11.4 change where symlinks started being hashed differently.
+	github.com/shoenig/petrify/v4 v4.0.2
+	github.com/shoenig/petrify/v4 v4.0.3
+	github.com/shoenig/petrify/v4 v4.0.4
+	github.com/shoenig/petrify/v4 v4.0.5
 )
