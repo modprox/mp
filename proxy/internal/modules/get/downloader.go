@@ -12,7 +12,7 @@ import (
 	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 )
 
-//go:generate mockery3 -interface Downloader -package gettest
+//go:generate minimock -g -i Downloader -s _mock.go
 
 type Downloader interface {
 	Download(module coordinates.SerialModule) error

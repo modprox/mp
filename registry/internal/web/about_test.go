@@ -10,7 +10,7 @@ import (
 
 func Test_about_ok(t *testing.T) {
 	h, mocks := makeRouter(t)
-	defer mocks.assertions(t)
+	defer mocks.assertions()
 
 	request, err := http.NewRequest(http.MethodGet, "/configure/about", nil)
 	require.NoError(t, err)
@@ -23,7 +23,7 @@ func Test_about_ok(t *testing.T) {
 
 func Test_about_bad_method(t *testing.T) {
 	h, mocks := makeRouter(t)
-	defer mocks.assertions(t)
+	defer mocks.assertions()
 
 	request, err := http.NewRequest(http.MethodPost, "/configure/about", nil)
 	require.NoError(t, err)

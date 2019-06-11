@@ -7,7 +7,7 @@ import (
 	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
-//go:generate mockery3 -interface=Pruner -package=proxiestest
+//go:generate minimock -g -i Pruner -s _mock.go
 
 type Pruner interface {
 	Prune(time.Time) error

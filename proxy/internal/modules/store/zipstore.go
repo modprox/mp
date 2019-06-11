@@ -5,7 +5,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
 
-//go:generate mockery3 -interface=ZipStore -package=storetest
+//go:generate minimock -g -i ZipStore -s _mock.go
 
 type ZipStore interface {
 	PutZip(coordinates.Module, repository.Blob) error

@@ -16,7 +16,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/webutil"
 )
 
-//go:generate mockery3 -interface=Client -package=registrytest
+//go:generate minimock -g -i Client -s _mock.go
 
 // A Client is used to make requests to any one of a group of
 // registry services working together.

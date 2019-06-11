@@ -9,7 +9,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/loggy"
 )
 
-//go:generate mockery3 -interface Tracker -package problemstest
+//go:generate minimock -g -i Tracker -s _mock.go
 
 type Tracker interface {
 	Set(Problem)

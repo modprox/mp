@@ -12,7 +12,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/netservice"
 	"oss.indeed.com/go/modprox/pkg/webutil"
-	"oss.indeed.com/go/modprox/proxy/internal/modules/store/storetest"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 )
 
 const modsReply = ` {"serials": [{
@@ -22,7 +22,8 @@ const modsReply = ` {"serials": [{
 }]}`
 
 func Test_ModulesNeeded(t *testing.T) {
-	index := &storetest.Index{}
+	index := store.NewIndexMock(t)
+	defer index.MinimockFinish()
 
 	ids := coordinates.RangeIDs{
 		coordinates.RangeID{1, 3},
@@ -30,11 +31,11 @@ func Test_ModulesNeeded(t *testing.T) {
 		coordinates.RangeID{10, 20},
 	}
 
-	index.On("IDs").Return(ids, nil)
+	index.IDsMock.Return(ids, nil)
 
 	ts := httptest.NewServer(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte(modsReply))
+			_, _ = w.Write([]byte(modsReply))
 		}),
 	)
 	defer ts.Close()
