@@ -5,8 +5,8 @@ import (
 
 	"github.com/jinzhu/copier"
 
-	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/proxy/config"
+	"oss.indeed.com/go/modprox/pkg/netservice"
+	"oss.indeed.com/go/modprox/proxy/config"
 )
 
 // Configuration of a proxy instance when it starts up that is sent

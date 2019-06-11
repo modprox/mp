@@ -3,14 +3,14 @@ package web
 import (
 	"net/http"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 
 	"github.com/gorilla/mux"
 	"github.com/shoenig/petrify/v4"
 
-	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/registry/internal/data"
-	"github.com/modprox/mp/registry/static"
+	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/registry/internal/data"
+	"oss.indeed.com/go/modprox/registry/static"
 )
 
 const (

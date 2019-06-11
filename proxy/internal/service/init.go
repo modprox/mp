@@ -5,23 +5,23 @@ import (
 	"os"
 	"time"
 
-	"github.com/modprox/mp/proxy/internal/modules/bg"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/bg"
 
 	"github.com/pkg/errors"
 
-	"github.com/modprox/mp/pkg/clients/payloads"
-	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/clients/zips"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/pkg/upstream"
-	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/proxy/internal/modules/get"
-	"github.com/modprox/mp/proxy/internal/modules/store"
-	"github.com/modprox/mp/proxy/internal/problems"
-	"github.com/modprox/mp/proxy/internal/status/heartbeat"
-	"github.com/modprox/mp/proxy/internal/status/startup"
-	"github.com/modprox/mp/proxy/internal/web"
+	"oss.indeed.com/go/modprox/pkg/clients/payloads"
+	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/netservice"
+	"oss.indeed.com/go/modprox/pkg/upstream"
+	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/get"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/proxy/internal/problems"
+	"oss.indeed.com/go/modprox/proxy/internal/status/heartbeat"
+	"oss.indeed.com/go/modprox/proxy/internal/status/startup"
+	"oss.indeed.com/go/modprox/proxy/internal/web"
 )
 
 type initer func(*Proxy) error

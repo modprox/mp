@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/registry/internal/data"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
 func registryAdd(store data.Store, emitter stats.Sender) http.HandlerFunc {

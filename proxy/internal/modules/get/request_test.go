@@ -8,11 +8,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/proxy/internal/modules/store/storetest"
+	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/netservice"
+	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store/storetest"
 )
 
 const modsReply = ` {"serials": [{

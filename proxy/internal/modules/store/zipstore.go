@@ -1,8 +1,8 @@
 package store
 
 import (
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/repository"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/repository"
 )
 
 //go:generate mockery3 -interface=ZipStore -package=storetest

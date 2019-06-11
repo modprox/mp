@@ -4,15 +4,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 
-	"github.com/modprox/mp/proxy/internal/problems"
+	"oss.indeed.com/go/modprox/proxy/internal/problems"
 
 	"github.com/gorilla/mux"
 
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 )
 
 const (

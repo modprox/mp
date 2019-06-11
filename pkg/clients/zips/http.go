@@ -8,9 +8,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shoenig/httplus/responses"
 
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/repository"
-	"github.com/modprox/mp/pkg/upstream"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/repository"
+	"oss.indeed.com/go/modprox/pkg/upstream"
 )
 
 type httpClient struct {

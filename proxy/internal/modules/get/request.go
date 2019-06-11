@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 )
 
 // Range is an alias of coordinates.RangeIDs for brevity.

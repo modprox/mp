@@ -6,15 +6,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/modprox/mp/pkg/clients/payloads"
-	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/proxy/config"
+	"oss.indeed.com/go/modprox/pkg/clients/payloads"
+	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/netservice"
+	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/proxy/config"
 )
 
 func Test_Send_firstTry(t *testing.T) {

@@ -11,7 +11,7 @@ import (
 
 	"github.com/shoenig/httplus/responses"
 
-	"github.com/modprox/mp/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/loggy"
 )
 
 func Github(baseURL string, client *http.Client) Versions {

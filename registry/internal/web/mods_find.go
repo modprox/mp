@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/registry/internal/tools/finder"
-	"github.com/modprox/mp/registry/static"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/registry/internal/tools/finder"
+	"oss.indeed.com/go/modprox/registry/static"
 
 	"github.com/gorilla/csrf"
 )

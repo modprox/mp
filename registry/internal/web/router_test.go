@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/registry/internal/data/datatest"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/registry/internal/data/datatest"
 )
 
 type mocks struct {

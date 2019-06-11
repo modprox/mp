@@ -5,16 +5,16 @@ import (
 	"os"
 	"time"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"github.com/shoenig/toolkit"
 
-	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/registry/internal/data"
-	"github.com/modprox/mp/registry/internal/proxies"
-	"github.com/modprox/mp/registry/internal/web"
+	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/registry/internal/data"
+	"oss.indeed.com/go/modprox/registry/internal/proxies"
+	"oss.indeed.com/go/modprox/registry/internal/web"
 )
 
 type initer func(*Registry) error

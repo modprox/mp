@@ -1,4 +1,4 @@
-module github.com/modprox/mp
+module oss.indeed.com/go/modprox
 
 require (
 	github.com/boltdb/bolt v1.3.1

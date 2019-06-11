@@ -1,8 +1,8 @@
 package registry
 
 import (
-	"github.com/modprox/mp/registry/config"
-	"github.com/modprox/mp/registry/internal/service"
+	"oss.indeed.com/go/modprox/registry/config"
+	"oss.indeed.com/go/modprox/registry/internal/service"
 )
 
 func Start(config config.Configuration) {

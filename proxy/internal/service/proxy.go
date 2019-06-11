@@ -3,17 +3,17 @@ package service
 import (
 	"os"
 
-	"github.com/modprox/mp/proxy/internal/modules/get"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/get"
 
-	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/clients/zips"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/pkg/webutil"
-	"github.com/modprox/mp/proxy/config"
-	"github.com/modprox/mp/proxy/internal/modules/bg"
-	"github.com/modprox/mp/proxy/internal/modules/store"
-	"github.com/modprox/mp/proxy/internal/problems"
+	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/proxy/config"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/bg"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/proxy/internal/problems"
 )
 
 type Proxy struct {

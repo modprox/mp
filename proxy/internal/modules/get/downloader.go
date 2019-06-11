@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/modprox/mp/pkg/clients/zips"
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/pkg/upstream"
-	"github.com/modprox/mp/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/upstream"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 )
 
 //go:generate mockery3 -interface Downloader -package gettest

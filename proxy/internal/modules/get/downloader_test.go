@@ -9,15 +9,15 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/modprox/mp/pkg/clients/zips"
-	"github.com/modprox/mp/pkg/clients/zips/zipstest"
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/metrics/stats/statstest"
-	"github.com/modprox/mp/pkg/repository"
-	"github.com/modprox/mp/pkg/upstream"
-	"github.com/modprox/mp/pkg/upstream/upstreamtest"
-	"github.com/modprox/mp/proxy/internal/modules/store"
-	"github.com/modprox/mp/proxy/internal/modules/store/storetest"
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
+	"oss.indeed.com/go/modprox/pkg/clients/zips/zipstest"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats/statstest"
+	"oss.indeed.com/go/modprox/pkg/repository"
+	"oss.indeed.com/go/modprox/pkg/upstream"
+	"oss.indeed.com/go/modprox/pkg/upstream/upstreamtest"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store/storetest"
 )
 
 type mocks struct {

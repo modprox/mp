@@ -3,10 +3,10 @@ package web
 import (
 	"net/http"
 
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/proxy/internal/modules/store"
-	"github.com/modprox/mp/proxy/internal/web/output"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/proxy/internal/web/output"
 )
 
 type moduleFile struct {

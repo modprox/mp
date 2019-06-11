@@ -1,8 +1,8 @@
 package proxy
 
 import (
-	"github.com/modprox/mp/proxy/config"
-	"github.com/modprox/mp/proxy/internal/service"
+	"oss.indeed.com/go/modprox/proxy/config"
+	"oss.indeed.com/go/modprox/proxy/internal/service"
 )
 
 // Start a proxy service instance parameterized by the given Configuration.

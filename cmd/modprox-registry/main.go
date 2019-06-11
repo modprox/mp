@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/modprox/mp/pkg/configutil"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/registry"
-	"github.com/modprox/mp/registry/config"
+	"oss.indeed.com/go/modprox/pkg/configutil"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/registry"
+	"oss.indeed.com/go/modprox/registry/config"
 )
 
 // generate webpage statics

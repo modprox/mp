@@ -6,12 +6,12 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 
-	"github.com/modprox/mp/pkg/clients/payloads"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/proxy/config"
-	"github.com/modprox/mp/registry/internal/data"
+	"oss.indeed.com/go/modprox/pkg/clients/payloads"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/proxy/config"
+	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
 type startupHandler struct {

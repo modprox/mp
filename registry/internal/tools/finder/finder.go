@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/modprox/mp/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/loggy"
 
 	"github.com/pkg/errors"
 )

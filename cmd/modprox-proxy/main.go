@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/modprox/mp/pkg/configutil"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/proxy"
-	"github.com/modprox/mp/proxy/config"
+	"oss.indeed.com/go/modprox/pkg/configutil"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/proxy"
+	"oss.indeed.com/go/modprox/proxy/config"
 )
 
 func main() {

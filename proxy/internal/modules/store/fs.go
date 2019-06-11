@@ -10,10 +10,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/shoenig/atomicfs"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/pkg/repository"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/repository"
 )
 
 const (

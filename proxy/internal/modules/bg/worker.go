@@ -5,13 +5,13 @@ import (
 
 	"github.com/shoenig/toolkit"
 
-	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/proxy/internal/modules/get"
-	"github.com/modprox/mp/proxy/internal/modules/store"
-	"github.com/modprox/mp/proxy/internal/problems"
+	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/get"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/proxy/internal/problems"
 )
 
 type Options struct {

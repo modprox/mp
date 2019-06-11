@@ -5,12 +5,12 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/modprox/mp/pkg/clients/payloads"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/proxy/config"
-	"github.com/modprox/mp/registry/internal/data"
-	"github.com/modprox/mp/registry/static"
+	"oss.indeed.com/go/modprox/pkg/clients/payloads"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/proxy/config"
+	"oss.indeed.com/go/modprox/registry/internal/data"
+	"oss.indeed.com/go/modprox/registry/static"
 )
 
 type ProxyState struct {

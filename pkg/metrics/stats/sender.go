@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/modprox/mp/pkg/since"
+	"oss.indeed.com/go/modprox/pkg/since"
 
 	"github.com/cactus/go-statsd-client/statsd"
 )

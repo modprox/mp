@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/modprox/mp/pkg/clients/payloads"
-	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/registry/internal/data/datatest"
+	"oss.indeed.com/go/modprox/pkg/clients/payloads"
+	"oss.indeed.com/go/modprox/pkg/netservice"
+	"oss.indeed.com/go/modprox/registry/internal/data/datatest"
 
 	"github.com/stretchr/testify/require"
 )

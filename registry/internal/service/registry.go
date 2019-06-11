@@ -3,10 +3,10 @@ package service
 import (
 	"os"
 
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/registry/config"
-	"github.com/modprox/mp/registry/internal/data"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/registry/config"
+	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
 type Registry struct {
