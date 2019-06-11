@@ -13,9 +13,9 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/repository"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/repository"
 )
 
 // Ranges is an alias of coordinates.RangeIDs for brevity.
@@ -24,7 +24,7 @@ type Ranges = coordinates.RangeIDs
 // Range is an alias of coordinates.RangeID for brevity.
 type Range = coordinates.RangeID
 
-//go:generate mockery3 -interface=Index -package=storetest
+//go:generate minimock -g -i Index -s _mock.go
 
 // The Index is used to provide:
 //  - .mod file content

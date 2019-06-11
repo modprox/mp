@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
 
 	"github.com/stretchr/testify/require"
 )

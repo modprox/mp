@@ -3,12 +3,12 @@ package heartbeat
 import (
 	"time"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 
 	"github.com/shoenig/toolkit"
 
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/proxy/internal/modules/store"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 )
 
 type PokeLooper interface {

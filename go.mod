@@ -1,9 +1,10 @@
-module github.com/modprox/mp
+module oss.indeed.com/go/modprox
 
 require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/cactus/go-statsd-client v3.1.1+incompatible
 	github.com/go-sql-driver/mysql v1.4.0
+	github.com/gojuno/minimock v0.0.0-20190530135557-e3ffc7a8c3f4
 	github.com/gorilla/csrf v1.5.1
 	github.com/gorilla/mux v1.6.2
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3

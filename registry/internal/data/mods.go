@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/modprox/mp/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"github.com/pkg/errors"
 )
 

@@ -8,12 +8,12 @@ import (
 
 	"github.com/gorilla/csrf"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/pkg/repository"
-	"github.com/modprox/mp/registry/internal/data"
-	"github.com/modprox/mp/registry/static"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/repository"
+	"oss.indeed.com/go/modprox/registry/internal/data"
+	"oss.indeed.com/go/modprox/registry/static"
 )
 
 type newPage struct {

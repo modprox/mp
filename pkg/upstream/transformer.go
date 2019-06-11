@@ -8,11 +8,11 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
 )
 
-//go:generate mockery3 --interface Resolver --package upstreamtest
+//go:generate minimock -g -i Resolver -s _mock.go
 
 // A Resolver is able to turn the globally unique identifier of
 // a Go module (which includes a Source and a Version) and applies

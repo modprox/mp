@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/modprox/mp/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/loggy"
 
 	"github.com/pkg/errors"
 )
@@ -29,14 +29,14 @@ type Tag struct {
 	Commit string
 }
 
-//go:generate mockery3 -interface=Versions -package=findertest
+//go:generate minimock -g -i Versions -s _mock.go
 
 type Versions interface {
 	// Request the list of semver tags set in the source git repository.
 	Request(source string) (*Result, error)
 }
 
-//go:generate mockery3 -interface=Finder -package=findertest
+//go:generate minimock -g -i Finder -s _mock.go
 
 type Finder interface {
 	// Find returns the special form module name for the latest commit,

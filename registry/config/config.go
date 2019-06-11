@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/modprox/mp/pkg/configutil"
-	"github.com/modprox/mp/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/configutil"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 
 	"github.com/pkg/errors"
 )

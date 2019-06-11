@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/modprox/mp/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
 type Range = coordinates.RangeID

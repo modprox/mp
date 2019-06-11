@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/modprox/mp/pkg/configutil"
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/pkg/netservice"
+	"oss.indeed.com/go/modprox/pkg/configutil"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/netservice"
 )
 
 type Configuration struct {

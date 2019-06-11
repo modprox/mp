@@ -1,11 +1,11 @@
 package store
 
 import (
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/repository"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/repository"
 )
 
-//go:generate mockery3 -interface=ZipStore -package=storetest
+//go:generate minimock -g -i ZipStore -s _mock.go
 
 type ZipStore interface {
 	PutZip(coordinates.Module, repository.Blob) error

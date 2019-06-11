@@ -5,22 +5,22 @@ import (
 	"testing"
 	"time"
 
-	"github.com/modprox/mp/pkg/clients/payloads"
-	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/mp/registry/internal/data/datatest"
-
 	"github.com/stretchr/testify/require"
+
+	"oss.indeed.com/go/modprox/pkg/clients/payloads"
+	"oss.indeed.com/go/modprox/pkg/netservice"
+	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
 func Test_Prune(t *testing.T) {
-	store := &datatest.Store{}
-	defer store.AssertExpectations(t)
+	store := data.NewStoreMock(t)
+	defer store.MinimockFinish()
 
 	now := time.Date(2018, 9, 27, 14, 48, 0, 0, time.UTC)
 	oneMinuteAgo := now.Add(-1 * time.Minute)
 	oneHourAgo := now.Add(-1 * time.Hour)
 
-	store.On("ListHeartbeats").Return(
+	store.ListHeartbeatsMock.Return(
 		[]payloads.Heartbeat{
 			{
 				Self: netservice.Instance{
@@ -37,13 +37,13 @@ func Test_Prune(t *testing.T) {
 				Timestamp: int(oneHourAgo.Unix()),
 			},
 		}, nil,
-	).Once()
+	)
 
 	// should only purge 2.2.2.2
-	store.On("PurgeProxy", netservice.Instance{
+	store.PurgeProxyMock.When(netservice.Instance{
 		Address: "2.2.2.2",
 		Port:    34567,
-	}).Return(nil).Once()
+	}).Then(nil)
 
 	p := NewPruner(3*time.Minute, store)
 
@@ -52,14 +52,12 @@ func Test_Prune(t *testing.T) {
 }
 
 func Test_Prune_list_fail(t *testing.T) {
-	store := &datatest.Store{}
-	defer store.AssertExpectations(t)
+	store := data.NewStoreMock(t)
+	defer store.MinimockFinish()
 
 	now := time.Date(2018, 9, 27, 14, 48, 0, 0, time.UTC)
 
-	store.On("ListHeartbeats").Return(
-		[]payloads.Heartbeat{}, errors.New("db list fail"),
-	).Once()
+	store.ListHeartbeatsMock.Return([]payloads.Heartbeat{}, errors.New("db list fail"))
 
 	p := NewPruner(3*time.Minute, store)
 
@@ -68,14 +66,14 @@ func Test_Prune_list_fail(t *testing.T) {
 }
 
 func Test_Prune_purge_fail(t *testing.T) {
-	store := &datatest.Store{}
-	defer store.AssertExpectations(t)
+	store := data.NewStoreMock(t)
+	defer store.MinimockFinish()
 
 	now := time.Date(2018, 9, 27, 14, 48, 0, 0, time.UTC)
 	oneMinuteAgo := now.Add(-1 * time.Minute)
 	oneHourAgo := now.Add(-1 * time.Hour)
 
-	store.On("ListHeartbeats").Return(
+	store.ListHeartbeatsMock.Return(
 		[]payloads.Heartbeat{
 			{
 				Self: netservice.Instance{
@@ -92,13 +90,13 @@ func Test_Prune_purge_fail(t *testing.T) {
 				Timestamp: int(oneHourAgo.Unix()),
 			},
 		}, nil,
-	).Once()
+	)
 
 	// should only purge 2.2.2.2
-	store.On("PurgeProxy", netservice.Instance{
+	store.PurgeProxyMock.When(netservice.Instance{
 		Address: "2.2.2.2",
 		Port:    34567,
-	}).Return(errors.New("db purge fail")).Once()
+	}).Then(errors.New("db purge fail"))
 
 	p := NewPruner(3*time.Minute, store)
 

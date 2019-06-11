@@ -4,29 +4,30 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/modprox/mp/pkg/metrics/stats"
-	"github.com/modprox/mp/registry/internal/data/datatest"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
 type mocks struct {
-	store *datatest.Store
+	store *data.StoreMock
 }
 
-func newMocks() mocks {
+func newMocks(t *testing.T) mocks {
 	return mocks{
-		store: &datatest.Store{},
+		store: data.NewStoreMock(t),
 	}
 }
 
-func (m mocks) assertions(t *testing.T) {
-	m.store.AssertExpectations(t)
+func (m mocks) assertions() {
+	m.store.MinimockFinish()
 }
 
 func makeRouter(t *testing.T) (http.Handler, mocks) {
-	// emitter := &statstest.Sender{}
+	// emitter := &statstest.Sender{} no testing this?
+
 	emitter := stats.Discard()
 
-	mocks := newMocks()
+	mocks := newMocks(t)
 
 	router := NewRouter(nil, nil, mocks.store, emitter)
 	return router, mocks

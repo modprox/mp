@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/modprox/mp/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
 
 	"github.com/stretchr/testify/require"
 )

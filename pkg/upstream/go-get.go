@@ -3,7 +3,7 @@ package upstream
 import (
 	"bufio"
 	"fmt"
-	"github.com/modprox/mp/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/loggy"
 	"io/ioutil"
 	"net/http"
 	"regexp"

@@ -5,11 +5,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/loggy"
 )
 
-//go:generate mockery3 -interface Tracker -package problemstest
+//go:generate minimock -g -i Tracker -s _mock.go
 
 type Tracker interface {
 	Set(Problem)

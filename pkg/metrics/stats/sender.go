@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/modprox/mp/pkg/since"
+	"oss.indeed.com/go/modprox/pkg/since"
 
 	"github.com/cactus/go-statsd-client/statsd"
 )
@@ -20,7 +20,7 @@ const (
 	Registry Service = "modprox-registry"
 )
 
-//go:generate mockery3 -interface Sender -package statstest
+//go:generate minimock -g -i Sender -s _mock.go
 
 // A Sender is used to emit statsd type metrics.
 type Sender interface {

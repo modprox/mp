@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/modprox/mp/pkg/netservice"
+	"oss.indeed.com/go/modprox/pkg/netservice"
 )
 
 type instance = netservice.Instance

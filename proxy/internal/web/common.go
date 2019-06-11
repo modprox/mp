@@ -3,8 +3,8 @@ package web
 import (
 	"strings"
 
-	"github.com/modprox/mp/pkg/coordinates"
-	"github.com/modprox/mp/pkg/repository"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/repository"
 )
 
 // GET baseURL/module/@v/list fetches a list of all known versions, one per line.

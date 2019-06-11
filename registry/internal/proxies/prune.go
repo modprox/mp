@@ -3,11 +3,11 @@ package proxies
 import (
 	"time"
 
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/registry/internal/data"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
-//go:generate mockery3 -interface=Pruner -package=proxiestest
+//go:generate minimock -g -i Pruner -s _mock.go
 
 type Pruner interface {
 	Prune(time.Time) error
