@@ -198,7 +198,7 @@ golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e
 google.golang.org/appengine v1.1.0 `
 
 const goModFile = `
-module github.com/modprox/taggit
+module oss.indeed.com/go/taggit
 
 require (
 	github.com/modprox/mp v0.0.5

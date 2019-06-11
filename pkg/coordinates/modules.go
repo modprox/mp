@@ -3,7 +3,7 @@ package coordinates
 import (
 	"fmt"
 
-	"github.com/modprox/taggit/tags"
+	"oss.indeed.com/go/taggit/tags"
 )
 
 type Module struct {
