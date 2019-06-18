@@ -34,6 +34,11 @@ func Test_Parse(t *testing.T) {
 		Source:  "github.com/cpuguy83/go-md2man",
 		Version: "v1.0.6",
 	}, false)
+
+	try("/github.com/cpuguy83/go-md2man/@v/v1.0.6.rm", coordinates.Module{
+		Source:  "github.com/cpuguy83/go-md2man",
+		Version: "v1.0.6",
+	}, false)
 }
 
 // http://localhost:9000/gopkg.in/check.v1/@v/v0.0.0-20161208181325-20d25e280405.info
