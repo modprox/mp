@@ -28,6 +28,7 @@ type Proxy struct {
 	bgWorker       bg.Worker
 	dlTracker      problems.Tracker
 	log            loggy.Logger
+	history        string
 }
 
 func NewProxy(configuration config.Configuration) *Proxy {
@@ -46,6 +47,7 @@ func NewProxy(configuration config.Configuration) *Proxy {
 		initBGWorker,
 		initHeartbeatSender,
 		initStartupConfigSender,
+		initHistory,
 		initWebServer,
 	} {
 		if err := f(p); err != nil {

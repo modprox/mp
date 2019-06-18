@@ -197,7 +197,11 @@ func (m *ResolverMock) MinimockResolveInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.ResolveMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterResolveCounter) < 1 {
-		m.t.Errorf("Expected call to ResolverMock.Resolve with params: %#v", *m.ResolveMock.defaultExpectation.params)
+		if m.ResolveMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ResolverMock.Resolve")
+		} else {
+			m.t.Errorf("Expected call to ResolverMock.Resolve with params: %#v", *m.ResolveMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcResolve != nil && mm_atomic.LoadUint64(&m.afterResolveCounter) < 1 {

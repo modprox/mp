@@ -209,7 +209,11 @@ func (m *ZipStoreMock) MinimockDelZipInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.DelZipMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDelZipCounter) < 1 {
-		m.t.Errorf("Expected call to ZipStoreMock.DelZip with params: %#v", *m.DelZipMock.defaultExpectation.params)
+		if m.DelZipMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ZipStoreMock.DelZip")
+		} else {
+			m.t.Errorf("Expected call to ZipStoreMock.DelZip with params: %#v", *m.DelZipMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcDelZip != nil && mm_atomic.LoadUint64(&m.afterDelZipCounter) < 1 {
@@ -383,7 +387,11 @@ func (m *ZipStoreMock) MinimockGetZipInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.GetZipMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetZipCounter) < 1 {
-		m.t.Errorf("Expected call to ZipStoreMock.GetZip with params: %#v", *m.GetZipMock.defaultExpectation.params)
+		if m.GetZipMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ZipStoreMock.GetZip")
+		} else {
+			m.t.Errorf("Expected call to ZipStoreMock.GetZip with params: %#v", *m.GetZipMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcGetZip != nil && mm_atomic.LoadUint64(&m.afterGetZipCounter) < 1 {
@@ -557,7 +565,11 @@ func (m *ZipStoreMock) MinimockPutZipInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.PutZipMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterPutZipCounter) < 1 {
-		m.t.Errorf("Expected call to ZipStoreMock.PutZip with params: %#v", *m.PutZipMock.defaultExpectation.params)
+		if m.PutZipMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ZipStoreMock.PutZip")
+		} else {
+			m.t.Errorf("Expected call to ZipStoreMock.PutZip with params: %#v", *m.PutZipMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcPutZip != nil && mm_atomic.LoadUint64(&m.afterPutZipCounter) < 1 {

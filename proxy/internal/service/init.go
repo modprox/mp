@@ -5,17 +5,17 @@ import (
 	"os"
 	"time"
 
-	"oss.indeed.com/go/modprox/proxy/internal/modules/bg"
-
 	"github.com/pkg/errors"
 
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
 	"oss.indeed.com/go/modprox/pkg/clients/registry"
 	"oss.indeed.com/go/modprox/pkg/clients/zips"
+	"oss.indeed.com/go/modprox/pkg/history"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/netservice"
 	"oss.indeed.com/go/modprox/pkg/upstream"
 	"oss.indeed.com/go/modprox/pkg/webutil"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/bg"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/get"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 	"oss.indeed.com/go/modprox/proxy/internal/problems"
@@ -258,6 +258,7 @@ func initWebServer(p *Proxy) error {
 		p.store,
 		p.emitter,
 		p.dlTracker,
+		p.history,
 	)
 
 	server, err := p.config.APIServer.Server(mux)
@@ -280,5 +281,15 @@ func initWebServer(p *Proxy) error {
 		os.Exit(1)
 	}(mux)
 
+	return nil
+}
+
+func initHistory(p *Proxy) error {
+	historyBytes, err := history.Asset("history.txt")
+	if err != nil {
+		return err
+	}
+
+	p.history = string(historyBytes)
 	return nil
 }

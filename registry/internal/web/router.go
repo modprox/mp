@@ -3,11 +3,10 @@ package web
 import (
 	"net/http"
 
-	"oss.indeed.com/go/modprox/pkg/metrics/stats"
-
 	"github.com/gorilla/mux"
-	"github.com/shoenig/petrify/v4"
+	petrify "github.com/shoenig/petrify/v4"
 
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/webutil"
 	"oss.indeed.com/go/modprox/registry/internal/data"
 	"oss.indeed.com/go/modprox/registry/static"
@@ -23,6 +22,7 @@ func NewRouter(
 	middleUI []webutil.Middleware,
 	store data.Store,
 	emitter stats.Sender,
+	history string,
 ) http.Handler {
 
 	// 1) a router onto which sub-routers will be mounted
@@ -40,7 +40,7 @@ func NewRouter(
 	router.Handle("/v1/", routeAPI(middleAPI, store, emitter))
 
 	// 4) a webUI handler, is CSRF protected
-	router.Handle("/", routeWebUI(middleUI, store, emitter))
+	router.Handle("/", routeWebUI(middleUI, store, emitter, history))
 
 	return router
 }
@@ -61,7 +61,7 @@ func routeAPI(middles []webutil.Middleware, store data.Store, emitter stats.Send
 	return webutil.Chain(sub, middles...)
 }
 
-func routeWebUI(middles []webutil.Middleware, store data.Store, emitter stats.Sender) http.Handler {
+func routeWebUI(middles []webutil.Middleware, store data.Store, emitter stats.Sender, history string) http.Handler {
 	sub := mux.NewRouter()
 	sub.Handle("/mods/new", newAddHandler(store, emitter)).Methods(get, post)
 	sub.Handle("/mods/list", newModsListHandler(store, emitter)).Methods(get)
@@ -69,6 +69,7 @@ func routeWebUI(middles []webutil.Middleware, store data.Store, emitter stats.Se
 	sub.Handle("/mods/find", newFindHandler(emitter)).Methods(get, post)
 	sub.Handle("/configure/about", newAboutHandler(emitter)).Methods(get)
 	sub.Handle("/configure/blocks", newBlocksHandler(emitter)).Methods(get)
+	sub.Handle("/history", newHistoryHandler(emitter, history)).Methods(get)
 	sub.Handle("/", newHomeHandler(store, emitter)).Methods(get, post)
 	return webutil.Chain(sub, middles...)
 }
