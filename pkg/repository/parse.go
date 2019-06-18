@@ -30,6 +30,7 @@ func Parse(s string) (coordinates.Module, error) {
 	s = strings.TrimSuffix(s, ".info")
 	s = strings.TrimSuffix(s, ".zip")
 	s = strings.TrimSuffix(s, ".mod")
+	s = strings.TrimSuffix(s, ".rm")
 	s = strings.Replace(s, "/@v/", " ", -1) // in web handlers
 	s = strings.Replace(s, "@v", " v", -1)  // pasted from logs
 

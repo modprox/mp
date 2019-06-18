@@ -5,6 +5,7 @@ Version 0.1.2
 -------------
 
 https://github.com/modprox/mp/issues/136: Add /history endpoint
+https://github.com/modprox/mp/issues/137: fix .rm suffix
 
 
 Version 0.1.1
