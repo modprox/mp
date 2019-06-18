@@ -203,7 +203,11 @@ func (m *ClientMock) MinimockGetInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.GetMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGetCounter) < 1 {
-		m.t.Errorf("Expected call to ClientMock.Get with params: %#v", *m.GetMock.defaultExpectation.params)
+		if m.GetMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ClientMock.Get")
+		} else {
+			m.t.Errorf("Expected call to ClientMock.Get with params: %#v", *m.GetMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcGet != nil && mm_atomic.LoadUint64(&m.afterGetCounter) < 1 {
@@ -378,7 +382,11 @@ func (m *ClientMock) MinimockPostInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.PostMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterPostCounter) < 1 {
-		m.t.Errorf("Expected call to ClientMock.Post with params: %#v", *m.PostMock.defaultExpectation.params)
+		if m.PostMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ClientMock.Post")
+		} else {
+			m.t.Errorf("Expected call to ClientMock.Post with params: %#v", *m.PostMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcPost != nil && mm_atomic.LoadUint64(&m.afterPostCounter) < 1 {

@@ -1,0 +1,14 @@
+Change history
+==============
+
+Version 0.1.2
+-------------
+
+https://github.com/modprox/mp/issues/136: Add /history endpoint
+
+
+Version 0.1.1
+-------------
+
+https://github.com/modprox/mp/issues/122: proxy does not handle modules using v2 directory convention
+

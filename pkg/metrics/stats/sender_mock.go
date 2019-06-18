@@ -181,7 +181,11 @@ func (m *SenderMock) MinimockCountInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.CountMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterCountCounter) < 1 {
-		m.t.Errorf("Expected call to SenderMock.Count with params: %#v", *m.CountMock.defaultExpectation.params)
+		if m.CountMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to SenderMock.Count")
+		} else {
+			m.t.Errorf("Expected call to SenderMock.Count with params: %#v", *m.CountMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcCount != nil && mm_atomic.LoadUint64(&m.afterCountCounter) < 1 {
@@ -327,7 +331,11 @@ func (m *SenderMock) MinimockGaugeInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.GaugeMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGaugeCounter) < 1 {
-		m.t.Errorf("Expected call to SenderMock.Gauge with params: %#v", *m.GaugeMock.defaultExpectation.params)
+		if m.GaugeMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to SenderMock.Gauge")
+		} else {
+			m.t.Errorf("Expected call to SenderMock.Gauge with params: %#v", *m.GaugeMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcGauge != nil && mm_atomic.LoadUint64(&m.afterGaugeCounter) < 1 {
@@ -473,7 +481,11 @@ func (m *SenderMock) MinimockGaugeMSInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.GaugeMSMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterGaugeMSCounter) < 1 {
-		m.t.Errorf("Expected call to SenderMock.GaugeMS with params: %#v", *m.GaugeMSMock.defaultExpectation.params)
+		if m.GaugeMSMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to SenderMock.GaugeMS")
+		} else {
+			m.t.Errorf("Expected call to SenderMock.GaugeMS with params: %#v", *m.GaugeMSMock.defaultExpectation.params)
+		}
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcGaugeMS != nil && mm_atomic.LoadUint64(&m.afterGaugeMSCounter) < 1 {

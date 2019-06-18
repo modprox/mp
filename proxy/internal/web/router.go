@@ -26,6 +26,7 @@ func NewRouter(
 	store store.ZipStore,
 	emitter stats.Sender,
 	dlProblems problems.Tracker,
+	history string,
 ) http.Handler {
 
 	router := mux.NewRouter()
@@ -40,6 +41,9 @@ func NewRouter(
 	router.PathPrefix("/").Handler(modFile(index, emitter)).MatcherFunc(suffix(".mod")).Methods(get)
 	router.PathPrefix("/").Handler(modZip(store, emitter)).MatcherFunc(suffix(".zip")).Methods(get)
 	router.PathPrefix("/").Handler(modRM(index, store, emitter)).MatcherFunc(suffix(".rm")).Methods(post)
+
+	// metadata about this app
+	router.PathPrefix("/history").Handler(appHistory(emitter, history)).Methods(get)
 
 	// api operations
 	//

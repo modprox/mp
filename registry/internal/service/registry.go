@@ -14,6 +14,7 @@ type Registry struct {
 	store   data.Store
 	emitter stats.Sender
 	log     loggy.Logger
+	history string
 }
 
 func NewRegistry(config config.Configuration) *Registry {
@@ -26,6 +27,7 @@ func NewRegistry(config config.Configuration) *Registry {
 		initSender,
 		initStore,
 		initProxyPrune,
+		initHistory,
 		initWebServer,
 	} {
 		if err := f(r); err != nil {

@@ -5,12 +5,12 @@ import (
 	"os"
 	"time"
 
-	"oss.indeed.com/go/modprox/pkg/metrics/stats"
-
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"github.com/shoenig/toolkit"
 
+	"oss.indeed.com/go/modprox/pkg/history"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/webutil"
 	"oss.indeed.com/go/modprox/registry/internal/data"
 	"oss.indeed.com/go/modprox/registry/internal/proxies"
@@ -85,6 +85,7 @@ func initWebServer(r *Registry) error {
 		middleUI,
 		r.store,
 		r.emitter,
+		r.history,
 	)
 
 	server, err := r.config.WebServer.Server(mux)
@@ -108,5 +109,15 @@ func initWebServer(r *Registry) error {
 		os.Exit(1)
 	}(mux)
 
+	return nil
+}
+
+func initHistory(r *Registry) error {
+	historyBytes, err := history.Asset("history.txt")
+	if err != nil {
+		return err
+	}
+
+	r.history = string(historyBytes)
 	return nil
 }
