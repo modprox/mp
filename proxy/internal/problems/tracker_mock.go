@@ -209,11 +209,7 @@ func (m *TrackerMock) MinimockProblemInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.ProblemMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterProblemCounter) < 1 {
-		if m.ProblemMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to TrackerMock.Problem")
-		} else {
-			m.t.Errorf("Expected call to TrackerMock.Problem with params: %#v", *m.ProblemMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to TrackerMock.Problem with params: %#v", *m.ProblemMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcProblem != nil && mm_atomic.LoadUint64(&m.afterProblemCounter) < 1 {
@@ -486,11 +482,7 @@ func (m *TrackerMock) MinimockSetInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.SetMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSetCounter) < 1 {
-		if m.SetMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to TrackerMock.Set")
-		} else {
-			m.t.Errorf("Expected call to TrackerMock.Set with params: %#v", *m.SetMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to TrackerMock.Set with params: %#v", *m.SetMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcSet != nil && mm_atomic.LoadUint64(&m.afterSetCounter) < 1 {

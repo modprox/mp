@@ -258,11 +258,7 @@ func (m *StoreMock) MinimockDeleteModuleByIDInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.DeleteModuleByIDMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDeleteModuleByIDCounter) < 1 {
-		if m.DeleteModuleByIDMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to StoreMock.DeleteModuleByID")
-		} else {
-			m.t.Errorf("Expected call to StoreMock.DeleteModuleByID with params: %#v", *m.DeleteModuleByIDMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to StoreMock.DeleteModuleByID with params: %#v", *m.DeleteModuleByIDMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcDeleteModuleByID != nil && mm_atomic.LoadUint64(&m.afterDeleteModuleByIDCounter) < 1 {
@@ -436,11 +432,7 @@ func (m *StoreMock) MinimockInsertModulesInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.InsertModulesMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterInsertModulesCounter) < 1 {
-		if m.InsertModulesMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to StoreMock.InsertModules")
-		} else {
-			m.t.Errorf("Expected call to StoreMock.InsertModules with params: %#v", *m.InsertModulesMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to StoreMock.InsertModules with params: %#v", *m.InsertModulesMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcInsertModules != nil && mm_atomic.LoadUint64(&m.afterInsertModulesCounter) < 1 {
@@ -1001,11 +993,7 @@ func (m *StoreMock) MinimockListModulesByIDsInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.ListModulesByIDsMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterListModulesByIDsCounter) < 1 {
-		if m.ListModulesByIDsMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to StoreMock.ListModulesByIDs")
-		} else {
-			m.t.Errorf("Expected call to StoreMock.ListModulesByIDs with params: %#v", *m.ListModulesByIDsMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to StoreMock.ListModulesByIDs with params: %#v", *m.ListModulesByIDsMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcListModulesByIDs != nil && mm_atomic.LoadUint64(&m.afterListModulesByIDsCounter) < 1 {
@@ -1179,11 +1167,7 @@ func (m *StoreMock) MinimockListModulesBySourceInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.ListModulesBySourceMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterListModulesBySourceCounter) < 1 {
-		if m.ListModulesBySourceMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to StoreMock.ListModulesBySource")
-		} else {
-			m.t.Errorf("Expected call to StoreMock.ListModulesBySource with params: %#v", *m.ListModulesBySourceMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to StoreMock.ListModulesBySource with params: %#v", *m.ListModulesBySourceMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcListModulesBySource != nil && mm_atomic.LoadUint64(&m.afterListModulesBySourceCounter) < 1 {
@@ -1485,11 +1469,7 @@ func (m *StoreMock) MinimockPurgeProxyInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.PurgeProxyMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterPurgeProxyCounter) < 1 {
-		if m.PurgeProxyMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to StoreMock.PurgeProxy")
-		} else {
-			m.t.Errorf("Expected call to StoreMock.PurgeProxy with params: %#v", *m.PurgeProxyMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to StoreMock.PurgeProxy with params: %#v", *m.PurgeProxyMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcPurgeProxy != nil && mm_atomic.LoadUint64(&m.afterPurgeProxyCounter) < 1 {
@@ -1662,11 +1642,7 @@ func (m *StoreMock) MinimockSetHeartbeatInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.SetHeartbeatMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSetHeartbeatCounter) < 1 {
-		if m.SetHeartbeatMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to StoreMock.SetHeartbeat")
-		} else {
-			m.t.Errorf("Expected call to StoreMock.SetHeartbeat with params: %#v", *m.SetHeartbeatMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to StoreMock.SetHeartbeat with params: %#v", *m.SetHeartbeatMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcSetHeartbeat != nil && mm_atomic.LoadUint64(&m.afterSetHeartbeatCounter) < 1 {
@@ -1839,11 +1815,7 @@ func (m *StoreMock) MinimockSetStartConfigInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.SetStartConfigMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterSetStartConfigCounter) < 1 {
-		if m.SetStartConfigMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to StoreMock.SetStartConfig")
-		} else {
-			m.t.Errorf("Expected call to StoreMock.SetStartConfig with params: %#v", *m.SetStartConfigMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to StoreMock.SetStartConfig with params: %#v", *m.SetStartConfigMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcSetStartConfig != nil && mm_atomic.LoadUint64(&m.afterSetStartConfigCounter) < 1 {

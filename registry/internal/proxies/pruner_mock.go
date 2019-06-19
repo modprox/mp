@@ -196,11 +196,7 @@ func (m *PrunerMock) MinimockPruneInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.PruneMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterPruneCounter) < 1 {
-		if m.PruneMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to PrunerMock.Prune")
-		} else {
-			m.t.Errorf("Expected call to PrunerMock.Prune with params: %#v", *m.PruneMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to PrunerMock.Prune with params: %#v", *m.PruneMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcPrune != nil && mm_atomic.LoadUint64(&m.afterPruneCounter) < 1 {

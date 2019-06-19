@@ -196,11 +196,7 @@ func (m *DownloaderMock) MinimockDownloadInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.DownloadMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterDownloadCounter) < 1 {
-		if m.DownloadMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to DownloaderMock.Download")
-		} else {
-			m.t.Errorf("Expected call to DownloaderMock.Download with params: %#v", *m.DownloadMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to DownloaderMock.Download with params: %#v", *m.DownloadMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcDownload != nil && mm_atomic.LoadUint64(&m.afterDownloadCounter) < 1 {

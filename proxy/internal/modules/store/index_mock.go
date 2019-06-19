@@ -247,11 +247,7 @@ func (m *IndexMock) MinimockContainsInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.ContainsMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterContainsCounter) < 1 {
-		if m.ContainsMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to IndexMock.Contains")
-		} else {
-			m.t.Errorf("Expected call to IndexMock.Contains with params: %#v", *m.ContainsMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to IndexMock.Contains with params: %#v", *m.ContainsMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcContains != nil && mm_atomic.LoadUint64(&m.afterContainsCounter) < 1 {
@@ -554,11 +550,7 @@ func (m *IndexMock) MinimockInfoInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.InfoMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterInfoCounter) < 1 {
-		if m.InfoMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to IndexMock.Info")
-		} else {
-			m.t.Errorf("Expected call to IndexMock.Info with params: %#v", *m.InfoMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to IndexMock.Info with params: %#v", *m.InfoMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcInfo != nil && mm_atomic.LoadUint64(&m.afterInfoCounter) < 1 {
@@ -732,11 +724,7 @@ func (m *IndexMock) MinimockModInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.ModMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterModCounter) < 1 {
-		if m.ModMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to IndexMock.Mod")
-		} else {
-			m.t.Errorf("Expected call to IndexMock.Mod with params: %#v", *m.ModMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to IndexMock.Mod with params: %#v", *m.ModMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcMod != nil && mm_atomic.LoadUint64(&m.afterModCounter) < 1 {
@@ -909,11 +897,7 @@ func (m *IndexMock) MinimockPutInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.PutMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterPutCounter) < 1 {
-		if m.PutMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to IndexMock.Put")
-		} else {
-			m.t.Errorf("Expected call to IndexMock.Put with params: %#v", *m.PutMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to IndexMock.Put with params: %#v", *m.PutMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcPut != nil && mm_atomic.LoadUint64(&m.afterPutCounter) < 1 {
@@ -1086,11 +1070,7 @@ func (m *IndexMock) MinimockRemoveInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.RemoveMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRemoveCounter) < 1 {
-		if m.RemoveMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to IndexMock.Remove")
-		} else {
-			m.t.Errorf("Expected call to IndexMock.Remove with params: %#v", *m.RemoveMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to IndexMock.Remove with params: %#v", *m.RemoveMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcRemove != nil && mm_atomic.LoadUint64(&m.afterRemoveCounter) < 1 {
@@ -1393,11 +1373,7 @@ func (m *IndexMock) MinimockUpdateIDInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.UpdateIDMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterUpdateIDCounter) < 1 {
-		if m.UpdateIDMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to IndexMock.UpdateID")
-		} else {
-			m.t.Errorf("Expected call to IndexMock.UpdateID with params: %#v", *m.UpdateIDMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to IndexMock.UpdateID with params: %#v", *m.UpdateIDMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcUpdateID != nil && mm_atomic.LoadUint64(&m.afterUpdateIDCounter) < 1 {
@@ -1571,11 +1547,7 @@ func (m *IndexMock) MinimockVersionsInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.VersionsMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterVersionsCounter) < 1 {
-		if m.VersionsMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to IndexMock.Versions")
-		} else {
-			m.t.Errorf("Expected call to IndexMock.Versions with params: %#v", *m.VersionsMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to IndexMock.Versions with params: %#v", *m.VersionsMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcVersions != nil && mm_atomic.LoadUint64(&m.afterVersionsCounter) < 1 {

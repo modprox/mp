@@ -196,11 +196,7 @@ func (m *VersionsMock) MinimockRequestInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.RequestMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterRequestCounter) < 1 {
-		if m.RequestMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to VersionsMock.Request")
-		} else {
-			m.t.Errorf("Expected call to VersionsMock.Request with params: %#v", *m.RequestMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to VersionsMock.Request with params: %#v", *m.RequestMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcRequest != nil && mm_atomic.LoadUint64(&m.afterRequestCounter) < 1 {

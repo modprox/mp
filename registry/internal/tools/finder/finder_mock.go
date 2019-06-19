@@ -196,11 +196,7 @@ func (m *FinderMock) MinimockFindInspect() {
 
 	// if default expectation was set then invocations count should be greater than zero
 	if m.FindMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterFindCounter) < 1 {
-		if m.FindMock.defaultExpectation.params == nil {
-			m.t.Error("Expected call to FinderMock.Find")
-		} else {
-			m.t.Errorf("Expected call to FinderMock.Find with params: %#v", *m.FindMock.defaultExpectation.params)
-		}
+		m.t.Errorf("Expected call to FinderMock.Find with params: %#v", *m.FindMock.defaultExpectation.params)
 	}
 	// if func was set then invocations count should be greater than zero
 	if m.funcFind != nil && mm_atomic.LoadUint64(&m.afterFindCounter) < 1 {
