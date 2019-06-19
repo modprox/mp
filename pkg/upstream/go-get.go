@@ -8,10 +8,10 @@ import (
 	"regexp"
 	"strings"
 
-	"oss.indeed.com/go/modprox/pkg/loggy"
-
 	"github.com/pkg/errors"
 	"github.com/shoenig/httplus/responses"
+
+	"oss.indeed.com/go/modprox/pkg/loggy"
 )
 
 var maxLoggedBody = 500
