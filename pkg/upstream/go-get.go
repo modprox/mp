@@ -3,15 +3,18 @@ package upstream
 import (
 	"bufio"
 	"fmt"
-	"oss.indeed.com/go/modprox/pkg/loggy"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
 
+	"oss.indeed.com/go/modprox/pkg/loggy"
+
 	"github.com/pkg/errors"
 	"github.com/shoenig/httplus/responses"
 )
+
+var maxLoggedBody = 500
 
 type goGetMeta struct {
 	transport string
@@ -43,7 +46,11 @@ func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
 
 	if code >= 400 {
 		t.log.Errorf("failed to do go-get redirect, received code %d from %s", code, uri)
-		t.log.Errorf("response body: %s", body)
+		if len(body) <= maxLoggedBody {
+			t.log.Errorf("response body: %s", body)
+		} else {
+			t.log.Errorf("response body: %s...", body[:maxLoggedBody])
+		}
 		return meta, errors.Errorf("bad response code (%d) from %s", code, uri)
 	}
 
@@ -52,7 +59,7 @@ func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
 
 var (
 	sourceRe = regexp.MustCompile(`(http[s]?)://([\w-.]+)/([\w-./]+)`)
-	log = loggy.New("go-get")
+	log      = loggy.New("go-get")
 )
 
 // gives us transport, domain, path

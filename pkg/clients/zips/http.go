@@ -13,6 +13,8 @@ import (
 	"oss.indeed.com/go/modprox/pkg/upstream"
 )
 
+var maxLoggedBody = 500
+
 type httpClient struct {
 	client  *http.Client
 	options HTTPOptions
@@ -70,11 +72,20 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 				response.StatusCode,
 			)
 		}
-		c.log.Errorf(
-			"bad response (%d), body: %s",
-			response.StatusCode,
-			string(bs),
-		)
+		body := string(bs)
+		if len(body) <= maxLoggedBody {
+			c.log.Errorf(
+				"bad response (%d), body: %s",
+				response.StatusCode,
+				body,
+			)
+		} else {
+			c.log.Errorf(
+				"bad response (%d), body: %s...",
+				response.StatusCode,
+				body[:maxLoggedBody],
+			)
+		}
 		return nil, errors.Wrapf(
 			err,
 			"unexpected response (%d)",
