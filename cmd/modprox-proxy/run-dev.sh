@@ -1,8 +1,8 @@
 #!/bin/bash
 
 set -euo pipefail
+set -x
 
-go clean
 go generate
 go build
 

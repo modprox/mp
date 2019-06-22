@@ -23,7 +23,7 @@ extensive documentation on [modprox.org](https://modprox.org/#starting)
 #### Hacking on the Registry
 
 The registry needs a persistent store, and for local development we have a docker image
-with PostgreSQL setup to automatically create tables and users. To make things super simple, in
+with Mysql setup to automatically create tables and users. To make things super simple, in
 the `hack/` directory there is a `docker-compose` file already configured to setup the basic
 containers needed for local developemnt. Simply run
 ```bash
@@ -44,11 +44,25 @@ modprox-postgres | 2018-09-11 02:19:14.381 UTC [1] LOG:  database system is read
 ```
 
 Also in the `hack/` directory are some sample configuration files. By default, the included `run-dev.sh`
-script will use the `hack/configs/registry-local.postgres.json` file, which works well with the included
+script will use the `hack/configs/registry-local.mysql.json` file, which works well with the included
 `docker-compose.yaml` file.
 
 #### Hacking on the Proxy
 
-The proxy component is more simple than the registry in that it does not connect to anything (other than the registry
-itself). It does however maintain its data-store of downloaded modules on disk, and by default it saves modules in the `/tmp`
-directory.
+The proxy component is more simple than the registry in that, by default, it does not connect to anything (other than the registry
+itself). 
+
+By default, it maintains its data-store of downloaded modules on disk, and saves modules in the `/tmp` directory (configurable).
+
+Alternatively, it can be configured to save persist downloaded modules to mysql. You'll need to add a stanza to the json config file, similar to the following:
+```json
+  "module_db_storage": {
+    "mysql": {
+      "user": "docker",
+      "password": "docker",
+      "address": "localhost:3306",
+      "database": "modproxdb-prox",
+      "allow_native_passwords": true
+    }
+  }
+```

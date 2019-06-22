@@ -6,17 +6,19 @@ import (
 	"net/http"
 	"time"
 
+	"oss.indeed.com/go/modprox/pkg/config"
 	"oss.indeed.com/go/modprox/pkg/configutil"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/netservice"
 )
 
 type Configuration struct {
-	APIServer     APIServer    `json:"api_server"`
-	Registry      Registry     `json:"registry"`
-	Statsd        stats.Statsd `json:"statsd"`
-	ModuleStorage Storage      `json:"module_storage"`
-	Transforms    Transforms   `json:"transforms"`
+	APIServer       APIServer               `json:"api_server"`
+	Registry        Registry                `json:"registry"`
+	Statsd          stats.Statsd            `json:"statsd"`
+	ModuleStorage   *Storage                `json:"module_storage,omitempty"`
+	ModuleDBStorage *config.PersistentStore `json:"module_db_storage,omitempty"`
+	Transforms      Transforms              `json:"transforms"`
 }
 
 func (c Configuration) String() string {

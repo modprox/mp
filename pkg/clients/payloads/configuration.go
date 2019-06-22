@@ -5,6 +5,7 @@ import (
 
 	"github.com/jinzhu/copier"
 
+	cfg "oss.indeed.com/go/modprox/pkg/config"
 	"oss.indeed.com/go/modprox/pkg/netservice"
 	"oss.indeed.com/go/modprox/proxy/config"
 )
@@ -14,6 +15,7 @@ import (
 type Configuration struct {
 	Self       netservice.Instance `json:"self"`
 	Storage    config.Storage      `json:"storage"`
+	DBStorage  cfg.PersistentStore `json:"db_storage"`
 	Registry   config.Registry     `json:"registry"`
 	Transforms config.Transforms   `json:"transforms"`
 }

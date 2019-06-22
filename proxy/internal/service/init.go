@@ -10,6 +10,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
 	"oss.indeed.com/go/modprox/pkg/clients/registry"
 	"oss.indeed.com/go/modprox/pkg/clients/zips"
+	"oss.indeed.com/go/modprox/pkg/config"
 	"oss.indeed.com/go/modprox/pkg/history"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/netservice"
@@ -49,27 +50,75 @@ func initTrackers(p *Proxy) error {
 }
 
 func initIndex(p *Proxy) error {
-	var err error
-	indexPath := p.config.ModuleStorage.IndexPath
-	p.index, err = store.NewIndex(store.IndexOptions{
-		Directory: indexPath,
-	})
-	return err
+	if p.config.ModuleStorage != nil {
+		indexPath := p.config.ModuleStorage.IndexPath
+		index, err := store.NewIndex(store.IndexOptions{
+			Directory: indexPath,
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		p.index = index
+	}
+
+	if p.config.ModuleDBStorage != nil {
+		kind, dsn, err := dbStorageDSN(p, p.config.ModuleDBStorage)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		p.index, err = store.Connect(kind, dsn, p.emitter)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	if p.index == nil {
+		return errors.New("configs must be specified for either file or db module index")
+	}
+	return nil
 }
 
 func initStore(p *Proxy) error {
-	storePath := p.config.ModuleStorage.DataPath
-	if storePath == "" {
-		return errors.New("module_storage.path is required")
+	if p.config.ModuleStorage != nil {
+		storePath := p.config.ModuleStorage.DataPath
+		if storePath == "" {
+			return errors.New("module_storage.path is required")
+		}
+
+		tmpPath := p.config.ModuleStorage.TmpPath
+		p.store = store.NewStore(store.Options{
+			Directory:    storePath,
+			TmpDirectory: tmpPath,
+		}, p.emitter)
 	}
 
-	tmpPath := p.config.ModuleStorage.TmpPath
-	p.store = store.NewStore(store.Options{
-		Directory:    storePath,
-		TmpDirectory: tmpPath,
-	}, p.emitter)
+	if p.config.ModuleDBStorage != nil {
+		kind, dsn, err := dbStorageDSN(p, p.config.ModuleDBStorage)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		p.store, err = store.Connect(kind, dsn, p.emitter)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	if p.store == nil {
+		return errors.New("configs must be specified for either file or db module storage")
+	}
 
 	return nil
+}
+
+func dbStorageDSN(p *Proxy, conf *config.PersistentStore) (string, config.DSN, error) {
+	kind, dsn, err := p.config.ModuleDBStorage.DSN()
+	if err != nil {
+		return "", config.DSN{}, errors.WithStack(err)
+	}
+	p.log.Infof("using database of kind: %q", kind)
+	p.log.Infof("database dsn: %s", dsn)
+
+	return kind, dsn, nil
 }
 
 func initRegistryClient(p *Proxy) error {
@@ -234,17 +283,21 @@ func initStartupConfigSender(p *Proxy) error {
 		p.emitter,
 	)
 	go func() {
-		_ = sender.Send(
-			payloads.Configuration{
-				Self: netservice.Instance{
-					Address: netservice.Hostname(),
-					Port:    p.config.APIServer.Port,
-				},
-				Storage:    p.config.ModuleStorage,
-				Registry:   p.config.Registry,
-				Transforms: p.config.Transforms,
+		cfg := payloads.Configuration{
+			Self: netservice.Instance{
+				Address: netservice.Hostname(),
+				Port:    p.config.APIServer.Port,
 			},
-		)
+			Registry:   p.config.Registry,
+			Transforms: p.config.Transforms,
+		}
+		if p.config.ModuleStorage != nil {
+			cfg.Storage = *p.config.ModuleStorage
+		}
+		if p.config.ModuleDBStorage != nil {
+			cfg.DBStorage = *p.config.ModuleDBStorage
+		}
+		_ = sender.Send(cfg)
 	}()
 	return nil
 }
