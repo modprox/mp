@@ -1,6 +1,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -23,6 +24,8 @@ type mysqlStore struct {
 
 var _ ZipStore = (*mysqlStore)(nil)
 var _ Index = (*mysqlStore)(nil)
+
+const dbTimeout = 10 * time.Second
 
 func (m *mysqlStore) PutZip(mod coordinates.Module, blob repository.Blob) error {
 	start := time.Now()
@@ -105,7 +108,9 @@ func (m *mysqlStore) UpdateID(mod coordinates.SerialModule) error {
 	m.log.Tracef("updating registry id for module %s", mod)
 
 	start := time.Now()
-	_, err := m.statements[updateRegistryIDSQL].Exec(mod.SerialID, mod.Source, mod.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	_, err := m.statements[updateRegistryIDSQL].ExecContext(ctx, mod.SerialID, mod.Source, mod.Version)
 	if err != nil {
 		m.emitter.Count("db-update-regid-failure", 1)
 	} else {
@@ -132,7 +137,9 @@ func (m *mysqlStore) Remove(mod coordinates.Module) error {
 	m.log.Tracef("deleting module %s", mod)
 
 	start := time.Now()
-	_, err := m.statements[deleteModuleSQL].Exec(mod.Source, mod.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	_, err := m.statements[deleteModuleSQL].ExecContext(ctx, mod.Source, mod.Version)
 	if err != nil {
 		m.emitter.Count("db-delete-mod-failure", 1)
 	} else {
@@ -146,8 +153,10 @@ func (m *mysqlStore) Put(add ModuleAddition) error {
 	m.log.Tracef("adding module %s", add)
 
 	start := time.Now()
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
 	_, err := m.statements[insertModuleSQL].
-		Exec(add.Mod.Source, add.Mod.Version, []byte(add.ModFile), newRevInfo(add.Mod).Bytes(), add.UniqueID)
+		ExecContext(ctx, add.Mod.Source, add.Mod.Version, []byte(add.ModFile), newRevInfo(add.Mod).Bytes(), add.UniqueID)
 	if err != nil {
 		m.emitter.Count("db-insert-mod-failure", 1)
 	} else {
@@ -244,7 +253,9 @@ func (m *mysqlStore) insertModulesContents(mod coordinates.Module, blob reposito
 		m.log.Warnf("not saving %s because we already have it @ %s", mod, path)
 		return errors.Errorf("already have a copy of %s", mod)
 	}
-	if _, err = m.statements[insertModuleContentsSQL].Exec(path, []byte(blob)); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	if _, err = m.statements[insertModuleContentsSQL].ExecContext(ctx, path, []byte(blob)); err != nil {
 		m.emitter.Count("db-insertmodule-failure", 1)
 		m.log.Errorf("failed to write zip for %s, %+v", mod, err)
 	}
@@ -254,7 +265,9 @@ func (m *mysqlStore) insertModulesContents(mod coordinates.Module, blob reposito
 func (m *mysqlStore) modelContentsExists(mod coordinates.Module) (bool, error) {
 	path := pathOf(mod)
 	start := time.Now()
-	rows, err := m.statements[moduleContentsExistsSQL].Query(path)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	rows, err := m.statements[moduleContentsExistsSQL].QueryContext(ctx, path)
 	if err != nil {
 		m.emitter.Count("db-module-exists-failure", 1)
 		return false, err
@@ -279,7 +292,9 @@ func (m *mysqlStore) modelContentsExists(mod coordinates.Module) (bool, error) {
 
 func (m *mysqlStore) getModuleContents(mod coordinates.Module) (repository.Blob, error) {
 	path := pathOf(mod)
-	rows, err := m.statements[selectModuleContentsSQL].Query(path)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	rows, err := m.statements[selectModuleContentsSQL].QueryContext(ctx, path)
 	if err != nil {
 		m.emitter.Count("db-select-module-failure", 1)
 		return nil, err
@@ -302,7 +317,9 @@ func (m *mysqlStore) getModuleContents(mod coordinates.Module) (repository.Blob,
 
 func (m *mysqlStore) removeModuleContents(mod coordinates.Module) error {
 	path := pathOf(mod)
-	res, err := m.statements[deleteModuleContentsSQL].Exec(path)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	res, err := m.statements[deleteModuleContentsSQL].ExecContext(ctx, path)
 	if err != nil {
 		m.emitter.Count("db-delete-module-failure", 1)
 		return errors.Wrapf(err, "failed to delete zip for %s", mod)
@@ -319,7 +336,9 @@ func (m *mysqlStore) removeModuleContents(mod coordinates.Module) error {
 }
 
 func (m *mysqlStore) getModuleVersions(source string) ([]string, error) {
-	rows, err := m.statements[selectModuleVersionsSQL].Query(source)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	rows, err := m.statements[selectModuleVersionsSQL].QueryContext(ctx, source)
 	if err != nil {
 		m.emitter.Count("db-select-module-versions-failure", 1)
 		return nil, errors.Wrapf(err, "failed to query versions for %s", source)
@@ -345,7 +364,9 @@ func (m *mysqlStore) getModuleVersions(source string) ([]string, error) {
 }
 
 func (m *mysqlStore) getRevInfo(mod coordinates.Module) (repository.RevInfo, error) {
-	rows, err := m.statements[selectModuleRevInfoSQL].Query(mod.Source, mod.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	rows, err := m.statements[selectModuleRevInfoSQL].QueryContext(ctx, mod.Source, mod.Version)
 	var revInfo repository.RevInfo
 	if err != nil {
 		m.emitter.Count("db-select-revinfo-failure", 1)
@@ -369,7 +390,9 @@ func (m *mysqlStore) getRevInfo(mod coordinates.Module) (repository.RevInfo, err
 }
 
 func (m *mysqlStore) getRegistryID(mod coordinates.Module) (bool, int64, error) {
-	rows, err := m.statements[selectRegistryIDSQL].Query(mod.Source, mod.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	rows, err := m.statements[selectRegistryIDSQL].QueryContext(ctx, mod.Source, mod.Version)
 	if err != nil {
 		m.emitter.Count("db-select-regid-failure", 1)
 		return false, 0, errors.Wrapf(err, "failed to query regid for %+v", mod)
@@ -391,7 +414,9 @@ func (m *mysqlStore) getRegistryID(mod coordinates.Module) (bool, int64, error) 
 }
 
 func (m *mysqlStore) getGoMod(mod coordinates.Module) (string, error) {
-	rows, err := m.statements[selectGoModContentsSQL].Query(mod.Source, mod.Version)
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	rows, err := m.statements[selectGoModContentsSQL].QueryContext(ctx, mod.Source, mod.Version)
 	if err != nil {
 		m.emitter.Count("db-select-gomod-failure", 1)
 		return "", errors.Wrapf(err, "failed to query go.mod for %+v", mod)
@@ -413,7 +438,9 @@ func (m *mysqlStore) getGoMod(mod coordinates.Module) (string, error) {
 }
 
 func (m *mysqlStore) ids() ([]int64, error) {
-	rows, err := m.statements[selectAllRegistryIDsSQL].Query()
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	rows, err := m.statements[selectAllRegistryIDsSQL].QueryContext(ctx)
 	if err != nil {
 		m.emitter.Count("db-select-ids-failure", 1)
 		return nil, errors.Wrapf(err, "failed to query ids")
@@ -439,7 +466,9 @@ func (m *mysqlStore) ids() ([]int64, error) {
 }
 
 func (m *mysqlStore) countSourcesAndVersions() (int, int, error) {
-	rows, err := m.statements[countVersionsSQL].Query()
+	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
+	defer cancel()
+	rows, err := m.statements[countVersionsSQL].QueryContext(ctx)
 	if err != nil {
 		m.emitter.Count("db-count-versions-failure", 1)
 		return 0, 0, errors.Wrapf(err, "failed to query sources")
