@@ -111,7 +111,7 @@ func initStore(p *Proxy) error {
 }
 
 func dbStorageDSN(p *Proxy, conf *config.PersistentStore) (string, config.DSN, error) {
-	kind, dsn, err := p.config.ModuleDBStorage.DSN()
+	kind, dsn, err := conf.DSN()
 	if err != nil {
 		return "", config.DSN{}, errors.WithStack(err)
 	}
