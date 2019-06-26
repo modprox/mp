@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"oss.indeed.com/go/modprox/pkg/coordinates"
-	database "oss.indeed.com/go/modprox/pkg/db"
+	"oss.indeed.com/go/modprox/pkg/database"
 	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/repository"
