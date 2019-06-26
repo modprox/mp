@@ -1,7 +1,7 @@
 create table proxy_module_zips (
   id int(5) unsigned not null auto_increment,
   path varchar(1024) not null,
-  contents blob not null,
+  zip blob not null,
   primary key(id),
   unique (path)
 ) engine=InnoDB default charset=utf8;

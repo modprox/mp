@@ -29,7 +29,7 @@ const dbTimeout = 10 * time.Second
 
 func (m *mysqlStore) PutZip(mod coordinates.Module, blob repository.Blob) error {
 	start := time.Now()
-	err := m.insertModulesContents(mod, blob)
+	err := m.insertModulesZip(mod, blob)
 	if err != nil {
 		m.emitter.Count("db-put-zip-failure", 1)
 		return err
@@ -43,7 +43,7 @@ func (m *mysqlStore) GetZip(mod coordinates.Module) (repository.Blob, error) {
 	m.log.Tracef("retrieving module %s", mod)
 
 	start := time.Now()
-	blob, err := m.getModuleContents(mod)
+	blob, err := m.getModuleZip(mod)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (m *mysqlStore) DelZip(mod coordinates.Module) error {
 	m.log.Tracef("removing module %+v", mod)
 
 	start := time.Now()
-	err := m.removeModuleContents(mod)
+	err := m.removeModuleZip(mod)
 	if err != nil {
 		m.emitter.Count("db-rmzip-failure", 1)
 		return err
@@ -185,10 +185,10 @@ func (m *mysqlStore) Summary() (int, int, error) {
 }
 
 const (
-	insertModuleContentsSQL = iota
-	selectModuleContentsSQL
-	moduleContentsExistsSQL
-	deleteModuleContentsSQL
+	insertModuleZipSQL = iota
+	selectModuleZipSQL
+	zipExistsSQL
+	deleteModuleZipSQL
 	insertModuleSQL
 	selectRegistryIDSQL
 	selectAllRegistryIDsSQL
@@ -225,10 +225,10 @@ func load(kind string, db *sql.DB) (statements, error) {
 var (
 	mySQLTexts = map[int]string{
 		// modules
-		insertModuleContentsSQL: `insert into proxy_module_zips(path, contents) values (?, ?)`,
-		selectModuleContentsSQL: `select contents from proxy_module_zips where path=?`,
-		moduleContentsExistsSQL: `select count(id) from proxy_module_zips where path=?`,
-		deleteModuleContentsSQL: `delete from proxy_module_zips where path=?`,
+		insertModuleZipSQL: `insert into proxy_module_zips(path, zip) values (?, ?)`,
+		selectModuleZipSQL: `select zip from proxy_module_zips where path=?`,
+		zipExistsSQL:       `select count(id) from proxy_module_zips where path=?`,
+		deleteModuleZipSQL: `delete from proxy_module_zips where path=?`,
 		// index
 		insertModuleSQL:         `insert into proxy_modules(source, version, go_mod_contents, rev_info_contents, registry_mod_id) values (?, ?, ?, ?, ?)`,
 		selectRegistryIDSQL:     `select registry_mod_id from proxy_modules where source=? and version=?`,
@@ -242,8 +242,8 @@ var (
 	}
 )
 
-func (m *mysqlStore) insertModulesContents(mod coordinates.Module, blob repository.Blob) error {
-	exists, err := m.modelContentsExists(mod)
+func (m *mysqlStore) insertModulesZip(mod coordinates.Module, blob repository.Blob) error {
+	exists, err := m.zipExists(mod)
 	if err != nil {
 		return err
 	}
@@ -255,19 +255,19 @@ func (m *mysqlStore) insertModulesContents(mod coordinates.Module, blob reposito
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	if _, err = m.statements[insertModuleContentsSQL].ExecContext(ctx, path, []byte(blob)); err != nil {
+	if _, err = m.statements[insertModuleZipSQL].ExecContext(ctx, path, []byte(blob)); err != nil {
 		m.emitter.Count("db-insertmodule-failure", 1)
 		m.log.Errorf("failed to write zip for %s, %+v", mod, err)
 	}
 	return err
 }
 
-func (m *mysqlStore) modelContentsExists(mod coordinates.Module) (bool, error) {
+func (m *mysqlStore) zipExists(mod coordinates.Module) (bool, error) {
 	path := pathOf(mod)
 	start := time.Now()
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	rows, err := m.statements[moduleContentsExistsSQL].QueryContext(ctx, path)
+	rows, err := m.statements[zipExistsSQL].QueryContext(ctx, path)
 	if err != nil {
 		m.emitter.Count("db-module-exists-failure", 1)
 		return false, err
@@ -276,25 +276,25 @@ func (m *mysqlStore) modelContentsExists(mod coordinates.Module) (bool, error) {
 
 	if !rows.Next() {
 		m.emitter.Count("db-module-exists-failure", 1)
-		return false, fmt.Errorf("expected exactly one row for sql: %+v", m.statements[moduleContentsExistsSQL])
+		return false, fmt.Errorf("expected exactly one row for sql: %+v", m.statements[zipExistsSQL])
 	}
 
 	var count int64
 	err = rows.Scan(&count)
 	if err != nil {
 		m.emitter.Count("db-module-exists-failure", 1)
-		return false, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[moduleContentsExistsSQL])
+		return false, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[zipExistsSQL])
 	}
 
 	m.emitter.GaugeMS("db-module-exists-elapsed-ms", start)
 	return count > 0, nil
 }
 
-func (m *mysqlStore) getModuleContents(mod coordinates.Module) (repository.Blob, error) {
+func (m *mysqlStore) getModuleZip(mod coordinates.Module) (repository.Blob, error) {
 	path := pathOf(mod)
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	rows, err := m.statements[selectModuleContentsSQL].QueryContext(ctx, path)
+	rows, err := m.statements[selectModuleZipSQL].QueryContext(ctx, path)
 	if err != nil {
 		m.emitter.Count("db-select-module-failure", 1)
 		return nil, err
@@ -303,23 +303,23 @@ func (m *mysqlStore) getModuleContents(mod coordinates.Module) (repository.Blob,
 
 	if !rows.Next() {
 		m.emitter.Count("db-select-module-failure", 1)
-		return nil, fmt.Errorf("expected exactly one row for sql: %+v", m.statements[selectModuleContentsSQL])
+		return nil, fmt.Errorf("expected exactly one row for sql: %+v", m.statements[selectModuleZipSQL])
 	}
 	var contents []byte
 	err = rows.Scan(&contents)
 	if err != nil {
 		m.emitter.Count("db-select-module-failure", 1)
-		return nil, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectModuleContentsSQL])
+		return nil, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectModuleZipSQL])
 	}
 
 	return repository.Blob(contents), nil
 }
 
-func (m *mysqlStore) removeModuleContents(mod coordinates.Module) error {
+func (m *mysqlStore) removeModuleZip(mod coordinates.Module) error {
 	path := pathOf(mod)
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	res, err := m.statements[deleteModuleContentsSQL].ExecContext(ctx, path)
+	res, err := m.statements[deleteModuleZipSQL].ExecContext(ctx, path)
 	if err != nil {
 		m.emitter.Count("db-delete-module-failure", 1)
 		return errors.Wrapf(err, "failed to delete zip for %s", mod)
