@@ -8,10 +8,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	"oss.indeed.com/go/modprox/pkg/config"
+	"oss.indeed.com/go/modprox/pkg/setup"
 )
 
-func Connect(kind string, dsn config.DSN) (*sql.DB, error) {
+func Connect(kind string, dsn setup.DSN) (*sql.DB, error) {
 	var err error
 	var db *sql.DB
 

@@ -2,13 +2,14 @@ package data
 
 import (
 	"database/sql"
+
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
-	"oss.indeed.com/go/modprox/pkg/config"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	database "oss.indeed.com/go/modprox/pkg/db"
 	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/netservice"
+	"oss.indeed.com/go/modprox/pkg/setup"
 )
 
 //go:generate minimock -g -i Store -s _mock.go
@@ -30,7 +31,7 @@ type Store interface {
 	PurgeProxy(instance netservice.Instance) error
 }
 
-func Connect(kind string, dsn config.DSN, emitter stats.Sender) (Store, error) {
+func Connect(kind string, dsn setup.DSN, emitter stats.Sender) (Store, error) {
 	db, err := database.Connect(kind, dsn)
 	if err != nil {
 		return nil, err

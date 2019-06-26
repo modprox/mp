@@ -3,12 +3,12 @@ package store
 import (
 	"database/sql"
 
-	"oss.indeed.com/go/modprox/pkg/config"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	database "oss.indeed.com/go/modprox/pkg/db"
 	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/repository"
+	"oss.indeed.com/go/modprox/pkg/setup"
 )
 
 //go:generate minimock -g -i ZipStore -s _mock.go
@@ -19,7 +19,7 @@ type ZipStore interface {
 	DelZip(coordinates.Module) error
 }
 
-func Connect(kind string, dsn config.DSN, emitter stats.Sender) (*mysqlStore, error) {
+func Connect(kind string, dsn setup.DSN, emitter stats.Sender) (*mysqlStore, error) {
 	db, err := database.Connect("mysql", dsn)
 	if err != nil {
 		return nil, err

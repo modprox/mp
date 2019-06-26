@@ -7,17 +7,17 @@ import (
 
 	"github.com/pkg/errors"
 
-	"oss.indeed.com/go/modprox/pkg/config"
 	"oss.indeed.com/go/modprox/pkg/configutil"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
+	"oss.indeed.com/go/modprox/pkg/setup"
 )
 
 type Configuration struct {
-	WebServer WebServer              `json:"web_server"`
-	CSRF      CSRF                   `json:"csrf"`
-	Database  config.PersistentStore `json:"database_storage"`
-	Statsd    stats.Statsd           `json:"statsd"`
-	Proxies   Proxies                `json:"proxies"`
+	WebServer WebServer             `json:"web_server"`
+	CSRF      CSRF                  `json:"csrf"`
+	Database  setup.PersistentStore `json:"database_storage"`
+	Statsd    stats.Statsd          `json:"statsd"`
+	Proxies   Proxies               `json:"proxies"`
 }
 
 func (c Configuration) String() string {

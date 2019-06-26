@@ -10,10 +10,10 @@ import (
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
 	"oss.indeed.com/go/modprox/pkg/clients/registry"
 	"oss.indeed.com/go/modprox/pkg/clients/zips"
-	"oss.indeed.com/go/modprox/pkg/config"
 	"oss.indeed.com/go/modprox/pkg/history"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/netservice"
+	"oss.indeed.com/go/modprox/pkg/setup"
 	"oss.indeed.com/go/modprox/pkg/upstream"
 	"oss.indeed.com/go/modprox/pkg/webutil"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/bg"
@@ -110,10 +110,10 @@ func initStore(p *Proxy) error {
 	return nil
 }
 
-func dbStorageDSN(p *Proxy, conf *config.PersistentStore) (string, config.DSN, error) {
+func dbStorageDSN(p *Proxy, conf *setup.PersistentStore) (string, setup.DSN, error) {
 	kind, dsn, err := conf.DSN()
 	if err != nil {
-		return "", config.DSN{}, errors.WithStack(err)
+		return "", setup.DSN{}, errors.WithStack(err)
 	}
 	p.log.Infof("using database of kind: %q", kind)
 	p.log.Infof("database dsn: %s", dsn)
