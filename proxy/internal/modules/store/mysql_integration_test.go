@@ -263,7 +263,7 @@ func mustCloseDB(t *testing.T, db *sql.DB) {
 func dropTables(t *testing.T, db *sql.DB) {
 	tables := []string{
 		"proxy_module_zips",
-		"proxy_modules",
+		"proxy_modules_index",
 	}
 	for _, table := range tables {
 		if _, err := db.Exec("DROP TABLE IF EXISTS " + table); err != nil {

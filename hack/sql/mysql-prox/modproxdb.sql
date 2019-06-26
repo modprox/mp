@@ -6,7 +6,7 @@ create table proxy_module_zips (
   unique (path)
 ) engine=InnoDB default charset=utf8;
 
-create table proxy_modules (
+create table proxy_modules_index (
   id int(5) unsigned not null auto_increment,
   source varchar(256) not null,
   version varchar(256) not null,
