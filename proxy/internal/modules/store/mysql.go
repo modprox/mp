@@ -363,7 +363,7 @@ func (m *mysqlStore) getGoMod(mod coordinates.Module) (string, error) {
 		return "", errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectGoModFileSQL])
 	}
 
-	return string(contents), err
+	return string(contents), nil
 }
 
 func (m *mysqlStore) ids() ([]int64, error) {
