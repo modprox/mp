@@ -194,7 +194,7 @@ const (
 	selectAllRegistryIDsSQL
 	countVersionsSQL
 	selectModuleRevInfoSQL
-	selectGoModContentsSQL
+	selectGoModFileSQL
 	selectModuleVersionsSQL
 	updateRegistryIDSQL
 	deleteModuleSQL
@@ -230,12 +230,12 @@ var (
 		zipExistsSQL:       `select count(id) from proxy_module_zips where path=?`,
 		deleteModuleZipSQL: `delete from proxy_module_zips where path=?`,
 		// index
-		insertModuleSQL:         `insert into proxy_modules_index(source, version, go_mod_contents, rev_info_contents, registry_mod_id) values (?, ?, ?, ?, ?)`,
+		insertModuleSQL:         `insert into proxy_modules_index(source, version, go_mod_file, rev_info_contents, registry_mod_id) values (?, ?, ?, ?, ?)`,
 		selectRegistryIDSQL:     `select registry_mod_id from proxy_modules_index where source=? and version=?`,
 		selectAllRegistryIDsSQL: `select registry_mod_id from proxy_modules_index`,
 		countVersionsSQL:        `select count(version) from proxy_modules_index group by source`,
 		selectModuleRevInfoSQL:  `select rev_info_contents from proxy_modules_index where source=? and version=?`,
-		selectGoModContentsSQL:  `select go_mod_contents from proxy_modules_index where source=? and version=?`,
+		selectGoModFileSQL:      `select go_mod_file from proxy_modules_index where source=? and version=?`,
 		selectModuleVersionsSQL: `select version from proxy_modules_index where source=?`,
 		updateRegistryIDSQL:     `update proxy_modules_index set registry_mod_id=? where source=? and version=?`,
 		deleteModuleSQL:         `delete from proxy_modules_index where source=? and version=?`,
@@ -416,7 +416,7 @@ func (m *mysqlStore) getRegistryID(mod coordinates.Module) (bool, int64, error) 
 func (m *mysqlStore) getGoMod(mod coordinates.Module) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	rows, err := m.statements[selectGoModContentsSQL].QueryContext(ctx, mod.Source, mod.Version)
+	rows, err := m.statements[selectGoModFileSQL].QueryContext(ctx, mod.Source, mod.Version)
 	if err != nil {
 		m.emitter.Count("db-select-gomod-failure", 1)
 		return "", errors.Wrapf(err, "failed to query go.mod for %+v", mod)
@@ -431,7 +431,7 @@ func (m *mysqlStore) getGoMod(mod coordinates.Module) (string, error) {
 	err = rows.Scan(&contents)
 	if err != nil {
 		m.emitter.Count("db-select-gomod-failure", 1)
-		return "", errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectGoModContentsSQL])
+		return "", errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectGoModFileSQL])
 	}
 
 	return string(contents), err
