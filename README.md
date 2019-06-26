@@ -49,17 +49,28 @@ script will use the `hack/configs/registry-local.mysql.json` file, which works w
 
 #### Hacking on the Proxy
 
-By default, it maintains its data-store of downloaded modules on disk, and saves modules in the `/tmp` directory (configurable).
+The Proxy needs to persist its data-store of downloaded modules. It can be configured to either persist them to disk
+or to MySQL.
 
-Alternatively, it can be configured to save persist downloaded modules to MySQL. You'll need to add a stanza to the json config file, similar to the following:
+##### local disk config
 ```json
-  "module_db_storage": {
-    "mysql": {
-      "user": "docker",
-      "password": "docker",
-      "address": "localhost:3306",
-      "database": "modproxdb-prox",
-      "allow_native_passwords": true
-    }
+"module_storage": {
+  "data_path": "<disk path to store data>",
+  "index_path": "<disk path to store boltdb index>",
+  "tmp_path": "<disk path to store temporary files>"
+}
+```
+Note that `data_path` and `tmp_path` should point to paths on the same filesystem.
+
+##### MySQL config
+```json
+"module_db_storage": {
+  "mysql": {
+    "user": "docker",
+    "password": "docker",
+    "address": "localhost:3306",
+    "database": "modproxdb-prox",
+    "allow_native_passwords": true
   }
+}
 ```
