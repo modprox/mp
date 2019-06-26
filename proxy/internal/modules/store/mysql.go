@@ -225,10 +225,10 @@ func load(kind string, db *sql.DB) (statements, error) {
 var (
 	mySQLTexts = map[int]string{
 		// modules
-		insertModuleContentsSQL: `insert into proxy_module_contents(path, contents) values (?, ?)`,
-		selectModuleContentsSQL: `select contents from proxy_module_contents where path=?`,
-		moduleContentsExistsSQL: `select count(id) from proxy_module_contents where path=?`,
-		deleteModuleContentsSQL: `delete from proxy_module_contents where path=?`,
+		insertModuleContentsSQL: `insert into proxy_module_zips(path, contents) values (?, ?)`,
+		selectModuleContentsSQL: `select contents from proxy_module_zips where path=?`,
+		moduleContentsExistsSQL: `select count(id) from proxy_module_zips where path=?`,
+		deleteModuleContentsSQL: `delete from proxy_module_zips where path=?`,
 		// index
 		insertModuleSQL:         `insert into proxy_modules(source, version, go_mod_contents, rev_info_contents, registry_mod_id) values (?, ?, ?, ?, ?)`,
 		selectRegistryIDSQL:     `select registry_mod_id from proxy_modules where source=? and version=?`,

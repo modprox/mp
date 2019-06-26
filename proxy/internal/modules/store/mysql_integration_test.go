@@ -262,7 +262,7 @@ func mustCloseDB(t *testing.T, db *sql.DB) {
 
 func dropTables(t *testing.T, db *sql.DB) {
 	tables := []string{
-		"proxy_module_contents",
+		"proxy_module_zips",
 		"proxy_modules",
 	}
 	for _, table := range tables {

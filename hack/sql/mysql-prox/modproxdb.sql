@@ -1,4 +1,4 @@
-create table proxy_module_contents (
+create table proxy_module_zips (
   id int(3) unsigned not null auto_increment,
   path varchar(1024) not null,
   contents blob not null,
