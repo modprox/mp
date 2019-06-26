@@ -50,6 +50,12 @@ func initTrackers(p *Proxy) error {
 }
 
 func initIndex(p *Proxy) error {
+	if p.config.ModuleStorage == nil && p.config.ModuleDBStorage == nil {
+		return errors.New("configs must be specified for either file or db module index")
+	} else if p.config.ModuleStorage != nil && p.config.ModuleDBStorage != nil {
+		return errors.New("configs must be specified for either file or db module index (but not both)")
+	}
+
 	if p.config.ModuleStorage != nil {
 		indexPath := p.config.ModuleStorage.IndexPath
 		index, err := store.NewIndex(store.IndexOptions{
@@ -59,9 +65,7 @@ func initIndex(p *Proxy) error {
 			return errors.WithStack(err)
 		}
 		p.index = index
-	}
-
-	if p.config.ModuleDBStorage != nil {
+	} else if p.config.ModuleDBStorage != nil {
 		_, dsn, err := dbStorageDSN(p, p.config.ModuleDBStorage)
 		if err != nil {
 			return errors.WithStack(err)
@@ -72,13 +76,16 @@ func initIndex(p *Proxy) error {
 		}
 	}
 
-	if p.index == nil {
-		return errors.New("configs must be specified for either file or db module index")
-	}
 	return nil
 }
 
 func initStore(p *Proxy) error {
+	if p.config.ModuleStorage == nil && p.config.ModuleDBStorage == nil {
+		return errors.New("configs must be specified for either file or db module index")
+	} else if p.config.ModuleStorage != nil && p.config.ModuleDBStorage != nil {
+		return errors.New("configs must be specified for either file or db module index (but not both)")
+	}
+
 	if p.config.ModuleStorage != nil {
 		storePath := p.config.ModuleStorage.DataPath
 		if storePath == "" {
@@ -90,9 +97,7 @@ func initStore(p *Proxy) error {
 			Directory:    storePath,
 			TmpDirectory: tmpPath,
 		}, p.emitter)
-	}
-
-	if p.config.ModuleDBStorage != nil {
+	} else if p.config.ModuleDBStorage != nil {
 		_, dsn, err := dbStorageDSN(p, p.config.ModuleDBStorage)
 		if err != nil {
 			return errors.WithStack(err)
@@ -101,10 +106,6 @@ func initStore(p *Proxy) error {
 		if err != nil {
 			return errors.WithStack(err)
 		}
-	}
-
-	if p.store == nil {
-		return errors.New("configs must be specified for either file or db module storage")
 	}
 
 	return nil
