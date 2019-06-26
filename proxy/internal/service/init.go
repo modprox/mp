@@ -292,10 +292,10 @@ func initStartupConfigSender(p *Proxy) error {
 			Transforms: p.config.Transforms,
 		}
 		if p.config.ModuleStorage != nil {
-			cfg.Storage = *p.config.ModuleStorage
+			cfg.DiskStorage = *p.config.ModuleStorage
 		}
 		if p.config.ModuleDBStorage != nil {
-			cfg.DBStorage = *p.config.ModuleDBStorage
+			cfg.DatabaseStorage = *p.config.ModuleDBStorage
 		}
 		_ = sender.Send(cfg)
 	}()

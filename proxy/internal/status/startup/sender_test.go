@@ -6,12 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"oss.indeed.com/go/modprox/pkg/metrics/stats"
-
 	"github.com/stretchr/testify/require"
 
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
 	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/netservice"
 	"oss.indeed.com/go/modprox/pkg/webutil"
 	"oss.indeed.com/go/modprox/proxy/config"
@@ -45,10 +44,10 @@ func Test_Send_firstTry(t *testing.T) {
 	transforms := config.Transforms{}
 
 	err := apiClient.Send(payloads.Configuration{
-		Self:       instance,
-		Storage:    storage,
-		Registry:   registries,
-		Transforms: transforms,
+		Self:        instance,
+		DiskStorage: storage,
+		Registry:    registries,
+		Transforms:  transforms,
 	})
 	require.NoError(t, err)
 }
@@ -90,10 +89,10 @@ func Test_Send_secondTry(t *testing.T) {
 	transforms := config.Transforms{}
 
 	err := apiClient.Send(payloads.Configuration{
-		Self:       instance,
-		Storage:    storage,
-		Registry:   registries,
-		Transforms: transforms,
+		Self:        instance,
+		DiskStorage: storage,
+		Registry:    registries,
+		Transforms:  transforms,
 	})
 	require.NoError(t, err)
 	require.True(t, executedSecondTry)

@@ -13,16 +13,16 @@ import (
 // Configuration of a proxy instance when it starts up that is sent
 // to the registry.
 type Configuration struct {
-	Self       netservice.Instance   `json:"self"`
-	Storage    config.Storage        `json:"storage"`
-	DBStorage  setup.PersistentStore `json:"db_storage"`
-	Registry   config.Registry       `json:"registry"`
-	Transforms config.Transforms     `json:"transforms"`
+	Self            netservice.Instance   `json:"self"`
+	DiskStorage     config.Storage        `json:"disk_storage,omitempty"`
+	DatabaseStorage setup.PersistentStore `json:"database_storage,omitempty"`
+	Registry        config.Registry       `json:"registry"`
+	Transforms      config.Transforms     `json:"transforms"`
 }
 
 func (c Configuration) Texts() (string, string, string, error) {
 
-	storageText, err := json.Marshal(c.Storage)
+	storageText, err := json.Marshal(c.DiskStorage)
 	if err != nil {
 		return "", "", "", err
 	}

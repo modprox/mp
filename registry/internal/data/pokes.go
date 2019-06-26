@@ -97,7 +97,7 @@ func newConfig(
 		},
 	}
 
-	if err := json.Unmarshal([]byte(storageText), &c.Storage); err != nil {
+	if err := json.Unmarshal([]byte(storageText), &c.DiskStorage); err != nil {
 		return c, err
 	}
 
