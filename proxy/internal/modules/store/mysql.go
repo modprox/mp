@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -251,19 +250,10 @@ func (m *mysqlStore) getModuleZip(mod coordinates.Module) (repository.Blob, erro
 	path := pathOf(mod)
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	rows, err := m.statements[selectModuleZipSQL].QueryContext(ctx, path)
-	if err != nil {
-		m.emitter.Count("db-select-module-failure", 1)
-		return nil, err
-	}
-	defer rows.Close()
+	row := m.statements[selectModuleZipSQL].QueryRowContext(ctx, path)
 
-	if !rows.Next() {
-		m.emitter.Count("db-select-module-failure", 1)
-		return nil, fmt.Errorf("expected exactly one row for sql: %+v", m.statements[selectModuleZipSQL])
-	}
 	var contents []byte
-	err = rows.Scan(&contents)
+	err := row.Scan(&contents)
 	if err != nil {
 		m.emitter.Count("db-select-module-failure", 1)
 		return nil, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectModuleZipSQL])
@@ -323,21 +313,15 @@ func (m *mysqlStore) getModuleVersions(source string) ([]string, error) {
 func (m *mysqlStore) getVersionInfo(mod coordinates.Module) (repository.RevInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	rows, err := m.statements[selectModuleVersionInfoSQL].QueryContext(ctx, mod.Source, mod.Version)
+	row := m.statements[selectModuleVersionInfoSQL].QueryRowContext(ctx, mod.Source, mod.Version)
 	var revInfo repository.RevInfo
-	if err != nil {
-		m.emitter.Count("db-select-revinfo-failure", 1)
-		return revInfo, errors.Wrapf(err, "failed to query revinfo for %+v", mod)
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
-		return revInfo, errors.New("module not in index")
-	}
 
 	var contents []byte
-	err = rows.Scan(&contents)
+	err := row.Scan(&contents)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return revInfo, errors.New("module not in index")
+		}
 		m.emitter.Count("db-select-revinfo-failure", 1)
 		return revInfo, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectModuleVersionInfoSQL])
 	}
@@ -349,20 +333,14 @@ func (m *mysqlStore) getVersionInfo(mod coordinates.Module) (repository.RevInfo,
 func (m *mysqlStore) getRegistryID(mod coordinates.Module) (bool, int64, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	rows, err := m.statements[selectRegistryIDSQL].QueryContext(ctx, mod.Source, mod.Version)
-	if err != nil {
-		m.emitter.Count("db-select-regid-failure", 1)
-		return false, 0, errors.Wrapf(err, "failed to query regid for %+v", mod)
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
-		return false, 0, nil
-	}
+	row := m.statements[selectRegistryIDSQL].QueryRowContext(ctx, mod.Source, mod.Version)
 
 	var regid int64
-	err = rows.Scan(&regid)
+	err := row.Scan(&regid)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, 0, nil
+		}
 		m.emitter.Count("db-select-regid-failure", 1)
 		return false, 0, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectRegistryIDSQL])
 	}
@@ -373,20 +351,14 @@ func (m *mysqlStore) getRegistryID(mod coordinates.Module) (bool, int64, error) 
 func (m *mysqlStore) getGoMod(mod coordinates.Module) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	rows, err := m.statements[selectGoModFileSQL].QueryContext(ctx, mod.Source, mod.Version)
-	if err != nil {
-		m.emitter.Count("db-select-gomod-failure", 1)
-		return "", errors.Wrapf(err, "failed to query go.mod for %+v", mod)
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
-		return "", errors.New("module not in index")
-	}
+	row := m.statements[selectGoModFileSQL].QueryRowContext(ctx, mod.Source, mod.Version)
 
 	var contents []byte
-	err = rows.Scan(&contents)
+	err := row.Scan(&contents)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", errors.New("module not in index")
+		}
 		m.emitter.Count("db-select-gomod-failure", 1)
 		return "", errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectGoModFileSQL])
 	}
