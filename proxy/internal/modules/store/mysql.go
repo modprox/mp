@@ -187,7 +187,6 @@ func (m *mysqlStore) Summary() (int, int, error) {
 const (
 	insertModuleZipSQL = iota
 	selectModuleZipSQL
-	zipExistsSQL
 	deleteModuleZipSQL
 	insertModuleSQL
 	selectRegistryIDSQL
@@ -222,7 +221,6 @@ var (
 		// modules
 		insertModuleZipSQL: `insert into proxy_module_zips(path, zip) values (?, ?)`,
 		selectModuleZipSQL: `select zip from proxy_module_zips where path=?`,
-		zipExistsSQL:       `select count(id) from proxy_module_zips where path=?`,
 		deleteModuleZipSQL: `delete from proxy_module_zips where path=?`,
 		// index
 		insertModuleSQL:            `insert into proxy_modules_index(source, version, go_mod_file, version_info, registry_mod_id) values (?, ?, ?, ?, ?)`,
@@ -238,51 +236,15 @@ var (
 )
 
 func (m *mysqlStore) insertModulesZip(mod coordinates.Module, blob repository.Blob) error {
-	exists, err := m.zipExists(mod)
-	if err != nil {
-		return err
-	}
-
 	path := pathOf(mod)
-	if exists {
-		m.log.Warnf("not saving %s because we already have it @ %s", mod, path)
-		return errors.Errorf("already have a copy of %s", mod)
-	}
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	if _, err = m.statements[insertModuleZipSQL].ExecContext(ctx, path, []byte(blob)); err != nil {
+	if _, err := m.statements[insertModuleZipSQL].ExecContext(ctx, path, []byte(blob)); err != nil {
 		m.emitter.Count("db-insertmodule-failure", 1)
 		m.log.Errorf("failed to write zip for %s, %+v", mod, err)
+		return err
 	}
-	return err
-}
-
-func (m *mysqlStore) zipExists(mod coordinates.Module) (bool, error) {
-	path := pathOf(mod)
-	start := time.Now()
-	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
-	defer cancel()
-	rows, err := m.statements[zipExistsSQL].QueryContext(ctx, path)
-	if err != nil {
-		m.emitter.Count("db-module-exists-failure", 1)
-		return false, err
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
-		m.emitter.Count("db-module-exists-failure", 1)
-		return false, fmt.Errorf("expected exactly one row for sql: %+v", m.statements[zipExistsSQL])
-	}
-
-	var count int64
-	err = rows.Scan(&count)
-	if err != nil {
-		m.emitter.Count("db-module-exists-failure", 1)
-		return false, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[zipExistsSQL])
-	}
-
-	m.emitter.GaugeMS("db-module-exists-elapsed-ms", start)
-	return count > 0, nil
+	return nil
 }
 
 func (m *mysqlStore) getModuleZip(mod coordinates.Module) (repository.Blob, error) {

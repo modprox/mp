@@ -41,6 +41,18 @@ func (s *testSuite) Test_ZipStore_PutZip_GetZip() {
 	require.Equal(t, blob, actual)
 }
 
+func (s *testSuite) Test_ZipStore_PutZip_exists() {
+	t := s.T()
+
+	module := coordinates.Module{Source: "src1", Version: "v1.2.3"}
+	blob := repository.Blob([]byte(string("hello")))
+	err := s.subject.PutZip(module, blob)
+	require.NoError(t, err)
+
+	err = s.subject.PutZip(module, blob)
+	require.Error(t, err)
+}
+
 func (s *testSuite) Test_ZipStore_GetZip_NotFound() {
 	t := s.T()
 
