@@ -2,10 +2,13 @@ package database
 
 import (
 	"database/sql"
-	"github.com/go-sql-driver/mysql"
-	"github.com/pkg/errors"
-	"oss.indeed.com/go/modprox/pkg/config"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
+
+	"github.com/pkg/errors"
+
+	"oss.indeed.com/go/modprox/pkg/config"
 )
 
 func Connect(kind string, dsn config.DSN) (*sql.DB, error) {
@@ -45,15 +48,3 @@ func connectMySQL(config mysql.Config) (*sql.DB, error) {
 	dsn := config.FormatDSN()
 	return sql.Open("mysql", dsn)
 }
-
-//func connectPostgreSQL(dsn config.DSN) (*sql.DB, error) {
-//	// "postgres://bob:secret@1.2.3.4:5432/mydb?sslmode=verify-full"
-//	connectStr := fmt.Sprintf(
-//		"postgres://%s:%s@%s/%s?sslmode=disable", // todo: enable ssl
-//		dsn.User,
-//		dsn.Password,
-//		dsn.Address,
-//		dsn.Database,
-//	)
-//	return sql.Open("postgres", connectStr)
-//}
