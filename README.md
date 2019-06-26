@@ -23,7 +23,7 @@ extensive documentation on [modprox.org](https://modprox.org/#starting)
 #### Hacking on the Registry
 
 The registry needs a persistent store, and for local development we have a docker image
-with Mysql setup to automatically create tables and users. To make things super simple, in
+with MySQL setup to automatically create tables and users. To make things super simple, in
 the `hack/` directory there is a `docker-compose` file already configured to setup the basic
 containers needed for local developemnt. Simply run
 ```bash
@@ -54,7 +54,7 @@ itself).
 
 By default, it maintains its data-store of downloaded modules on disk, and saves modules in the `/tmp` directory (configurable).
 
-Alternatively, it can be configured to save persist downloaded modules to mysql. You'll need to add a stanza to the json config file, similar to the following:
+Alternatively, it can be configured to save persist downloaded modules to MySQL. You'll need to add a stanza to the json config file, similar to the following:
 ```json
   "module_db_storage": {
     "mysql": {
