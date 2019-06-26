@@ -39,22 +39,6 @@ services:
       - /entrypoint.sh
       - mysqld
 
-# postgres is not currently supported (issue #103)
-#  postgres:
-#    image: postgres:10.5-alpine
-#    container_name: modprox-postgres
-#    ports:
-#      - "5432:5432"
-#    tmpfs:
-#      - /var/lib/postgresql
-#      - /tmp
-#    volumes:
-#      - ./sql/postgres:/docker-entrypoint-initdb.d
-#    environment:
-#      - POSTGRES_USER=docker
-#      - POSTGRES_PASSWORD=docker
-#      - POSTGRES_DB=modproxdb
-
 # A fake datadog/statsd collector which prints metrics
 # to standard out in your docker container
   fakeadog:

@@ -31,12 +31,6 @@ func Connect(kind string, dsn setup.DSN) (*sql.DB, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to connect to mysql")
 		}
-	case "postgres":
-		return nil, errors.New("postgres is not supported (issue #103)")
-		//db, err = connectPostgreSQL(dsn)
-		//if err != nil {
-		//	return nil, errors.Wrap(err, "failed to connect to postgres")
-		//}
 	default:
 		return nil, errors.Errorf("%s is not a supported database", kind)
 	}

@@ -33,14 +33,17 @@ in the `hack/` directory to get them going. Also in the `hack/` directory is a s
 connecting to the MySQL that is running in the docker container, for ease of poking around.
 ```bash
 $ compose up
-Recreating modprox-postgres ... 
-Recreating modprox-postgres ... done
-Attaching to modprox-postgres
-modprox-postgres | 2018-09-11 02:19:14.322 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
-modprox-postgres | 2018-09-11 02:19:14.322 UTC [1] LOG:  listening on IPv6 address "::", port 5432
-modprox-postgres | 2018-09-11 02:19:14.339 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-modprox-postgres | 2018-09-11 02:19:14.370 UTC [22] LOG:  database system was shut down at 2018-09-11 02:19:12 UTC
-modprox-postgres | 2018-09-11 02:19:14.381 UTC [1] LOG:  database system is ready to accept connections
+Starting modprox-fakeadog       ... done
+Starting modprox-mysql-proxy    ... done
+Starting modprox-mysql-registry ... done
+Attaching to modprox-mysql-proxy, modprox-mysql-registry, modprox-fakeadog
+modprox-mysql-registry | [Entrypoint] MySQL Docker Image 5.7.26-1.1.11
+modprox-mysql-registry | [Entrypoint] Initializing database
+modprox-mysql-proxy | [Entrypoint] MySQL Docker Image 5.7.26-1.1.11
+modprox-mysql-proxy | [Entrypoint] Initializing database
+modprox-mysql-proxy | [Entrypoint] Database initialized
+modprox-fakeadog  | time="2019-06-26T18:19:14Z" level=info msg="listening on 0.0.0.0:8125"
+modprox-mysql-registry | [Entrypoint] Database initialized
 ```
 
 Also in the `hack/` directory are some sample configuration files. By default, the included `run-dev.sh`

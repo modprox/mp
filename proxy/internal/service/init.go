@@ -62,11 +62,11 @@ func initIndex(p *Proxy) error {
 	}
 
 	if p.config.ModuleDBStorage != nil {
-		kind, dsn, err := dbStorageDSN(p, p.config.ModuleDBStorage)
+		_, dsn, err := dbStorageDSN(p, p.config.ModuleDBStorage)
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		p.index, err = store.Connect(kind, dsn, p.emitter)
+		p.index, err = store.Connect(dsn, p.emitter)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -93,11 +93,11 @@ func initStore(p *Proxy) error {
 	}
 
 	if p.config.ModuleDBStorage != nil {
-		kind, dsn, err := dbStorageDSN(p, p.config.ModuleDBStorage)
+		_, dsn, err := dbStorageDSN(p, p.config.ModuleDBStorage)
 		if err != nil {
 			return errors.WithStack(err)
 		}
-		p.store, err = store.Connect(kind, dsn, p.emitter)
+		p.store, err = store.Connect(dsn, p.emitter)
 		if err != nil {
 			return errors.WithStack(err)
 		}

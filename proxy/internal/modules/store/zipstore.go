@@ -19,17 +19,17 @@ type ZipStore interface {
 	DelZip(coordinates.Module) error
 }
 
-func Connect(kind string, dsn setup.DSN, emitter stats.Sender) (*mysqlStore, error) {
+func Connect(dsn setup.DSN, emitter stats.Sender) (*mysqlStore, error) {
 	db, err := database.Connect("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	return New(kind, db, emitter)
+	return New(db, emitter)
 }
 
-func New(kind string, db *sql.DB, emitter stats.Sender) (*mysqlStore, error) {
-	statements, err := load(kind, db)
+func New(db *sql.DB, emitter stats.Sender) (*mysqlStore, error) {
+	statements, err := load(db)
 	if err != nil {
 		return nil, err
 	}

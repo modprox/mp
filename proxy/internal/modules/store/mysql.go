@@ -202,15 +202,10 @@ const (
 
 type statements map[int]*sql.Stmt
 
-func load(kind string, db *sql.DB) (statements, error) {
+func load(db *sql.DB) (statements, error) {
 	loaded := make(statements, len(mySQLTexts))
 
 	stmtTexts := mySQLTexts
-	if kind == "postgres" {
-		return loaded, errors.New("postgres is not supported (issue #103)")
-		// stmtTexts = postgreSQLTexts
-	}
-
 	for id, text := range stmtTexts {
 		stmt, err := db.Prepare(text)
 		if err != nil {

@@ -309,7 +309,7 @@ func (s *testSuite) SetupTest() {
 
 	s.ctx = context.Background()
 	s.db = openTestDB(t, false)
-	tested, err := New("myql", s.db, &noopEmitter{})
+	tested, err := New(s.db, &noopEmitter{})
 	if err != nil {
 		t.Fatalf("error connecting to db: %v", err)
 	}

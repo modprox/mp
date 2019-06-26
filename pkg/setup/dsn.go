@@ -6,8 +6,7 @@ import (
 )
 
 type PersistentStore struct {
-	MySQL      DSN `json:"mysql,omitempty"`
-	PostgreSQL DSN `json:"postgres,omitempty"`
+	MySQL DSN `json:"mysql,omitempty"`
 }
 
 // DSN returns the one DSN that is configured, or returns
@@ -15,21 +14,12 @@ type PersistentStore struct {
 func (ps PersistentStore) DSN() (string, DSN, error) {
 	emptyDSN := DSN{}
 
-	// check if both DSN are empty
-	if ps.MySQL.equal(emptyDSN) && ps.PostgreSQL.equal(emptyDSN) {
-		return "", emptyDSN, errors.New("neither mysql or postgres was configured")
+	// check if DSN is empty
+	if ps.MySQL.equal(emptyDSN) {
+		return "", emptyDSN, errors.New("mysql was not configured")
 	}
 
-	// check if both DSN are configured
-	if !ps.MySQL.equal(emptyDSN) && !ps.PostgreSQL.equal(emptyDSN) {
-		return "", emptyDSN, errors.New("only one of mysql or postgres may be configured")
-	}
-
-	if !ps.MySQL.equal(emptyDSN) {
-		return "mysql", ps.MySQL, nil
-	}
-
-	return "postgres", ps.PostgreSQL, nil
+	return "mysql", ps.MySQL, nil
 }
 
 // DSN represents the "data source name" for a database.
