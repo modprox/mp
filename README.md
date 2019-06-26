@@ -49,9 +49,6 @@ script will use the `hack/configs/registry-local.mysql.json` file, which works w
 
 #### Hacking on the Proxy
 
-The proxy component is more simple than the registry in that, by default, it does not connect to anything (other than the registry
-itself). 
-
 By default, it maintains its data-store of downloaded modules on disk, and saves modules in the `/tmp` directory (configurable).
 
 Alternatively, it can be configured to save persist downloaded modules to MySQL. You'll need to add a stanza to the json config file, similar to the following:
