@@ -83,7 +83,7 @@ func (m *mysqlStore) Info(mod coordinates.Module) (repository.RevInfo, error) {
 	m.log.Tracef("retrieving revinfo for module %s", mod)
 
 	start := time.Now()
-	revInfo, err := m.getRevInfo(mod)
+	revInfo, err := m.getVersionInfo(mod)
 	if err != nil {
 		return repository.RevInfo{}, err
 	}
@@ -193,7 +193,7 @@ const (
 	selectRegistryIDSQL
 	selectAllRegistryIDsSQL
 	countVersionsSQL
-	selectModuleRevInfoSQL
+	selectModuleVersionInfoSQL
 	selectGoModFileSQL
 	selectModuleVersionsSQL
 	updateRegistryIDSQL
@@ -230,15 +230,15 @@ var (
 		zipExistsSQL:       `select count(id) from proxy_module_zips where path=?`,
 		deleteModuleZipSQL: `delete from proxy_module_zips where path=?`,
 		// index
-		insertModuleSQL:         `insert into proxy_modules_index(source, version, go_mod_file, rev_info_contents, registry_mod_id) values (?, ?, ?, ?, ?)`,
-		selectRegistryIDSQL:     `select registry_mod_id from proxy_modules_index where source=? and version=?`,
-		selectAllRegistryIDsSQL: `select registry_mod_id from proxy_modules_index`,
-		countVersionsSQL:        `select count(version) from proxy_modules_index group by source`,
-		selectModuleRevInfoSQL:  `select rev_info_contents from proxy_modules_index where source=? and version=?`,
-		selectGoModFileSQL:      `select go_mod_file from proxy_modules_index where source=? and version=?`,
-		selectModuleVersionsSQL: `select version from proxy_modules_index where source=?`,
-		updateRegistryIDSQL:     `update proxy_modules_index set registry_mod_id=? where source=? and version=?`,
-		deleteModuleSQL:         `delete from proxy_modules_index where source=? and version=?`,
+		insertModuleSQL:            `insert into proxy_modules_index(source, version, go_mod_file, version_info, registry_mod_id) values (?, ?, ?, ?, ?)`,
+		selectRegistryIDSQL:        `select registry_mod_id from proxy_modules_index where source=? and version=?`,
+		selectAllRegistryIDsSQL:    `select registry_mod_id from proxy_modules_index`,
+		countVersionsSQL:           `select count(version) from proxy_modules_index group by source`,
+		selectModuleVersionInfoSQL: `select version_info from proxy_modules_index where source=? and version=?`,
+		selectGoModFileSQL:         `select go_mod_file from proxy_modules_index where source=? and version=?`,
+		selectModuleVersionsSQL:    `select version from proxy_modules_index where source=?`,
+		updateRegistryIDSQL:        `update proxy_modules_index set registry_mod_id=? where source=? and version=?`,
+		deleteModuleSQL:            `delete from proxy_modules_index where source=? and version=?`,
 	}
 )
 
@@ -363,10 +363,10 @@ func (m *mysqlStore) getModuleVersions(source string) ([]string, error) {
 	return versions, nil
 }
 
-func (m *mysqlStore) getRevInfo(mod coordinates.Module) (repository.RevInfo, error) {
+func (m *mysqlStore) getVersionInfo(mod coordinates.Module) (repository.RevInfo, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
-	rows, err := m.statements[selectModuleRevInfoSQL].QueryContext(ctx, mod.Source, mod.Version)
+	rows, err := m.statements[selectModuleVersionInfoSQL].QueryContext(ctx, mod.Source, mod.Version)
 	var revInfo repository.RevInfo
 	if err != nil {
 		m.emitter.Count("db-select-revinfo-failure", 1)
@@ -382,7 +382,7 @@ func (m *mysqlStore) getRevInfo(mod coordinates.Module) (repository.RevInfo, err
 	err = rows.Scan(&contents)
 	if err != nil {
 		m.emitter.Count("db-select-revinfo-failure", 1)
-		return revInfo, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectModuleRevInfoSQL])
+		return revInfo, errors.Wrapf(err, "failed to read row for sql: %+v", m.statements[selectModuleVersionInfoSQL])
 	}
 
 	err = json.Unmarshal(contents, &revInfo)

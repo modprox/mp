@@ -12,7 +12,7 @@ create table proxy_modules_index (
   version varchar(256) not null,
   registry_mod_id int(3) unsigned not null, # references modules.id, which may be in a different db
   go_mod_file text not null,
-  rev_info_contents blob not null,
+  version_info text not null,
   primary key(id),
   unique (source, version)
 ) engine=InnoDB default charset=utf8;
