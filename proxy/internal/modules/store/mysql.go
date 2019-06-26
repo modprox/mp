@@ -52,7 +52,7 @@ func (m *mysqlStore) GetZip(mod coordinates.Module) (repository.Blob, error) {
 }
 
 func (m *mysqlStore) DelZip(mod coordinates.Module) error {
-	m.log.Tracef("removing module %+v", mod)
+	m.log.Tracef("removing module %s", mod)
 
 	start := time.Now()
 	err := m.removeModuleZip(mod)
@@ -277,7 +277,7 @@ func (m *mysqlStore) removeModuleZip(mod coordinates.Module) error {
 		return errors.Wrapf(err, "failed to test rows affected for %s", mod)
 	}
 	if rowsAffected != 1 {
-		return errors.Errorf("expected exactly 1 row to be deleted for %s but got %+v", mod, rowsAffected)
+		return errors.Errorf("expected exactly 1 row to be deleted for %s but got %d", mod, rowsAffected)
 	}
 	return nil
 }
