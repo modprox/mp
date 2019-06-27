@@ -1,11 +1,10 @@
 language: go
 
 go:
-  - 1.12.5
+  - 1.12.x
 
 install:
-  - go get github.com/shoenig/petrify/...
-  - go get github.com/gojuno/minimock/cmd/minimock/...
+  - echo "do nothing for install step"
 
 script:
   - go generate ./...
@@ -15,7 +14,6 @@ script:
 
 services:
   - mysql
-
 
 before_script:
   - mysql -e 'CREATE DATABASE modproxdb;'

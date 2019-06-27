@@ -10,7 +10,7 @@ import (
 )
 
 // generate webpage statics
-//go:generate petrify -prefix ../../registry -o ../../registry/static/generated.go -pkg static ../../registry/static/...
+//go:generate go run github.com/shoenig/petrify/v4/cmd/petrify -prefix ../../registry -o ../../registry/static/generated.go -pkg static ../../registry/static/...
 
 func main() {
 	log := loggy.New("modprox-registry")

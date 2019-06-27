@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+
 	"github.com/pkg/errors"
 
 	"oss.indeed.com/go/modprox/pkg/coordinates"
@@ -24,7 +25,7 @@ type Ranges = coordinates.RangeIDs
 // Range is an alias of coordinates.RangeID for brevity.
 type Range = coordinates.RangeID
 
-//go:generate minimock -g -i Index -s _mock.go
+//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Index -s _mock.go
 
 // The Index is used to provide:
 //  - .mod file content
@@ -321,7 +322,7 @@ func (i *boltIndex) IDs() (Ranges, error) {
 
 	err := i.db.View(func(tx *bolt.Tx) error {
 		idBkt := tx.Bucket(idBktLbl)
-		idBkt.ForEach(func(_, v []byte) error {
+		_ = idBkt.ForEach(func(_, v []byte) error {
 			id := decodeID(v)
 			ids = append(ids, id)
 			return nil

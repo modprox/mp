@@ -11,7 +11,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/setup"
 )
 
-//go:generate minimock -g -i ZipStore -s _mock.go
+//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i ZipStore -s _mock.go
 
 type ZipStore interface {
 	PutZip(coordinates.Module, repository.Blob) error
