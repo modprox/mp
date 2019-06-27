@@ -9,7 +9,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/loggy"
 )
 
-//go:generate minimock -g -i Tracker -s _mock.go
+//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Tracker -s _mock.go
 
 type Tracker interface {
 	Set(Problem)

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"oss.indeed.com/go/modprox/pkg/loggy"
-
 	"github.com/pkg/errors"
+
+	"oss.indeed.com/go/modprox/pkg/loggy"
 )
 
 type Result struct {
@@ -29,14 +29,14 @@ type Tag struct {
 	Commit string
 }
 
-//go:generate minimock -g -i Versions -s _mock.go
+//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Versions -s _mock.go
 
 type Versions interface {
 	// Request the list of semver tags set in the source git repository.
 	Request(source string) (*Result, error)
 }
 
-//go:generate minimock -g -i Finder -s _mock.go
+//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Finder -s _mock.go
 
 type Finder interface {
 	// Find returns the special form module name for the latest commit,
