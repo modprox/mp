@@ -23,7 +23,7 @@ extensive documentation on [modprox.org](https://modprox.org/#starting)
 #### Hacking on the Registry
 
 The registry needs a persistent store, and for local development we have a docker image
-with PostgreSQL setup to automatically create tables and users. To make things super simple, in
+with MySQL setup to automatically create tables and users. To make things super simple, in
 the `hack/` directory there is a `docker-compose` file already configured to setup the basic
 containers needed for local developemnt. Simply run
 ```bash
@@ -33,22 +33,47 @@ in the `hack/` directory to get them going. Also in the `hack/` directory is a s
 connecting to the MySQL that is running in the docker container, for ease of poking around.
 ```bash
 $ compose up
-Recreating modprox-postgres ... 
-Recreating modprox-postgres ... done
-Attaching to modprox-postgres
-modprox-postgres | 2018-09-11 02:19:14.322 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
-modprox-postgres | 2018-09-11 02:19:14.322 UTC [1] LOG:  listening on IPv6 address "::", port 5432
-modprox-postgres | 2018-09-11 02:19:14.339 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-modprox-postgres | 2018-09-11 02:19:14.370 UTC [22] LOG:  database system was shut down at 2018-09-11 02:19:12 UTC
-modprox-postgres | 2018-09-11 02:19:14.381 UTC [1] LOG:  database system is ready to accept connections
+Starting modprox-fakeadog       ... done
+Starting modprox-mysql-proxy    ... done
+Starting modprox-mysql-registry ... done
+Attaching to modprox-mysql-proxy, modprox-mysql-registry, modprox-fakeadog
+modprox-mysql-registry | [Entrypoint] MySQL Docker Image 5.7.26-1.1.11
+modprox-mysql-registry | [Entrypoint] Initializing database
+modprox-mysql-proxy | [Entrypoint] MySQL Docker Image 5.7.26-1.1.11
+modprox-mysql-proxy | [Entrypoint] Initializing database
+modprox-mysql-proxy | [Entrypoint] Database initialized
+modprox-fakeadog  | time="2019-06-26T18:19:14Z" level=info msg="listening on 0.0.0.0:8125"
+modprox-mysql-registry | [Entrypoint] Database initialized
 ```
 
 Also in the `hack/` directory are some sample configuration files. By default, the included `run-dev.sh`
-script will use the `hack/configs/registry-local.postgres.json` file, which works well with the included
+script will use the `hack/configs/registry-local.mysql.json` file, which works well with the included
 `docker-compose.yaml` file.
 
 #### Hacking on the Proxy
 
-The proxy component is more simple than the registry in that it does not connect to anything (other than the registry
-itself). It does however maintain its data-store of downloaded modules on disk, and by default it saves modules in the `/tmp`
-directory.
+The Proxy needs to persist its data-store of downloaded modules. It can be configured to either persist them to disk
+or to MySQL.
+
+##### local disk config
+```json
+"module_storage": {
+  "data_path": "<disk path to store data>",
+  "index_path": "<disk path to store boltdb index>",
+  "tmp_path": "<disk path to store temporary files>"
+}
+```
+Note that `data_path` and `tmp_path` should point to paths on the same filesystem.
+
+##### MySQL config
+```json
+"module_db_storage": {
+  "mysql": {
+    "user": "docker",
+    "password": "docker",
+    "address": "localhost:3306",
+    "database": "modproxdb-prox",
+    "allow_native_passwords": true
+  }
+}
+```

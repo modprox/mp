@@ -12,3 +12,10 @@ script:
   - go build ./...
   - go vet ./...
   - go test -race ./...
+
+services:
+  - mysql
+
+
+before_script:
+  - mysql -e 'CREATE DATABASE modproxdb;'

@@ -5,7 +5,7 @@ set -euo pipefail
 mysql \
     --protocol=tcp \
     --host=localhost \
-    --port=3306 \
+    --port=3307 \
     --user=docker \
     --password=docker \
-    --database=modproxdb
+    --database=modproxdb-prox

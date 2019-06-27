@@ -25,10 +25,14 @@
     "request_timeout_s": 10,
     "api_key": "abc123"
   },
-  "module_storage": {
-    "data_path": "/tmp/mod-zips",
-    "index_path": "/tmp/mod-index-v0",
-    "tmp_path": "/tmp"
+  "module_db_storage": {
+    "mysql": {
+      "user": "docker",
+      "password": "docker",
+      "address": "localhost:3307",
+      "database": "modproxdb-prox",
+      "allow_native_passwords": true
+    }
   },
   "transforms": {
     "auto_redirect": true,
