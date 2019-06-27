@@ -148,13 +148,24 @@ func initRegistryClient(p *Proxy) error {
 	return nil
 }
 
-func initZipsClient(p *Proxy) error {
+func initZipClients(p *Proxy) error {
+	// create a proxy zip client
+	p.proxyClient = zips.NewProxyClient(
+		zips.ProxyClientOptions{
+			Protocol: p.config.ZipProxy.Protocol,
+			BaseURL:  p.config.ZipProxy.BaseURL,
+			Timeout:  1 * time.Minute,
+		},
+	)
+
+	// create an upstream zip client
 	httpClient := zips.NewHTTPClient(
 		zips.HTTPOptions{
 			Timeout: 1 * time.Minute,
 		},
 	)
-	p.zipsClient = zips.NewClient(httpClient)
+	p.upstreamClient = zips.NewUpstreamClient(httpClient)
+
 	return nil
 }
 
@@ -170,7 +181,8 @@ func initBGWorker(p *Proxy) error {
 	)
 
 	downloader := get.New(
-		p.zipsClient,
+		p.proxyClient,
+		p.upstreamClient,
 		resolver,
 		p.store,
 		p.index,

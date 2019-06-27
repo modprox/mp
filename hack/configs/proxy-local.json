@@ -34,6 +34,10 @@
       "allow_native_passwords": true
     }
   },
+  "zip_proxy": {
+    "protocol": "https",
+    "base_url": "proxy.golang.org"
+  },
   "transforms": {
     "auto_redirect": true,
     "domain_paths": [{

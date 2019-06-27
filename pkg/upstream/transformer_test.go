@@ -8,14 +8,96 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/loggy"
-
-	"github.com/stretchr/testify/require"
 )
 
 func ns(path string) Namespace {
 	return strings.Split(path, "/")
+}
+
+func Test_Resolver_UseProxy_static_no(t *testing.T) {
+	resolver := NewResolver(
+		NewStaticRedirectTransform("a.com", "b.com"),
+	)
+
+	useProxy, err := resolver.UseProxy(coordinates.Module{
+		Source:  "a.com", // static redirect to b.com
+		Version: "v1.1.1",
+	})
+	require.NoError(t, err)
+	require.False(t, useProxy)
+}
+
+func Test_Resolver_UseProxy_static_yes(t *testing.T) {
+	resolver := NewResolver(
+		NewStaticRedirectTransform("a.com", "b.com"),
+	)
+
+	useProxy, err := resolver.UseProxy(coordinates.Module{
+		Source:  "z.com", // no static redirect
+		Version: "v1.1.1",
+	})
+	require.NoError(t, err)
+	require.True(t, useProxy)
+}
+
+func Test_Resolver_UseProxy_domain_header_no(t *testing.T) {
+	resolver := NewResolver(
+		NewDomainHeaderTransform("f.com", map[string]string{
+			"X-My-Header": "abc123",
+		}),
+	)
+
+	useProxy, err := resolver.UseProxy(coordinates.Module{
+		Source:  "b.com", // no headers set
+		Version: "v1.1.1",
+	})
+	require.NoError(t, err)
+	require.True(t, useProxy)
+}
+
+func Test_Resolver_UseProxy_domain_transport_yes(t *testing.T) {
+	resolver := NewResolver(
+		NewDomainTransportTransform("c.com", "http"),
+	)
+
+	useProxy, err := resolver.UseProxy(coordinates.Module{
+		Source:  "d.com", // no transport set
+		Version: "v1.1.1.",
+	})
+	require.NoError(t, err)
+	require.True(t, useProxy)
+}
+
+func Test_Resolver_UseProxy_domain_transport_no(t *testing.T) {
+	resolver := NewResolver(
+		NewDomainTransportTransform("c.com", "http"),
+	)
+
+	useProxy, err := resolver.UseProxy(coordinates.Module{
+		Source:  "c.com", // custom transport set
+		Version: "v1.1.1.",
+	})
+	require.NoError(t, err)
+	require.False(t, useProxy)
+}
+
+func Test_Resolver_UseProxy_domain_header_yes(t *testing.T) {
+	resolver := NewResolver(
+		NewDomainHeaderTransform("f.com", map[string]string{
+			"X-My-Header": "abc123",
+		}),
+	)
+
+	useProxy, err := resolver.UseProxy(coordinates.Module{
+		Source:  "f.com", // has headers set
+		Version: "v1.1.1",
+	})
+	require.NoError(t, err)
+	require.False(t, useProxy)
 }
 
 func Test_NewAutomaticGoGetTransform200(t *testing.T) {
@@ -58,7 +140,8 @@ func Test_NewAutomaticGoGetTransform200(t *testing.T) {
 func Test_NewAutomaticGoGetTransform404(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
-		w.Write([]byte{})
+		_, err := w.Write([]byte{})
+		require.NoError(t, err)
 	}))
 	defer ts.Close()
 
