@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	clean "github.com/hashicorp/go-cleanhttp"
@@ -65,11 +66,11 @@ func NewProxyClient(opts ProxyClientOptions) ProxyClient {
 }
 
 func (c *proxyClient) uriOf(module coordinates.Module) string {
-	modZipPath := fmt.Sprintf(
+	modZipPath := mangle(fmt.Sprintf(
 		"/%s/@v/%s.zip",
 		module.Source,
 		module.Version,
-	)
+	))
 
 	s := url.URL{
 		Scheme: c.protocol,
@@ -78,6 +79,36 @@ func (c *proxyClient) uriOf(module coordinates.Module) string {
 	}
 
 	return s.String()
+}
+
+// module name needs to be re-encoded per the custom way Go decided to
+// encode module names (read https://go.indeed.com/GLYM8RA6E)
+//
+// The safe encoding is this:
+// replace every uppercase letter with an exclamation mark
+// followed by the letter's lowercase equivalent.
+//
+// For example,
+// github.com/Azure/azure-sdk-for-go ->  github.com/!azure/azure-sdk-for-go.
+// github.com/GoogleCloudPlatform/cloudsql-proxy -> github.com/!google!cloud!platform/cloudsql-proxy
+// github.com/Sirupsen/logrus -> github.com/!sirupsen/logrus.
+//
+// The opposite of this is in proxy/internal/web/common.go
+// We could extract these into a library in the future.
+
+func mangle(source string) string {
+	var builder strings.Builder
+
+	for _, c := range source {
+		if c >= 'A' && c <= 'Z' {
+			builder.WriteString("!")
+			builder.WriteString(string(c + ('a' - 'A'))) // remember CS101?
+		} else {
+			builder.WriteString(string(c))
+		}
+	}
+
+	return builder.String()
 }
 
 func (c *proxyClient) Get(mod coordinates.Module) (repository.Blob, error) {
