@@ -38,7 +38,7 @@ type Range = coordinates.RangeID
 // we get better performance than keeping actual files on disk.
 type Index interface {
 	Versions(module string) ([]string, error)
-	Info(coordinates.Module) (repository.RevInfo, error)
+	Info(coordinates.Module) (repository.RevInfo, error) // .info json
 	Contains(coordinates.Module) (bool, int64, error)
 	UpdateID(coordinates.SerialModule) error
 	Mod(coordinates.Module) (string, error) // go.mod file
