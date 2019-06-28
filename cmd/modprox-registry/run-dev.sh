@@ -6,8 +6,6 @@ go clean
 go generate
 go build
 
-echo "num: ${#}"
-
 if [[ ${#} -eq 1 ]]; then
 	configfile="${1}"
 else
@@ -15,6 +13,3 @@ else
 fi
 
 ./modprox-registry ${configfile}
-
-# ./modprox-registry ../../hack/configs/registry-local.mysql.json
-

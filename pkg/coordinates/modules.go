@@ -11,16 +11,28 @@ type Module struct {
 	Version string `json:"version"`
 }
 
-func (mi Module) String() string {
-	return fmt.Sprintf("(%s @ %s)", mi.Source, mi.Version)
+// String representation intended for human consumption.
+//
+// Includes surrounding parenthesis and some whitespace to pop in logs.
+func (m Module) String() string {
+	return fmt.Sprintf("(%s @ %s)", m.Source, m.Version)
 }
 
-func (mi Module) Bytes() []byte {
-	return []byte(fmt.Sprintf(
+// AtVersion representation intended for machine consumption.
+//
+// Format is source@version.
+func (m Module) AtVersion() string {
+	return fmt.Sprintf(
 		"%s@%s",
-		mi.Source,
-		mi.Version,
-	))
+		m.Source,
+		m.Version,
+	)
+}
+
+// Bytes is AtVersion but converted to Bytes for use in a data-store which
+// stores bytes.
+func (m Module) Bytes() []byte {
+	return []byte(m.AtVersion())
 }
 
 type SerialModule struct {
