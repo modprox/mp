@@ -30,7 +30,7 @@ services:
       - /tmp
     volumes:
       - ./sql/mysql-prox:/docker-entrypoint-initdb.d
-    command: --max_allowed_packet=4194304
+    command: --max_allowed_packet=16777216
     environment:
       - MYSQL_ROOT_PASSWORD=passw0rd
       - MYSQL_DATABASE=modproxdb-prox
