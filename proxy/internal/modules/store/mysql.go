@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"io"
 	"time"
 
 	"github.com/pkg/errors"
@@ -290,7 +291,7 @@ func (m *mysqlStore) getModuleVersions(source string) ([]string, error) {
 		m.emitter.Count("db-select-module-versions-failure", 1)
 		return nil, errors.Wrapf(err, "failed to query versions for %s", source)
 	}
-	defer rows.Close()
+	defer ignoreClose(rows)
 
 	versions := make([]string, 0, 10)
 	for rows.Next() {
@@ -374,7 +375,7 @@ func (m *mysqlStore) ids() ([]int64, error) {
 		m.emitter.Count("db-select-ids-failure", 1)
 		return nil, errors.Wrapf(err, "failed to query ids")
 	}
-	defer rows.Close()
+	defer ignoreClose(rows)
 
 	ids := make([]int64, 0, 10)
 	for rows.Next() {
@@ -402,7 +403,7 @@ func (m *mysqlStore) countSourcesAndVersions() (int, int, error) {
 		m.emitter.Count("db-count-versions-failure", 1)
 		return 0, 0, errors.Wrapf(err, "failed to query sources")
 	}
-	defer rows.Close()
+	defer ignoreClose(rows)
 
 	totalVersions := 0
 	totalSources := 0
@@ -422,4 +423,8 @@ func (m *mysqlStore) countSourcesAndVersions() (int, int, error) {
 	}
 
 	return totalSources, totalVersions, nil
+}
+
+func ignoreClose(c io.Closer) {
+	_ = c.Close()
 }

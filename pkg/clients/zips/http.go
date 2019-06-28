@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+
 	"github.com/shoenig/httplus/responses"
 
 	"oss.indeed.com/go/modprox/pkg/loggy"
@@ -25,7 +26,7 @@ type HTTPOptions struct {
 	Timeout time.Duration
 }
 
-func NewHTTPClient(options HTTPOptions) Client {
+func NewHTTPClient(options HTTPOptions) UpstreamClient {
 	if options.Timeout <= 0 {
 		options.Timeout = 10 * time.Minute
 	}
@@ -48,17 +49,17 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 		return nil, errors.New("request is nil")
 	}
 
-	uri := r.URI()
-	c.log.Tracef("making a request to %s", uri)
+	zipURI := r.URI()
+	c.log.Tracef("making zip upstream request to %s", zipURI)
 
-	request, err := c.convert(r)
+	request, err := c.newRequest(r)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not create request from %s", uri)
+		return nil, errors.Wrapf(err, "could not create request from %s", zipURI)
 	}
 
 	response, err := c.client.Do(request)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not do request for %s", uri)
+		return nil, errors.Wrapf(err, "could not do request for %s", zipURI)
 	}
 	defer responses.Drain(response)
 
@@ -66,11 +67,7 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 	if response.StatusCode >= 400 {
 		bs, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			return nil, errors.Wrapf(
-				err,
-				"could not read body of bad response (%d)",
-				response.StatusCode,
-			)
+			return nil, errors.Wrapf(err, "could not read body of bad response (%d)", response.StatusCode)
 		}
 		body := string(bs)
 		if len(body) <= maxLoggedBody {
@@ -97,7 +94,7 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 	return ioutil.ReadAll(response.Body)
 }
 
-func (c *httpClient) convert(r *upstream.Request) (*http.Request, error) {
+func (c *httpClient) newRequest(r *upstream.Request) (*http.Request, error) {
 	uri := r.URI()
 	request, err := http.NewRequest(
 		http.MethodGet,
@@ -105,7 +102,7 @@ func (c *httpClient) convert(r *upstream.Request) (*http.Request, error) {
 		nil,
 	)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "unable to create request")
 	}
 
 	for k, v := range r.Headers {

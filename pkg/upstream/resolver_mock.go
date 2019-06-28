@@ -19,6 +19,11 @@ type ResolverMock struct {
 	afterResolveCounter  uint64
 	beforeResolveCounter uint64
 	ResolveMock          mResolverMockResolve
+
+	funcUseProxy          func(m1 coordinates.Module) (b1 bool, err error)
+	afterUseProxyCounter  uint64
+	beforeUseProxyCounter uint64
+	UseProxyMock          mResolverMockUseProxy
 }
 
 // NewResolverMock returns a mock for Resolver
@@ -30,6 +35,9 @@ func NewResolverMock(t minimock.Tester) *ResolverMock {
 
 	m.ResolveMock = mResolverMockResolve{mock: m}
 	m.ResolveMock.callArgs = []*ResolverMockResolveParams{}
+
+	m.UseProxyMock = mResolverMockUseProxy{mock: m}
+	m.UseProxyMock.callArgs = []*ResolverMockUseProxyParams{}
 
 	return m
 }
@@ -235,10 +243,213 @@ func (m *ResolverMock) MinimockResolveInspect() {
 	}
 }
 
+type mResolverMockUseProxy struct {
+	mock               *ResolverMock
+	defaultExpectation *ResolverMockUseProxyExpectation
+	expectations       []*ResolverMockUseProxyExpectation
+
+	callArgs []*ResolverMockUseProxyParams
+	mutex    sync.RWMutex
+}
+
+// ResolverMockUseProxyExpectation specifies expectation struct of the Resolver.UseProxy
+type ResolverMockUseProxyExpectation struct {
+	mock    *ResolverMock
+	params  *ResolverMockUseProxyParams
+	results *ResolverMockUseProxyResults
+	Counter uint64
+}
+
+// ResolverMockUseProxyParams contains parameters of the Resolver.UseProxy
+type ResolverMockUseProxyParams struct {
+	m1 coordinates.Module
+}
+
+// ResolverMockUseProxyResults contains results of the Resolver.UseProxy
+type ResolverMockUseProxyResults struct {
+	b1  bool
+	err error
+}
+
+// Expect sets up expected params for Resolver.UseProxy
+func (mmUseProxy *mResolverMockUseProxy) Expect(m1 coordinates.Module) *mResolverMockUseProxy {
+	if mmUseProxy.mock.funcUseProxy != nil {
+		mmUseProxy.mock.t.Fatalf("ResolverMock.UseProxy mock is already set by Set")
+	}
+
+	if mmUseProxy.defaultExpectation == nil {
+		mmUseProxy.defaultExpectation = &ResolverMockUseProxyExpectation{}
+	}
+
+	mmUseProxy.defaultExpectation.params = &ResolverMockUseProxyParams{m1}
+	for _, e := range mmUseProxy.expectations {
+		if minimock.Equal(e.params, mmUseProxy.defaultExpectation.params) {
+			mmUseProxy.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmUseProxy.defaultExpectation.params)
+		}
+	}
+
+	return mmUseProxy
+}
+
+// Return sets up results that will be returned by Resolver.UseProxy
+func (mmUseProxy *mResolverMockUseProxy) Return(b1 bool, err error) *ResolverMock {
+	if mmUseProxy.mock.funcUseProxy != nil {
+		mmUseProxy.mock.t.Fatalf("ResolverMock.UseProxy mock is already set by Set")
+	}
+
+	if mmUseProxy.defaultExpectation == nil {
+		mmUseProxy.defaultExpectation = &ResolverMockUseProxyExpectation{mock: mmUseProxy.mock}
+	}
+	mmUseProxy.defaultExpectation.results = &ResolverMockUseProxyResults{b1, err}
+	return mmUseProxy.mock
+}
+
+//Set uses given function f to mock the Resolver.UseProxy method
+func (mmUseProxy *mResolverMockUseProxy) Set(f func(m1 coordinates.Module) (b1 bool, err error)) *ResolverMock {
+	if mmUseProxy.defaultExpectation != nil {
+		mmUseProxy.mock.t.Fatalf("Default expectation is already set for the Resolver.UseProxy method")
+	}
+
+	if len(mmUseProxy.expectations) > 0 {
+		mmUseProxy.mock.t.Fatalf("Some expectations are already set for the Resolver.UseProxy method")
+	}
+
+	mmUseProxy.mock.funcUseProxy = f
+	return mmUseProxy.mock
+}
+
+// When sets expectation for the Resolver.UseProxy which will trigger the result defined by the following
+// Then helper
+func (mmUseProxy *mResolverMockUseProxy) When(m1 coordinates.Module) *ResolverMockUseProxyExpectation {
+	if mmUseProxy.mock.funcUseProxy != nil {
+		mmUseProxy.mock.t.Fatalf("ResolverMock.UseProxy mock is already set by Set")
+	}
+
+	expectation := &ResolverMockUseProxyExpectation{
+		mock:   mmUseProxy.mock,
+		params: &ResolverMockUseProxyParams{m1},
+	}
+	mmUseProxy.expectations = append(mmUseProxy.expectations, expectation)
+	return expectation
+}
+
+// Then sets up Resolver.UseProxy return parameters for the expectation previously defined by the When method
+func (e *ResolverMockUseProxyExpectation) Then(b1 bool, err error) *ResolverMock {
+	e.results = &ResolverMockUseProxyResults{b1, err}
+	return e.mock
+}
+
+// UseProxy implements Resolver
+func (mmUseProxy *ResolverMock) UseProxy(m1 coordinates.Module) (b1 bool, err error) {
+	mm_atomic.AddUint64(&mmUseProxy.beforeUseProxyCounter, 1)
+	defer mm_atomic.AddUint64(&mmUseProxy.afterUseProxyCounter, 1)
+
+	params := &ResolverMockUseProxyParams{m1}
+
+	// Record call args
+	mmUseProxy.UseProxyMock.mutex.Lock()
+	mmUseProxy.UseProxyMock.callArgs = append(mmUseProxy.UseProxyMock.callArgs, params)
+	mmUseProxy.UseProxyMock.mutex.Unlock()
+
+	for _, e := range mmUseProxy.UseProxyMock.expectations {
+		if minimock.Equal(e.params, params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.b1, e.results.err
+		}
+	}
+
+	if mmUseProxy.UseProxyMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmUseProxy.UseProxyMock.defaultExpectation.Counter, 1)
+		want := mmUseProxy.UseProxyMock.defaultExpectation.params
+		got := ResolverMockUseProxyParams{m1}
+		if want != nil && !minimock.Equal(*want, got) {
+			mmUseProxy.t.Errorf("ResolverMock.UseProxy got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		}
+
+		results := mmUseProxy.UseProxyMock.defaultExpectation.results
+		if results == nil {
+			mmUseProxy.t.Fatal("No results are set for the ResolverMock.UseProxy")
+		}
+		return (*results).b1, (*results).err
+	}
+	if mmUseProxy.funcUseProxy != nil {
+		return mmUseProxy.funcUseProxy(m1)
+	}
+	mmUseProxy.t.Fatalf("Unexpected call to ResolverMock.UseProxy. %v", m1)
+	return
+}
+
+// UseProxyAfterCounter returns a count of finished ResolverMock.UseProxy invocations
+func (mmUseProxy *ResolverMock) UseProxyAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmUseProxy.afterUseProxyCounter)
+}
+
+// UseProxyBeforeCounter returns a count of ResolverMock.UseProxy invocations
+func (mmUseProxy *ResolverMock) UseProxyBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmUseProxy.beforeUseProxyCounter)
+}
+
+// Calls returns a list of arguments used in each call to ResolverMock.UseProxy.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmUseProxy *mResolverMockUseProxy) Calls() []*ResolverMockUseProxyParams {
+	mmUseProxy.mutex.RLock()
+
+	argCopy := make([]*ResolverMockUseProxyParams, len(mmUseProxy.callArgs))
+	copy(argCopy, mmUseProxy.callArgs)
+
+	mmUseProxy.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockUseProxyDone returns true if the count of the UseProxy invocations corresponds
+// the number of defined expectations
+func (m *ResolverMock) MinimockUseProxyDone() bool {
+	for _, e := range m.UseProxyMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.UseProxyMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterUseProxyCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcUseProxy != nil && mm_atomic.LoadUint64(&m.afterUseProxyCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockUseProxyInspect logs each unmet expectation
+func (m *ResolverMock) MinimockUseProxyInspect() {
+	for _, e := range m.UseProxyMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to ResolverMock.UseProxy with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.UseProxyMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterUseProxyCounter) < 1 {
+		if m.UseProxyMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ResolverMock.UseProxy")
+		} else {
+			m.t.Errorf("Expected call to ResolverMock.UseProxy with params: %#v", *m.UseProxyMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcUseProxy != nil && mm_atomic.LoadUint64(&m.afterUseProxyCounter) < 1 {
+		m.t.Error("Expected call to ResolverMock.UseProxy")
+	}
+}
+
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *ResolverMock) MinimockFinish() {
 	if !m.minimockDone() {
 		m.MinimockResolveInspect()
+
+		m.MinimockUseProxyInspect()
 		m.t.FailNow()
 	}
 }
@@ -262,5 +473,6 @@ func (m *ResolverMock) MinimockWait(timeout mm_time.Duration) {
 func (m *ResolverMock) minimockDone() bool {
 	done := true
 	return done &&
-		m.MinimockResolveDone()
+		m.MinimockResolveDone() &&
+		m.MinimockUseProxyDone()
 }

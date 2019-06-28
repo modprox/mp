@@ -54,6 +54,10 @@ type ModuleAddition struct {
 	ModFile  string
 }
 
+func (m ModuleAddition) String() string {
+	return m.Mod.String()
+}
+
 type IndexOptions struct {
 	Directory   string
 	OpenTimeout time.Duration

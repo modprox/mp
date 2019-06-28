@@ -3,8 +3,6 @@ package service
 import (
 	"os"
 
-	"oss.indeed.com/go/modprox/proxy/internal/modules/get"
-
 	"oss.indeed.com/go/modprox/pkg/clients/registry"
 	"oss.indeed.com/go/modprox/pkg/clients/zips"
 	"oss.indeed.com/go/modprox/pkg/loggy"
@@ -12,6 +10,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/webutil"
 	"oss.indeed.com/go/modprox/proxy/config"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/bg"
+	"oss.indeed.com/go/modprox/proxy/internal/modules/get"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 	"oss.indeed.com/go/modprox/proxy/internal/problems"
 )
@@ -23,7 +22,8 @@ type Proxy struct {
 	index          store.Index
 	store          store.ZipStore
 	registryClient registry.Client
-	zipsClient     zips.Client
+	proxyClient    zips.ProxyClient
+	upstreamClient zips.UpstreamClient
 	downloader     get.Downloader
 	bgWorker       bg.Worker
 	dlTracker      problems.Tracker
@@ -43,7 +43,7 @@ func NewProxy(configuration config.Configuration) *Proxy {
 		initIndex,
 		initStore,
 		initRegistryClient,
-		initZipsClient,
+		initZipClients,
 		initBGWorker,
 		initHeartbeatSender,
 		initStartupConfigSender,

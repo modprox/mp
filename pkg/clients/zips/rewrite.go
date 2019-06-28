@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"oss.indeed.com/go/modprox/pkg/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
@@ -19,8 +19,6 @@ const (
 	goModFile     = "go.mod"
 	hgArchiveFile = ".hg_archival.txt"
 )
-
-var log = loggy.New("zips")
 
 // Rewrite the zip we downloaded from the upstream VCS into a zip file in the format
 // required by the go/cmd tooling. Fundamentally the zip file the Go tooling requires
@@ -96,14 +94,13 @@ func Rewrite(mod coordinates.Module, b repository.Blob) (repository.Blob, error)
 			if err != nil {
 				return nil, err
 			}
-			bytes, err := ioutil.ReadAll(rc)
+			bs, err := ioutil.ReadAll(rc)
 			if err != nil {
 				return nil, errors.Wrapf(err, "error reading %s", zf.Name)
 			}
-			topLicenseBytes = bytes
+			topLicenseBytes = bs
 			haveTopLicense = true
 		}
-
 	}
 
 	// If the requested module is in a subdirectory of the repo, we'll need to strip that subdirectory
@@ -279,4 +276,3 @@ func ModulePath(mod []byte) string {
 	}
 	return "" // missing module path
 }
-

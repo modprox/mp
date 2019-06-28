@@ -24,6 +24,20 @@ type Resolver interface {
 	// and returns the resulting Request, or an error if
 	// one of the Transform operations does not work.
 	Resolve(coordinates.Module) (*Request, error)
+
+	// UseProxy indicates whether Module can be downloaded from a generic open
+	// global proxy (e.g. proxy.golang.org) instead of the original upstream
+	// source (e.g. github / gitlab). This is going to be true for any Module
+	// which does not get matched by any configured domain type Transform. The
+	// rational is that any domain type Transform is a flag that the module is
+	// not going to be present an the open source context, and the original
+	// upstream must be used since it is likely a private repository.
+	//
+	// The transforms that prohibit proxy use are:
+	// - StaticRedirectTransform
+	// - DomainTransportTransform
+	// - DomainHeaderTransform
+	UseProxy(coordinates.Module) (bool, error)
 }
 
 // A Transform is one operation that is applied to a Request,
@@ -50,6 +64,42 @@ func NewResolver(transforms ...Transform) Resolver {
 	return &resolver{
 		transforms: transforms,
 	}
+}
+
+func (r *resolver) UseProxy(mod coordinates.Module) (bool, error) {
+	original, err := NewRequest(mod)
+	if err != nil {
+		return false, err
+	}
+
+	// go through each transform and decide if it applies to this module
+	for _, transform := range r.transforms {
+
+		switch transform.(type) {
+
+		// select on the types that trigger an upstream request to be necessary
+		case *StaticRedirectTransform,
+			*DomainTransportTransform,
+			*DomainHeaderTransform:
+
+			// Apply the transform, if the request is modified, that means
+			// the transform is applies to this module and we cannot use the
+			// global proxy to make the request.
+			changed, err := transform.Modify(original)
+			if err != nil {
+				return false, err
+			}
+
+			// Compare the original request with the modified request. If they
+			// do not match, we cannot use a global proxy to make request the
+			// archive for this module.
+			if !original.Equals(changed) {
+				return false, nil
+			}
+		}
+	}
+
+	return true, nil
 }
 
 func (r *resolver) Resolve(mod coordinates.Module) (*Request, error) {

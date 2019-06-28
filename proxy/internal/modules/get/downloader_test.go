@@ -17,16 +17,18 @@ import (
 )
 
 type mocks struct {
-	resolver  *upstream.ResolverMock
-	zipClient *zips.ClientMock
-	zipStore  *store.ZipStoreMock
-	index     *store.IndexMock
-	emitter   *stats.SenderMock
+	resolver       *upstream.ResolverMock
+	proxyClient    *zips.ProxyClientMock
+	upstreamClient *zips.UpstreamClientMock
+	zipStore       *store.ZipStoreMock
+	index          *store.IndexMock
+	emitter        *stats.SenderMock
 }
 
 func (m mocks) assertions() {
+	m.proxyClient.MinimockFinish()
+	m.upstreamClient.MinimockFinish()
 	m.resolver.MinimockFinish()
-	m.zipClient.MinimockFinish()
 	m.zipStore.MinimockFinish()
 	m.index.MinimockFinish()
 	m.emitter.MinimockFinish()
@@ -34,11 +36,12 @@ func (m mocks) assertions() {
 
 func newMocks(t *testing.T) mocks {
 	return mocks{
-		resolver:  upstream.NewResolverMock(t),
-		zipClient: zips.NewClientMock(t),
-		zipStore:  store.NewZipStoreMock(t),
-		index:     store.NewIndexMock(t),
-		emitter:   stats.NewSenderMock(t),
+		proxyClient:    zips.NewProxyClientMock(t),
+		upstreamClient: zips.NewUpstreamClientMock(t),
+		resolver:       upstream.NewResolverMock(t),
+		zipStore:       store.NewZipStoreMock(t),
+		index:          store.NewIndexMock(t),
+		emitter:        stats.NewSenderMock(t),
 	}
 }
 
@@ -73,7 +76,7 @@ func dummyZip(t *testing.T) repository.Blob {
 	return repository.Blob(buf.Bytes())
 }
 
-func Test_Download_ok(t *testing.T) {
+func Test_Download_upstream_ok(t *testing.T) {
 	mocks := newMocks(t)
 	defer mocks.assertions()
 
@@ -93,12 +96,18 @@ func Test_Download_ok(t *testing.T) {
 	}
 
 	originalBlob := dummyZip(t)
+
 	rewrittenBlob, err := zips.Rewrite(serialModule.Module, originalBlob)
 	require.NoError(t, err)
 
+	// force this module to be requested from upstream, not from global proxy
+	mocks.resolver.UseProxyMock.When(serialModule.Module).Then(false, nil)
+
+	// since we're going upstream, need to resolve the request
 	mocks.resolver.ResolveMock.When(serialModule.Module).Then(upstreamRequest, nil)
 
-	mocks.zipClient.GetMock.When(upstreamRequest).Then(originalBlob, nil)
+	// return the original raw archive blob from upstream
+	mocks.upstreamClient.GetMock.When(upstreamRequest).Then(originalBlob, nil)
 
 	mocks.emitter.GaugeMSMock.Set(func(metric string, now time.Time) {
 		require.Equal(t, "download-mod-elapsed-ms", metric)
@@ -114,7 +123,56 @@ func Test_Download_ok(t *testing.T) {
 	}).Then(nil)
 
 	dl := New(
-		mocks.zipClient,
+		mocks.proxyClient,
+		mocks.upstreamClient,
+		mocks.resolver,
+		mocks.zipStore,
+		mocks.index,
+		mocks.emitter,
+	)
+
+	err = dl.Download(serialModule)
+	require.NoError(t, err)
+}
+
+func Test_Download_proxy_ok(t *testing.T) {
+	mocks := newMocks(t)
+	defer mocks.assertions()
+
+	serialModule := coordinates.SerialModule{
+		Module: coordinates.Module{
+			Source:  "github.com/pkg/errors",
+			Version: "v1.2.3",
+		},
+		SerialID: 16,
+	}
+
+	// when downloading from a proxy, the blob is already a well-formed zip
+	originalBlob, err := zips.Rewrite(serialModule.Module, dummyZip(t))
+	require.NoError(t, err)
+
+	// allow this module to be requested from a global proxy
+	mocks.resolver.UseProxyMock.When(serialModule.Module).Then(true, nil)
+
+	// return the well-formed zip in response
+	mocks.proxyClient.GetMock.When(serialModule.Module).Then(originalBlob, nil)
+
+	mocks.emitter.GaugeMSMock.Set(func(metric string, now time.Time) {
+		require.Equal(t, "download-mod-elapsed-ms", metric)
+		_ = now // ignore
+	})
+
+	mocks.zipStore.PutZipMock.When(serialModule.Module, originalBlob).Then(nil)
+
+	mocks.index.PutMock.When(store.ModuleAddition{
+		Mod:      serialModule.Module,
+		UniqueID: 16,
+		ModFile:  "module github.com/pkg/errors\n",
+	}).Then(nil)
+
+	dl := New(
+		mocks.proxyClient,
+		mocks.upstreamClient,
 		mocks.resolver,
 		mocks.zipStore,
 		mocks.index,
@@ -153,12 +211,12 @@ func Test_Download_err_Resolve(t *testing.T) {
 	//	upstreamRequest, nil,
 	//).Once()
 	//
-	//mocks.zipClient.On("Get", upstreamRequest).Return(
+	//mocks.upstreamClient.On("Get", upstreamRequest).Return(
 	//	nil, errors.New("zip client get failed"),
 	//).Once()
 
 	dl := New(
-		mocks.zipClient,
+		mocks.upstreamClient,
 		mocks.resolver,
 		mocks.zipStore,
 		mocks.index,
@@ -186,7 +244,7 @@ func Test_Download_err_Get(t *testing.T) {
 	//).Once()
 
 	dl := New(
-		mocks.zipClient,
+		mocks.upstreamClient,
 		mocks.resolver,
 		mocks.zipStore,
 		mocks.index,
@@ -223,7 +281,7 @@ func Test_Download_err_Rewrite(t *testing.T) {
 	//	upstreamRequest, nil,
 	//).Once()
 	//
-	//mocks.zipClient.On("Get", upstreamRequest).Return(
+	//mocks.upstreamClient.On("Get", upstreamRequest).Return(
 	//	badBlob, nil,
 	//).Once()
 	//
@@ -232,7 +290,7 @@ func Test_Download_err_Rewrite(t *testing.T) {
 	//).Once()
 
 	dl := New(
-		mocks.zipClient,
+		mocks.upstreamClient,
 		mocks.resolver,
 		mocks.zipStore,
 		mocks.index,
@@ -270,7 +328,7 @@ func Test_Download_err_PutZip(t *testing.T) {
 		upstreamRequest, nil,
 	).Once()
 
-	mocks.zipClient.On("Get", upstreamRequest).Return(
+	mocks.upstreamClient.On("Get", upstreamRequest).Return(
 		originalBlob, nil,
 	).Once()
 
@@ -284,7 +342,7 @@ func Test_Download_err_PutZip(t *testing.T) {
 	).Return(errors.New("put zip failure")).Once()
 
 	dl := New(
-		mocks.zipClient,
+		mocks.upstreamClient,
 		mocks.resolver,
 		mocks.zipStore,
 		mocks.index,
@@ -322,7 +380,7 @@ func Test_Download_err_Put(t *testing.T) {
 		upstreamRequest, nil,
 	).Once()
 
-	mocks.zipClient.On("Get", upstreamRequest).Return(
+	mocks.upstreamClient.On("Get", upstreamRequest).Return(
 		originalBlob, nil,
 	).Once()
 
@@ -342,7 +400,7 @@ func Test_Download_err_Put(t *testing.T) {
 	}).Return(errors.New("put failure")).Once()
 
 	dl := New(
-		mocks.zipClient,
+		mocks.upstreamClient,
 		mocks.resolver,
 		mocks.zipStore,
 		mocks.index,

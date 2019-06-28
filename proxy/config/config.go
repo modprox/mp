@@ -19,10 +19,16 @@ type Configuration struct {
 	ModuleStorage   *Storage               `json:"module_storage,omitempty"`
 	ModuleDBStorage *setup.PersistentStore `json:"module_db_storage,omitempty"`
 	Transforms      Transforms             `json:"transforms"`
+	ZipProxy        ZipProxy               `json:"zip_proxy"`
 }
 
 func (c Configuration) String() string {
 	return configutil.Format(c)
+}
+
+type ZipProxy struct {
+	Protocol string `json:"protocol"` // e.g. "https"
+	BaseURL  string `json:"base_url"` // e.g. "proxy.golang.org"
 }
 
 type APIServer struct {
