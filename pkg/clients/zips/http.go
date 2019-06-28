@@ -63,7 +63,7 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 	}
 	defer responses.Drain(response)
 
-	// if we get a bad response code, try to read the body and zipLog it
+	// if we get a bad response code, try to read the body and log it
 	if response.StatusCode >= 400 {
 		bs, err := ioutil.ReadAll(response.Body)
 		if err != nil {
