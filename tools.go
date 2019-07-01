@@ -1,3 +1,5 @@
+//+build tools
+
 package modprox
 
 import (
