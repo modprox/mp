@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+
 	"github.com/shoenig/atomicfs"
 
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/coordinates"
-	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/repository"
 )

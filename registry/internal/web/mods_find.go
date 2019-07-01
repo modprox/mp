@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"time"
 
-	"oss.indeed.com/go/modprox/pkg/loggy"
+	"github.com/gorilla/csrf"
+
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/registry/internal/tools/finder"
 	"oss.indeed.com/go/modprox/registry/static"
-
-	"github.com/gorilla/csrf"
 )
 
 type findPage struct {

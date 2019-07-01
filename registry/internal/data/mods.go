@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"oss.indeed.com/go/modprox/pkg/coordinates"
+
 	"github.com/pkg/errors"
+
+	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
 type moduleTR struct {

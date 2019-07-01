@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"oss.indeed.com/go/modprox/pkg/coordinates"
-
 	"github.com/stretchr/testify/require"
+
+	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
 func Test_Tracker_empty_default(t *testing.T) {

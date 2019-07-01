@@ -5,8 +5,9 @@ import (
 	"html/template"
 	"net/http"
 
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
-	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/proxy/config"
 	"oss.indeed.com/go/modprox/registry/internal/data"

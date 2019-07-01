@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
 	"oss.indeed.com/go/modprox/pkg/clients/registry"
-	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/netservice"
 )

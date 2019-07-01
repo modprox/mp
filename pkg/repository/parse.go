@@ -3,9 +3,9 @@ package repository
 import (
 	"strings"
 
-	"oss.indeed.com/go/modprox/pkg/coordinates"
-
 	"github.com/pkg/errors"
+
+	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
 var (

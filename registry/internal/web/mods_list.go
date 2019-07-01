@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"sort"
 
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/coordinates"
-	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/registry/internal/data"
 	"oss.indeed.com/go/modprox/registry/static"

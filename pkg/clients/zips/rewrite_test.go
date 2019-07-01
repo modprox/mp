@@ -50,8 +50,8 @@ func Test_ModulePath_none(t *testing.T) {
 func Test_moduleOf(t *testing.T) {
 	goModPath := map[string]string{
 		"github.com/billsmith/module1-1.1.4": "github.com/billsmith/module1",
-		"github.com/billsmith/module1/v2": "github.com/billsmith/module1/v2",
-		"github.com/billsmith/module1/v3": "github.com/billsmith/module1/v3",
+		"github.com/billsmith/module1/v2":    "github.com/billsmith/module1/v2",
+		"github.com/billsmith/module1/v3":    "github.com/billsmith/module1/v3",
 	}
 
 	require.Equal(t, "github.com/billsmith/module1", moduleOf(goModPath, "github.com/billsmith/module1-1.1.4/main.go"))
@@ -59,7 +59,7 @@ func Test_moduleOf(t *testing.T) {
 
 func Test_moduleOf_v2(t *testing.T) {
 	goModPath := map[string]string{
-		"github.com/billsmith/module1-2.0.9": "github.com/billsmith/module1",
+		"github.com/billsmith/module1-2.0.9":    "github.com/billsmith/module1",
 		"github.com/billsmith/module1-2.0.9/v2": "github.com/billsmith/module1/v2",
 		"github.com/billsmith/module1-2.0.9/v3": "github.com/billsmith/module1/v3",
 	}
