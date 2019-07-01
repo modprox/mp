@@ -9,7 +9,6 @@ import (
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
 	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
-	"oss.indeed.com/go/modprox/proxy/config"
 	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
@@ -64,8 +63,6 @@ func (h *startupHandler) post(r *http.Request) (int, string, error) {
 
 func checkConfiguration(configuration payloads.Configuration) error {
 	switch {
-	case configuration.DiskStorage == config.Storage{}:
-		return errors.New("storage configuration cannot be empty")
 	case len(configuration.Registry.Instances) == 0:
 		return errors.New("registries configuration cannot be empty")
 	}
