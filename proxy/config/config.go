@@ -101,11 +101,9 @@ type Registry struct {
 }
 
 type Transforms struct {
+	// Deprecated, AutomaticRedirect is now ignored and treated as always-on
 	AutomaticRedirect bool `json:"auto_redirect"`
-	DomainGoGet       []struct {
-		Domain string `json:"domain"`
-	} `json:"domain_go-get,omitempty"`
-	DomainRedirects []struct {
+	DomainRedirects   []struct {
 		Original     string `json:"original"`
 		Substitution string `json:"substitution"`
 	} `json:"domain_redirects,omitempty"`

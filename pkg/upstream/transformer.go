@@ -202,23 +202,11 @@ func (t *StaticRedirectTransform) Modify(r *Request) (*Request, error) {
 	return modified, nil
 }
 
-// The GoGetTransform triggers an http request to the domain
-// to simply do a "?go-get=1" lookup for the real domain of where
-// the module is being hosted.
-//
-// Additional domains can be specified via configuration.
-// The known go-get redirectors in the wild include:
-// - golang.org
-// - google.golang.org
-// - cloud.google.com
-// - gopkg.in
-// - contrib.go.opencensus.io
-// - go.uber.org
+// The GoGetTransform is no longer configurable, it will always automatically
+// do go-get=1 requests, following the redirect as the Go documentation specifies.
 type GoGetTransform struct {
-	autoRedirect bool
-	domains      map[string]bool // only implement redirect metadata
-	httpClient   *http.Client
-	log          loggy.Logger
+	httpClient *http.Client
+	log        loggy.Logger
 }
 
 // NewAutomaticGoGetTransform creates a GoGetTransform where any module URI
@@ -226,39 +214,6 @@ type GoGetTransform struct {
 // indicates.
 func NewAutomaticGoGetTransform() Transform {
 	return &GoGetTransform{
-		autoRedirect: true,
-		httpClient: &http.Client{
-			Timeout: 30 * time.Second,
-		},
-		log: loggy.New("auto-go-get-transform"),
-	}
-}
-
-// NewGoGetTransform creates a GoGetTransform where any module URIs
-// found in the given list of domains will be first redirected to wherever
-// the go-get meta HTML tag in the domain indicates.
-//
-// Read more about this functionality here:
-//   https://golang.org/cmd/go/#hdr-Remote_import_paths
-func NewGoGetTransform(domains []string) Transform {
-	match := make(map[string]bool)
-	for _, domain := range domains {
-		match[domain] = true
-	}
-
-	match["golang.org"] = true
-	match["cloud.google.com"] = true
-	match["google.golang.org"] = true
-	match["gopkg.in"] = true
-	match["contrib.go.opencensus.io"] = true
-	match["go.opencensus.io"] = true
-	match["go.uber.org"] = true
-	match["git.apache.org"] = true
-	match["k8s.io"] = true
-	match["sigs.k8s.io"] = true
-
-	return &GoGetTransform{
-		domains: match,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
@@ -267,29 +222,22 @@ func NewGoGetTransform(domains []string) Transform {
 }
 
 func (t *GoGetTransform) Modify(r *Request) (*Request, error) {
-	if !t.autoRedirect && !t.domains[r.Domain] {
-		t.log.Tracef("domain %s is not set for go-get redirects", r.Domain)
-		return r, nil
-	}
-
 	t.log.Infof("doing go-get redirect lookup for domain %s", r.Domain)
 
 	meta, err := t.doGoGetRequest(r)
-	if !t.autoRedirect && err != nil {
-		t.log.Errorf("unable to do go-get redirect for domain %s: %v", r.Domain, err)
-		return nil, err
-	} else if err != nil {
-		t.log.Warnf("unable to do go-get redirect for domain: %s. leaving request unmodified: %v", r.Domain, err)
+	if err != nil {
+		// in theory everything should respond well to go-get=1, but in practice, nah
+		t.log.Warnf("unable to go-get domain: %s, leaving request unmodified: %v", r.Domain, err)
 		return r, nil
 	}
 
-	t.log.Infof("redirect to: %s", meta)
+	t.log.Infof("go-get redirect to: %s", meta)
 	modified := &Request{
 		Transport: meta.transport,
 		Domain:    meta.domain,
 		Namespace: strings.Split(meta.path, "/"),
 		Version:   r.Version,
-		// Path: set by the domain rewriter
+		// Path: only set by the domain re-writer
 	}
 
 	t.log.Tracef("original: %s", r)

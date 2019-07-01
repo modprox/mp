@@ -113,9 +113,8 @@ func Test_NewAutomaticGoGetTransform200(t *testing.T) {
 	defer ts.Close()
 
 	transform := &GoGetTransform{
-		autoRedirect: true,
-		httpClient:   ts.Client(),
-		log:          loggy.New("log"),
+		httpClient: ts.Client(),
+		log:        loggy.New("log"),
 	}
 
 	uri, err := url.ParseRequestURI(ts.URL)
@@ -147,9 +146,8 @@ func Test_NewAutomaticGoGetTransform404(t *testing.T) {
 	defer ts.Close()
 
 	transform := &GoGetTransform{
-		autoRedirect: true,
-		httpClient:   ts.Client(),
-		log:          loggy.New("log"),
+		httpClient: ts.Client(),
+		log:        loggy.New("log"),
 	}
 
 	uri, err := url.ParseRequestURI(ts.URL)
