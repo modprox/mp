@@ -217,15 +217,10 @@ func initTransforms(p *Proxy) []upstream.Transform {
 }
 
 func initGoGetTransform(p *Proxy) upstream.Transform {
-	if p.config.Transforms.AutomaticRedirect {
-		return upstream.NewAutomaticGoGetTransform()
-	}
-
-	goGetDomains := make([]string, 0, len(p.config.Transforms.DomainGoGet))
-	for _, domain := range p.config.Transforms.DomainGoGet {
-		goGetDomains = append(goGetDomains, domain.Domain)
-	}
-	return upstream.NewGoGetTransform(goGetDomains)
+	// Previously hidden behind p.config.Transforms.AutomaticRedirect, however
+	// automatically following the go-get=1 redirect is the only correct implementation,
+	// so that value is now ignored and the redirect is always followed.
+	return upstream.NewAutomaticGoGetTransform()
 }
 
 func initStaticRedirectTransforms(p *Proxy) []upstream.Transform {
