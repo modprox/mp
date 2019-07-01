@@ -3,7 +3,8 @@ package proxies
 import (
 	"time"
 
-	"oss.indeed.com/go/modprox/pkg/loggy"
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 

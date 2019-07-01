@@ -3,7 +3,8 @@ package web
 import (
 	"net/http"
 
-	"oss.indeed.com/go/modprox/pkg/loggy"
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
 	"oss.indeed.com/go/modprox/proxy/internal/web/output"

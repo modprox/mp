@@ -9,9 +9,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+
 	"github.com/shoenig/httplus/responses"
 
-	"oss.indeed.com/go/modprox/pkg/loggy"
+	"go.gophers.dev/pkgs/loggy"
 )
 
 var maxLoggedBody = 500

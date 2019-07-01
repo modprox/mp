@@ -12,7 +12,8 @@ import (
 
 	"github.com/shoenig/httplus/responses"
 
-	"oss.indeed.com/go/modprox/pkg/loggy"
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/netservice"
 	"oss.indeed.com/go/modprox/pkg/webutil"
 )

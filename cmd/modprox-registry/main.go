@@ -3,8 +3,9 @@ package main
 import (
 	"os"
 
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/configutil"
-	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/registry"
 	"oss.indeed.com/go/modprox/registry/config"
 )

@@ -17,6 +17,7 @@ require (
 	github.com/shoenig/regexplus v0.0.0 // indirect
 	github.com/shoenig/toolkit v1.0.0
 	github.com/stretchr/testify v1.2.2
+	go.gophers.dev/pkgs/loggy v0.1.0
 	google.golang.org/appengine v1.6.1 // indirect
 	oss.indeed.com/go/taggit v0.3.3
 )

@@ -6,7 +6,9 @@ import (
 	"time"
 
 	"github.com/gorilla/csrf"
+
 	"github.com/pkg/errors"
+
 	"github.com/shoenig/toolkit"
 
 	"oss.indeed.com/go/modprox/pkg/history"

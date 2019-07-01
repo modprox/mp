@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+
 	petrify "github.com/shoenig/petrify/v4"
 
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"

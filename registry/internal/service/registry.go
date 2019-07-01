@@ -3,7 +3,8 @@ package service
 import (
 	"os"
 
-	"oss.indeed.com/go/modprox/pkg/loggy"
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/registry/config"
 	"oss.indeed.com/go/modprox/registry/internal/data"

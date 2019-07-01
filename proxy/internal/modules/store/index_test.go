@@ -6,10 +6,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
-
-	"github.com/stretchr/testify/require"
 )
 
 func setupIndex(t *testing.T) (string, Index) {

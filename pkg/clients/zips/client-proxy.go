@@ -14,8 +14,9 @@ import (
 
 	"github.com/shoenig/httplus/responses"
 
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/coordinates"
-	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
 
