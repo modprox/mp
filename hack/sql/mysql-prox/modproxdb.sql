@@ -1,7 +1,7 @@
 create table proxy_module_zips (
   id int(5) unsigned not null auto_increment,
   s_at_v varchar(1024) not null, -- unique module identifier source@version
-  zip mediumblob not null, -- binary blob of the well formed zip archive
+  zip longblob not null, -- binary blob of the well formed zip archive
   primary key(id),
   unique (s_at_v)
 ) engine=InnoDB default charset=utf8;
