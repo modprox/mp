@@ -1,7 +1,9 @@
 package data
 
 import (
+	"database/sql"
 	"encoding/json"
+	"io"
 	"time"
 
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
@@ -26,6 +28,10 @@ func (s *store) SetStartConfig(config payloads.Configuration) error {
 	return err
 }
 
+func ignoreClose(c io.Closer) {
+	_ = c.Close()
+}
+
 func (s *store) ListStartConfigs() ([]payloads.Configuration, error) {
 	start := time.Now()
 	configs, err := s.listStartConfigs()
@@ -43,7 +49,7 @@ func (s *store) listStartConfigs() ([]payloads.Configuration, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer ignoreClose(rows)
 
 	var configs []payloads.Configuration
 	for rows.Next() {
@@ -153,7 +159,7 @@ func (s *store) listHeartbeats() ([]payloads.Heartbeat, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer ignoreClose(rows)
 
 	var heartbeats []payloads.Heartbeat
 	for rows.Next() {
@@ -175,12 +181,16 @@ func (s *store) listHeartbeats() ([]payloads.Heartbeat, error) {
 	return heartbeats, nil
 }
 
+func ignoreRollback(tx *sql.Tx) {
+	_ = tx.Rollback()
+}
+
 func (s *store) PurgeProxy(instance netservice.Instance) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer ignoreRollback(tx)
 
 	// 1) remove heartbeat for proxy
 	if _, err := tx.Stmt(s.statements[deleteHeartbeatSQL]).Exec(

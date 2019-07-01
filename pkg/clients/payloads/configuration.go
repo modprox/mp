@@ -34,7 +34,11 @@ func (c Configuration) Texts() (string, string, string, error) {
 
 	// hide the values of the headers, which may contain secrets
 	var t2 config.Transforms
-	copier.Copy(&t2, &c.Transforms)
+
+	if err := copier.Copy(&t2, &c.Transforms); err != nil {
+		return "", "", "", err
+	}
+
 	for _, transform := range t2.DomainHeaders {
 		for key := range transform.Headers {
 			transform.Headers[key] = "********"
