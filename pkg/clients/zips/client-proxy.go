@@ -12,8 +12,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/shoenig/httplus/responses"
-
+	"go.gophers.dev/pkgs/ignore"
 	"go.gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/coordinates"
@@ -130,7 +129,7 @@ func (c *proxyClient) Get(mod coordinates.Module) (repository.Blob, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "proxy request failed for %s", mod)
 	}
-	defer responses.Drain(response)
+	defer ignore.Drain(response.Body)
 
 	// if we get a bad response code, try to read the body and log it
 	// todo: can we make this generic? copied from http.go

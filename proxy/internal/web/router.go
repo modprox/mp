@@ -32,9 +32,9 @@ func NewRouter(
 
 	// mod operations
 	//
-	// e.g. GET  http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.info
-	// e.g. GET  http://localhost:9000/github.com/shoenig/toolkit/@v.list
-	// e.g. POST http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.rm
+	// e.g. GET  http://localhost:9000/github.com/example/toolkit/@v/v1.0.0.info
+	// e.g. GET  http://localhost:9000/github.com/example/toolkit/@v.list
+	// e.g. POST http://localhost:9000/github.com/example/toolkit/@v/v1.0.0.rm
 	router.PathPrefix("/").Handler(modList(index, emitter)).MatcherFunc(suffix("list")).Methods(get)
 	router.PathPrefix("/").Handler(modInfo(index, emitter)).MatcherFunc(suffix(".info")).Methods(get)
 	router.PathPrefix("/").Handler(modFile(index, emitter)).MatcherFunc(suffix(".mod")).Methods(get)

@@ -24,7 +24,7 @@ func modZip(store store.ZipStore, emitter stats.Sender) http.Handler {
 	}
 }
 
-// e.g. GET http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.zip
+// e.g. GET http://localhost:9000/github.com/example/toolkit/@v/v1.0.0.zip
 
 func (h *moduleZip) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mod, err := modInfoFromPath(r.URL.Path)

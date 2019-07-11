@@ -10,8 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/shoenig/httplus/responses"
-
+	"go.gophers.dev/pkgs/ignore"
 	"go.gophers.dev/pkgs/loggy"
 )
 
@@ -35,7 +34,7 @@ func (t *GoGetTransform) doGoGetRequest(r *Request) (goGetMeta, error) {
 	if err != nil {
 		return meta, err
 	}
-	defer responses.Drain(response)
+	defer ignore.Drain(response.Body)
 
 	bs, err := ioutil.ReadAll(response.Body)
 	if err != nil {

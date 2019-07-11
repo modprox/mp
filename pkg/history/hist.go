@@ -1,3 +1,3 @@
 package history
 
-//go:generate go run github.com/shoenig/petrify/v4/cmd/petrify -pkg history -o generated.go .
+//go:generate go run go.gophers.dev/cmds/petrify/v5/cmd/petrify -pkg history -o generated.go .

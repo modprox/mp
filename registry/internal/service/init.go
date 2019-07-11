@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/shoenig/toolkit"
+	"go.gophers.dev/pkgs/repeat/x"
 
 	"oss.indeed.com/go/modprox/pkg/history"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
@@ -53,7 +53,7 @@ func initProxyPrune(r *Registry) error {
 	maxAge := time.Duration(r.config.Proxies.PruneAfter) * time.Second
 	pruner := proxies.NewPruner(maxAge, r.store)
 	go func() {
-		_ = toolkit.Interval(1*time.Minute, func() error {
+		_ = x.Interval(1*time.Minute, func() error {
 			_ = pruner.Prune(time.Now())
 			return nil
 		})

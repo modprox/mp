@@ -27,7 +27,7 @@ func modRM(index store.Index, store store.ZipStore, emitter stats.Sender) http.H
 	}
 }
 
-// e.g. POST http://localhost:9000/github.com/shoenig/toolkit/@v/v1.0.0.rm
+// e.g. POST http://localhost:9000/github.com/example/toolkit/@v/v1.0.0.rm
 
 func (h *removeModule) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	mod, err := modInfoFromPath(r.URL.Path)

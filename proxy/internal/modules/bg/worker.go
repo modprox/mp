@@ -3,9 +3,8 @@ package bg
 import (
 	"time"
 
-	"github.com/shoenig/toolkit"
-
 	"go.gophers.dev/pkgs/loggy"
+	"go.gophers.dev/pkgs/repeat/x"
 
 	"oss.indeed.com/go/modprox/pkg/clients/registry"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
@@ -63,7 +62,7 @@ func New(
 
 func (w *worker) Start(options Options) {
 	go func() {
-		_ = toolkit.Interval(options.Frequency, func() error {
+		_ = x.Interval(options.Frequency, func() error {
 			if err := w.loop(); err != nil {
 				w.log.Errorf("worker loop iteration had error: %v", err)
 				// never return an error, which would stop the worker

@@ -172,7 +172,7 @@ func Test_NewAutomaticGoGetTransform404(t *testing.T) {
 
 func Test_NewRequest(t *testing.T) {
 	mod := coordinates.Module{
-		Source:  "github.com/shoenig/toolkit",
+		Source:  "github.com/example/toolkit",
 		Version: "v1.0.1",
 	}
 
@@ -181,7 +181,7 @@ func Test_NewRequest(t *testing.T) {
 	require.Equal(t, &Request{
 		Transport: "https",
 		Domain:    "github.com",
-		Namespace: ns("shoenig/toolkit"),
+		Namespace: ns("example/toolkit"),
 		Version:   "v1.0.1",
 	}, request)
 }
@@ -234,9 +234,9 @@ func Test_formatPath(t *testing.T) {
 	// github
 	try(
 		"ELEM1/ELEM2/archive/VERSION.zip",
-		ns("shoenig/toolkit"),
+		ns("example/toolkit"),
 		"v1.0.1",
-		"shoenig/toolkit/archive/v1.0.1.zip",
+		"example/toolkit/archive/v1.0.1.zip",
 	)
 
 	// gitlab

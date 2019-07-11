@@ -7,8 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/shoenig/httplus/responses"
-
+	"go.gophers.dev/pkgs/ignore"
 	"go.gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/repository"
@@ -62,7 +61,7 @@ func (c *httpClient) Get(r *upstream.Request) (repository.Blob, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not do request for %s", zipURI)
 	}
-	defer responses.Drain(response)
+	defer ignore.Drain(response.Body)
 
 	// if we get a bad response code, try to read the body and log it
 	if response.StatusCode >= 400 {
