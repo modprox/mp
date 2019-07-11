@@ -11,13 +11,13 @@ require (
 	github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3
 	github.com/lib/pq v1.0.0
 	github.com/pkg/errors v0.8.1
-	github.com/shoenig/atomicfs v0.1.1
-	github.com/shoenig/httplus v0.0.0
-	github.com/shoenig/petrify/v4 v4.2.0
-	github.com/shoenig/regexplus v0.0.0 // indirect
-	github.com/shoenig/toolkit v1.0.0
-	github.com/stretchr/testify v1.2.2
+	github.com/stretchr/testify v1.3.0
+	go.gophers.dev/cmds/petrify/v5 v5.1.0
+	go.gophers.dev/pkgs/atomicfs v0.2.1
+	go.gophers.dev/pkgs/ignore v0.0.0
 	go.gophers.dev/pkgs/loggy v0.1.0
+	go.gophers.dev/pkgs/regexplus v0.1.0 // indirect
+	go.gophers.dev/pkgs/repeat v0.0.0
 	google.golang.org/appengine v1.6.1 // indirect
-	oss.indeed.com/go/taggit v0.3.3
+	oss.indeed.com/go/taggit v0.4.0-rc2
 )

@@ -10,8 +10,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/shoenig/httplus/responses"
-
+	"go.gophers.dev/pkgs/ignore"
 	"go.gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/netservice"
@@ -120,7 +119,7 @@ func (c *client) getSingle(path string, instance netservice.Instance, w io.Write
 		c.log.Errorf("GET single request failed: %v", err)
 		return err
 	}
-	defer responses.Drain(response)
+	defer ignore.Drain(response.Body)
 
 	c.log.Tracef("GET single response code: %d", response.StatusCode)
 
@@ -164,7 +163,7 @@ func (c *client) postSingle(
 		c.log.Errorf("POST single request failed: %v", err)
 		return err
 	}
-	defer responses.Drain(response)
+	defer ignore.Drain(response.Body)
 
 	c.log.Tracef("POST single response code: %d", response.StatusCode)
 

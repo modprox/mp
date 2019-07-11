@@ -3,9 +3,8 @@ package heartbeat
 import (
 	"time"
 
-	"github.com/shoenig/toolkit"
-
 	"go.gophers.dev/pkgs/loggy"
+	"go.gophers.dev/pkgs/repeat/x"
 
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/store"
@@ -42,7 +41,7 @@ type looper struct {
 // at the configured interval, to whichever of the specified
 // registry instances accepts the heartbeat first.
 func (l *looper) Loop() {
-	_ = toolkit.Interval(l.interval, l.loop)
+	_ = x.Interval(l.interval, l.loop)
 }
 
 func (l *looper) loop() error {

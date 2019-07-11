@@ -8,7 +8,6 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock"
-
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/netservice"

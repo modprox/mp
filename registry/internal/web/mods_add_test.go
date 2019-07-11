@@ -162,9 +162,9 @@ github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/shoenig/atomicfs v0.1.1/go.mod h1:aw1MEIbywlavaTMRvnai/OLCh2dV5XWNcNBYf6iLDno=
-github.com/shoenig/petrify/v4 v4.0.2/go.mod h1:xTXgxRisT/LPHgtw0yWpLdVJPyocAlhAPwTKktpm6f4=
-github.com/shoenig/toolkit v1.0.0 h1:bevOHX/3xqlV3AGTGkFSYu1a+v8bWMJAZ7kUEj1f7d4=
-github.com/shoenig/toolkit v1.0.0/go.mod h1:AzSCIBam5p35X6rgoLpLG/PDQPC6sMUr6nPz8zHWDNk=
+go.gophers.dev/cmds/petrify/v5 v4.0.2/go.mod h1:xTXgxRisT/LPHgtw0yWpLdVJPyocAlhAPwTKktpm6f4=
+github.com/example/toolkit v1.0.0 h1:bevOHX/3xqlV3AGTGkFSYu1a+v8bWMJAZ7kUEj1f7d4=
+github.com/example/toolkit v1.0.0/go.mod h1:AzSCIBam5p35X6rgoLpLG/PDQPC6sMUr6nPz8zHWDNk=
 github.com/stretchr/objx v0.1.1 h1:2vfRuCMp5sSVIDSqO8oNnWJq7mPa6KVP3iPIwFBuy8A=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2 h1:bSDNvY7ZPG5RlJ8otE/7V6gMiyenm9RtJ7IUVIAoJ1w=
@@ -190,8 +190,8 @@ github.com/modprox/mp v0.0.5
 github.com/pkg/errors v0.8.0
 github.com/pmezard/go-difflib v1.0.0
 github.com/shoenig/atomicfs v0.1.1 
-github.com/shoenig/petrify/v4 v4.0.2 
-github.com/shoenig/toolkit v1.0.0
+go.gophers.dev/cmds/petrify/v5 v4.0.2 
+github.com/example/toolkit v1.0.0
 github.com/stretchr/objx v0.1.1
 github.com/stretchr/testify v1.2.2
 golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e 

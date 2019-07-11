@@ -9,8 +9,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/shoenig/httplus/responses"
-
+	"go.gophers.dev/pkgs/ignore"
 	"go.gophers.dev/pkgs/loggy"
 )
 
@@ -67,7 +66,7 @@ func (g *github) requestTags(uri string) ([]Tag, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer responses.Drain(response)
+	defer ignore.Drain(response.Body)
 
 	return g.decodeTags(response.Body)
 }
@@ -77,7 +76,7 @@ func (g *github) requestHead(uri string) (Head, error) {
 	if err != nil {
 		return Head{}, err
 	}
-	defer responses.Drain(response)
+	defer ignore.Drain(response.Body)
 
 	return g.decodeHead(response.Body)
 }

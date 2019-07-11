@@ -9,8 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/shoenig/atomicfs"
-
+	"go.gophers.dev/pkgs/atomicfs"
 	"go.gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/coordinates"
