@@ -17,6 +17,7 @@ type ProxyClientMock struct {
 	t minimock.Tester
 
 	funcGet          func(m1 coordinates.Module) (b1 repository.Blob, err error)
+	inspectFuncGet   func(m1 coordinates.Module)
 	afterGetCounter  uint64
 	beforeGetCounter uint64
 	GetMock          mProxyClientMockGet
@@ -83,6 +84,17 @@ func (mmGet *mProxyClientMockGet) Expect(m1 coordinates.Module) *mProxyClientMoc
 	return mmGet
 }
 
+// Inspect accepts an inspector function that has same arguments as the ProxyClient.Get
+func (mmGet *mProxyClientMockGet) Inspect(f func(m1 coordinates.Module)) *mProxyClientMockGet {
+	if mmGet.mock.inspectFuncGet != nil {
+		mmGet.mock.t.Fatalf("Inspect function is already set for ProxyClientMock.Get")
+	}
+
+	mmGet.mock.inspectFuncGet = f
+
+	return mmGet
+}
+
 // Return sets up results that will be returned by ProxyClient.Get
 func (mmGet *mProxyClientMockGet) Return(b1 repository.Blob, err error) *ProxyClientMock {
 	if mmGet.mock.funcGet != nil {
@@ -135,6 +147,10 @@ func (e *ProxyClientMockGetExpectation) Then(b1 repository.Blob, err error) *Pro
 func (mmGet *ProxyClientMock) Get(m1 coordinates.Module) (b1 repository.Blob, err error) {
 	mm_atomic.AddUint64(&mmGet.beforeGetCounter, 1)
 	defer mm_atomic.AddUint64(&mmGet.afterGetCounter, 1)
+
+	if mmGet.inspectFuncGet != nil {
+		mmGet.inspectFuncGet(m1)
+	}
 
 	params := &ProxyClientMockGetParams{m1}
 

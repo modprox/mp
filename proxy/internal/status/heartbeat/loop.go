@@ -3,8 +3,8 @@ package heartbeat
 import (
 	"time"
 
-	"go.gophers.dev/pkgs/loggy"
-	"go.gophers.dev/pkgs/repeat/x"
+	"gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/repeat/x"
 
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/store"

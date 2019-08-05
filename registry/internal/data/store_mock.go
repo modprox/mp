@@ -18,56 +18,67 @@ type StoreMock struct {
 	t minimock.Tester
 
 	funcDeleteModuleByID          func(id int) (err error)
+	inspectFuncDeleteModuleByID   func(id int)
 	afterDeleteModuleByIDCounter  uint64
 	beforeDeleteModuleByIDCounter uint64
 	DeleteModuleByIDMock          mStoreMockDeleteModuleByID
 
 	funcInsertModules          func(ma1 []coordinates.Module) (i1 int, err error)
+	inspectFuncInsertModules   func(ma1 []coordinates.Module)
 	afterInsertModulesCounter  uint64
 	beforeInsertModulesCounter uint64
 	InsertModulesMock          mStoreMockInsertModules
 
 	funcListHeartbeats          func() (ha1 []payloads.Heartbeat, err error)
+	inspectFuncListHeartbeats   func()
 	afterListHeartbeatsCounter  uint64
 	beforeListHeartbeatsCounter uint64
 	ListHeartbeatsMock          mStoreMockListHeartbeats
 
 	funcListModuleIDs          func() (ia1 []int64, err error)
+	inspectFuncListModuleIDs   func()
 	afterListModuleIDsCounter  uint64
 	beforeListModuleIDsCounter uint64
 	ListModuleIDsMock          mStoreMockListModuleIDs
 
 	funcListModules          func() (sa1 []coordinates.SerialModule, err error)
+	inspectFuncListModules   func()
 	afterListModulesCounter  uint64
 	beforeListModulesCounter uint64
 	ListModulesMock          mStoreMockListModules
 
 	funcListModulesByIDs          func(ids []int64) (sa1 []coordinates.SerialModule, err error)
+	inspectFuncListModulesByIDs   func(ids []int64)
 	afterListModulesByIDsCounter  uint64
 	beforeListModulesByIDsCounter uint64
 	ListModulesByIDsMock          mStoreMockListModulesByIDs
 
 	funcListModulesBySource          func(source string) (sa1 []coordinates.SerialModule, err error)
+	inspectFuncListModulesBySource   func(source string)
 	afterListModulesBySourceCounter  uint64
 	beforeListModulesBySourceCounter uint64
 	ListModulesBySourceMock          mStoreMockListModulesBySource
 
 	funcListStartConfigs          func() (ca1 []payloads.Configuration, err error)
+	inspectFuncListStartConfigs   func()
 	afterListStartConfigsCounter  uint64
 	beforeListStartConfigsCounter uint64
 	ListStartConfigsMock          mStoreMockListStartConfigs
 
 	funcPurgeProxy          func(instance netservice.Instance) (err error)
+	inspectFuncPurgeProxy   func(instance netservice.Instance)
 	afterPurgeProxyCounter  uint64
 	beforePurgeProxyCounter uint64
 	PurgeProxyMock          mStoreMockPurgeProxy
 
 	funcSetHeartbeat          func(h1 payloads.Heartbeat) (err error)
+	inspectFuncSetHeartbeat   func(h1 payloads.Heartbeat)
 	afterSetHeartbeatCounter  uint64
 	beforeSetHeartbeatCounter uint64
 	SetHeartbeatMock          mStoreMockSetHeartbeat
 
 	funcSetStartConfig          func(c1 payloads.Configuration) (err error)
+	inspectFuncSetStartConfig   func(c1 payloads.Configuration)
 	afterSetStartConfigCounter  uint64
 	beforeSetStartConfigCounter uint64
 	SetStartConfigMock          mStoreMockSetStartConfig
@@ -159,6 +170,17 @@ func (mmDeleteModuleByID *mStoreMockDeleteModuleByID) Expect(id int) *mStoreMock
 	return mmDeleteModuleByID
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.DeleteModuleByID
+func (mmDeleteModuleByID *mStoreMockDeleteModuleByID) Inspect(f func(id int)) *mStoreMockDeleteModuleByID {
+	if mmDeleteModuleByID.mock.inspectFuncDeleteModuleByID != nil {
+		mmDeleteModuleByID.mock.t.Fatalf("Inspect function is already set for StoreMock.DeleteModuleByID")
+	}
+
+	mmDeleteModuleByID.mock.inspectFuncDeleteModuleByID = f
+
+	return mmDeleteModuleByID
+}
+
 // Return sets up results that will be returned by Store.DeleteModuleByID
 func (mmDeleteModuleByID *mStoreMockDeleteModuleByID) Return(err error) *StoreMock {
 	if mmDeleteModuleByID.mock.funcDeleteModuleByID != nil {
@@ -211,6 +233,10 @@ func (e *StoreMockDeleteModuleByIDExpectation) Then(err error) *StoreMock {
 func (mmDeleteModuleByID *StoreMock) DeleteModuleByID(id int) (err error) {
 	mm_atomic.AddUint64(&mmDeleteModuleByID.beforeDeleteModuleByIDCounter, 1)
 	defer mm_atomic.AddUint64(&mmDeleteModuleByID.afterDeleteModuleByIDCounter, 1)
+
+	if mmDeleteModuleByID.inspectFuncDeleteModuleByID != nil {
+		mmDeleteModuleByID.inspectFuncDeleteModuleByID(id)
+	}
 
 	params := &StoreMockDeleteModuleByIDParams{id}
 
@@ -360,6 +386,17 @@ func (mmInsertModules *mStoreMockInsertModules) Expect(ma1 []coordinates.Module)
 	return mmInsertModules
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.InsertModules
+func (mmInsertModules *mStoreMockInsertModules) Inspect(f func(ma1 []coordinates.Module)) *mStoreMockInsertModules {
+	if mmInsertModules.mock.inspectFuncInsertModules != nil {
+		mmInsertModules.mock.t.Fatalf("Inspect function is already set for StoreMock.InsertModules")
+	}
+
+	mmInsertModules.mock.inspectFuncInsertModules = f
+
+	return mmInsertModules
+}
+
 // Return sets up results that will be returned by Store.InsertModules
 func (mmInsertModules *mStoreMockInsertModules) Return(i1 int, err error) *StoreMock {
 	if mmInsertModules.mock.funcInsertModules != nil {
@@ -412,6 +449,10 @@ func (e *StoreMockInsertModulesExpectation) Then(i1 int, err error) *StoreMock {
 func (mmInsertModules *StoreMock) InsertModules(ma1 []coordinates.Module) (i1 int, err error) {
 	mm_atomic.AddUint64(&mmInsertModules.beforeInsertModulesCounter, 1)
 	defer mm_atomic.AddUint64(&mmInsertModules.afterInsertModulesCounter, 1)
+
+	if mmInsertModules.inspectFuncInsertModules != nil {
+		mmInsertModules.inspectFuncInsertModules(ma1)
+	}
 
 	params := &StoreMockInsertModulesParams{ma1}
 
@@ -546,6 +587,17 @@ func (mmListHeartbeats *mStoreMockListHeartbeats) Expect() *mStoreMockListHeartb
 	return mmListHeartbeats
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.ListHeartbeats
+func (mmListHeartbeats *mStoreMockListHeartbeats) Inspect(f func()) *mStoreMockListHeartbeats {
+	if mmListHeartbeats.mock.inspectFuncListHeartbeats != nil {
+		mmListHeartbeats.mock.t.Fatalf("Inspect function is already set for StoreMock.ListHeartbeats")
+	}
+
+	mmListHeartbeats.mock.inspectFuncListHeartbeats = f
+
+	return mmListHeartbeats
+}
+
 // Return sets up results that will be returned by Store.ListHeartbeats
 func (mmListHeartbeats *mStoreMockListHeartbeats) Return(ha1 []payloads.Heartbeat, err error) *StoreMock {
 	if mmListHeartbeats.mock.funcListHeartbeats != nil {
@@ -577,6 +629,10 @@ func (mmListHeartbeats *mStoreMockListHeartbeats) Set(f func() (ha1 []payloads.H
 func (mmListHeartbeats *StoreMock) ListHeartbeats() (ha1 []payloads.Heartbeat, err error) {
 	mm_atomic.AddUint64(&mmListHeartbeats.beforeListHeartbeatsCounter, 1)
 	defer mm_atomic.AddUint64(&mmListHeartbeats.afterListHeartbeatsCounter, 1)
+
+	if mmListHeartbeats.inspectFuncListHeartbeats != nil {
+		mmListHeartbeats.inspectFuncListHeartbeats()
+	}
 
 	if mmListHeartbeats.ListHeartbeatsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListHeartbeats.ListHeartbeatsMock.defaultExpectation.Counter, 1)
@@ -675,6 +731,17 @@ func (mmListModuleIDs *mStoreMockListModuleIDs) Expect() *mStoreMockListModuleID
 	return mmListModuleIDs
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.ListModuleIDs
+func (mmListModuleIDs *mStoreMockListModuleIDs) Inspect(f func()) *mStoreMockListModuleIDs {
+	if mmListModuleIDs.mock.inspectFuncListModuleIDs != nil {
+		mmListModuleIDs.mock.t.Fatalf("Inspect function is already set for StoreMock.ListModuleIDs")
+	}
+
+	mmListModuleIDs.mock.inspectFuncListModuleIDs = f
+
+	return mmListModuleIDs
+}
+
 // Return sets up results that will be returned by Store.ListModuleIDs
 func (mmListModuleIDs *mStoreMockListModuleIDs) Return(ia1 []int64, err error) *StoreMock {
 	if mmListModuleIDs.mock.funcListModuleIDs != nil {
@@ -706,6 +773,10 @@ func (mmListModuleIDs *mStoreMockListModuleIDs) Set(f func() (ia1 []int64, err e
 func (mmListModuleIDs *StoreMock) ListModuleIDs() (ia1 []int64, err error) {
 	mm_atomic.AddUint64(&mmListModuleIDs.beforeListModuleIDsCounter, 1)
 	defer mm_atomic.AddUint64(&mmListModuleIDs.afterListModuleIDsCounter, 1)
+
+	if mmListModuleIDs.inspectFuncListModuleIDs != nil {
+		mmListModuleIDs.inspectFuncListModuleIDs()
+	}
 
 	if mmListModuleIDs.ListModuleIDsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListModuleIDs.ListModuleIDsMock.defaultExpectation.Counter, 1)
@@ -804,6 +875,17 @@ func (mmListModules *mStoreMockListModules) Expect() *mStoreMockListModules {
 	return mmListModules
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.ListModules
+func (mmListModules *mStoreMockListModules) Inspect(f func()) *mStoreMockListModules {
+	if mmListModules.mock.inspectFuncListModules != nil {
+		mmListModules.mock.t.Fatalf("Inspect function is already set for StoreMock.ListModules")
+	}
+
+	mmListModules.mock.inspectFuncListModules = f
+
+	return mmListModules
+}
+
 // Return sets up results that will be returned by Store.ListModules
 func (mmListModules *mStoreMockListModules) Return(sa1 []coordinates.SerialModule, err error) *StoreMock {
 	if mmListModules.mock.funcListModules != nil {
@@ -835,6 +917,10 @@ func (mmListModules *mStoreMockListModules) Set(f func() (sa1 []coordinates.Seri
 func (mmListModules *StoreMock) ListModules() (sa1 []coordinates.SerialModule, err error) {
 	mm_atomic.AddUint64(&mmListModules.beforeListModulesCounter, 1)
 	defer mm_atomic.AddUint64(&mmListModules.afterListModulesCounter, 1)
+
+	if mmListModules.inspectFuncListModules != nil {
+		mmListModules.inspectFuncListModules()
+	}
 
 	if mmListModules.ListModulesMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListModules.ListModulesMock.defaultExpectation.Counter, 1)
@@ -948,6 +1034,17 @@ func (mmListModulesByIDs *mStoreMockListModulesByIDs) Expect(ids []int64) *mStor
 	return mmListModulesByIDs
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.ListModulesByIDs
+func (mmListModulesByIDs *mStoreMockListModulesByIDs) Inspect(f func(ids []int64)) *mStoreMockListModulesByIDs {
+	if mmListModulesByIDs.mock.inspectFuncListModulesByIDs != nil {
+		mmListModulesByIDs.mock.t.Fatalf("Inspect function is already set for StoreMock.ListModulesByIDs")
+	}
+
+	mmListModulesByIDs.mock.inspectFuncListModulesByIDs = f
+
+	return mmListModulesByIDs
+}
+
 // Return sets up results that will be returned by Store.ListModulesByIDs
 func (mmListModulesByIDs *mStoreMockListModulesByIDs) Return(sa1 []coordinates.SerialModule, err error) *StoreMock {
 	if mmListModulesByIDs.mock.funcListModulesByIDs != nil {
@@ -1000,6 +1097,10 @@ func (e *StoreMockListModulesByIDsExpectation) Then(sa1 []coordinates.SerialModu
 func (mmListModulesByIDs *StoreMock) ListModulesByIDs(ids []int64) (sa1 []coordinates.SerialModule, err error) {
 	mm_atomic.AddUint64(&mmListModulesByIDs.beforeListModulesByIDsCounter, 1)
 	defer mm_atomic.AddUint64(&mmListModulesByIDs.afterListModulesByIDsCounter, 1)
+
+	if mmListModulesByIDs.inspectFuncListModulesByIDs != nil {
+		mmListModulesByIDs.inspectFuncListModulesByIDs(ids)
+	}
 
 	params := &StoreMockListModulesByIDsParams{ids}
 
@@ -1149,6 +1250,17 @@ func (mmListModulesBySource *mStoreMockListModulesBySource) Expect(source string
 	return mmListModulesBySource
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.ListModulesBySource
+func (mmListModulesBySource *mStoreMockListModulesBySource) Inspect(f func(source string)) *mStoreMockListModulesBySource {
+	if mmListModulesBySource.mock.inspectFuncListModulesBySource != nil {
+		mmListModulesBySource.mock.t.Fatalf("Inspect function is already set for StoreMock.ListModulesBySource")
+	}
+
+	mmListModulesBySource.mock.inspectFuncListModulesBySource = f
+
+	return mmListModulesBySource
+}
+
 // Return sets up results that will be returned by Store.ListModulesBySource
 func (mmListModulesBySource *mStoreMockListModulesBySource) Return(sa1 []coordinates.SerialModule, err error) *StoreMock {
 	if mmListModulesBySource.mock.funcListModulesBySource != nil {
@@ -1201,6 +1313,10 @@ func (e *StoreMockListModulesBySourceExpectation) Then(sa1 []coordinates.SerialM
 func (mmListModulesBySource *StoreMock) ListModulesBySource(source string) (sa1 []coordinates.SerialModule, err error) {
 	mm_atomic.AddUint64(&mmListModulesBySource.beforeListModulesBySourceCounter, 1)
 	defer mm_atomic.AddUint64(&mmListModulesBySource.afterListModulesBySourceCounter, 1)
+
+	if mmListModulesBySource.inspectFuncListModulesBySource != nil {
+		mmListModulesBySource.inspectFuncListModulesBySource(source)
+	}
 
 	params := &StoreMockListModulesBySourceParams{source}
 
@@ -1335,6 +1451,17 @@ func (mmListStartConfigs *mStoreMockListStartConfigs) Expect() *mStoreMockListSt
 	return mmListStartConfigs
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.ListStartConfigs
+func (mmListStartConfigs *mStoreMockListStartConfigs) Inspect(f func()) *mStoreMockListStartConfigs {
+	if mmListStartConfigs.mock.inspectFuncListStartConfigs != nil {
+		mmListStartConfigs.mock.t.Fatalf("Inspect function is already set for StoreMock.ListStartConfigs")
+	}
+
+	mmListStartConfigs.mock.inspectFuncListStartConfigs = f
+
+	return mmListStartConfigs
+}
+
 // Return sets up results that will be returned by Store.ListStartConfigs
 func (mmListStartConfigs *mStoreMockListStartConfigs) Return(ca1 []payloads.Configuration, err error) *StoreMock {
 	if mmListStartConfigs.mock.funcListStartConfigs != nil {
@@ -1366,6 +1493,10 @@ func (mmListStartConfigs *mStoreMockListStartConfigs) Set(f func() (ca1 []payloa
 func (mmListStartConfigs *StoreMock) ListStartConfigs() (ca1 []payloads.Configuration, err error) {
 	mm_atomic.AddUint64(&mmListStartConfigs.beforeListStartConfigsCounter, 1)
 	defer mm_atomic.AddUint64(&mmListStartConfigs.afterListStartConfigsCounter, 1)
+
+	if mmListStartConfigs.inspectFuncListStartConfigs != nil {
+		mmListStartConfigs.inspectFuncListStartConfigs()
+	}
 
 	if mmListStartConfigs.ListStartConfigsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListStartConfigs.ListStartConfigsMock.defaultExpectation.Counter, 1)
@@ -1478,6 +1609,17 @@ func (mmPurgeProxy *mStoreMockPurgeProxy) Expect(instance netservice.Instance) *
 	return mmPurgeProxy
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.PurgeProxy
+func (mmPurgeProxy *mStoreMockPurgeProxy) Inspect(f func(instance netservice.Instance)) *mStoreMockPurgeProxy {
+	if mmPurgeProxy.mock.inspectFuncPurgeProxy != nil {
+		mmPurgeProxy.mock.t.Fatalf("Inspect function is already set for StoreMock.PurgeProxy")
+	}
+
+	mmPurgeProxy.mock.inspectFuncPurgeProxy = f
+
+	return mmPurgeProxy
+}
+
 // Return sets up results that will be returned by Store.PurgeProxy
 func (mmPurgeProxy *mStoreMockPurgeProxy) Return(err error) *StoreMock {
 	if mmPurgeProxy.mock.funcPurgeProxy != nil {
@@ -1530,6 +1672,10 @@ func (e *StoreMockPurgeProxyExpectation) Then(err error) *StoreMock {
 func (mmPurgeProxy *StoreMock) PurgeProxy(instance netservice.Instance) (err error) {
 	mm_atomic.AddUint64(&mmPurgeProxy.beforePurgeProxyCounter, 1)
 	defer mm_atomic.AddUint64(&mmPurgeProxy.afterPurgeProxyCounter, 1)
+
+	if mmPurgeProxy.inspectFuncPurgeProxy != nil {
+		mmPurgeProxy.inspectFuncPurgeProxy(instance)
+	}
 
 	params := &StoreMockPurgeProxyParams{instance}
 
@@ -1678,6 +1824,17 @@ func (mmSetHeartbeat *mStoreMockSetHeartbeat) Expect(h1 payloads.Heartbeat) *mSt
 	return mmSetHeartbeat
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.SetHeartbeat
+func (mmSetHeartbeat *mStoreMockSetHeartbeat) Inspect(f func(h1 payloads.Heartbeat)) *mStoreMockSetHeartbeat {
+	if mmSetHeartbeat.mock.inspectFuncSetHeartbeat != nil {
+		mmSetHeartbeat.mock.t.Fatalf("Inspect function is already set for StoreMock.SetHeartbeat")
+	}
+
+	mmSetHeartbeat.mock.inspectFuncSetHeartbeat = f
+
+	return mmSetHeartbeat
+}
+
 // Return sets up results that will be returned by Store.SetHeartbeat
 func (mmSetHeartbeat *mStoreMockSetHeartbeat) Return(err error) *StoreMock {
 	if mmSetHeartbeat.mock.funcSetHeartbeat != nil {
@@ -1730,6 +1887,10 @@ func (e *StoreMockSetHeartbeatExpectation) Then(err error) *StoreMock {
 func (mmSetHeartbeat *StoreMock) SetHeartbeat(h1 payloads.Heartbeat) (err error) {
 	mm_atomic.AddUint64(&mmSetHeartbeat.beforeSetHeartbeatCounter, 1)
 	defer mm_atomic.AddUint64(&mmSetHeartbeat.afterSetHeartbeatCounter, 1)
+
+	if mmSetHeartbeat.inspectFuncSetHeartbeat != nil {
+		mmSetHeartbeat.inspectFuncSetHeartbeat(h1)
+	}
 
 	params := &StoreMockSetHeartbeatParams{h1}
 
@@ -1878,6 +2039,17 @@ func (mmSetStartConfig *mStoreMockSetStartConfig) Expect(c1 payloads.Configurati
 	return mmSetStartConfig
 }
 
+// Inspect accepts an inspector function that has same arguments as the Store.SetStartConfig
+func (mmSetStartConfig *mStoreMockSetStartConfig) Inspect(f func(c1 payloads.Configuration)) *mStoreMockSetStartConfig {
+	if mmSetStartConfig.mock.inspectFuncSetStartConfig != nil {
+		mmSetStartConfig.mock.t.Fatalf("Inspect function is already set for StoreMock.SetStartConfig")
+	}
+
+	mmSetStartConfig.mock.inspectFuncSetStartConfig = f
+
+	return mmSetStartConfig
+}
+
 // Return sets up results that will be returned by Store.SetStartConfig
 func (mmSetStartConfig *mStoreMockSetStartConfig) Return(err error) *StoreMock {
 	if mmSetStartConfig.mock.funcSetStartConfig != nil {
@@ -1930,6 +2102,10 @@ func (e *StoreMockSetStartConfigExpectation) Then(err error) *StoreMock {
 func (mmSetStartConfig *StoreMock) SetStartConfig(c1 payloads.Configuration) (err error) {
 	mm_atomic.AddUint64(&mmSetStartConfig.beforeSetStartConfigCounter, 1)
 	defer mm_atomic.AddUint64(&mmSetStartConfig.afterSetStartConfigCounter, 1)
+
+	if mmSetStartConfig.inspectFuncSetStartConfig != nil {
+		mmSetStartConfig.inspectFuncSetStartConfig(c1)
+	}
 
 	params := &StoreMockSetStartConfigParams{c1}
 

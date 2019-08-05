@@ -16,11 +16,13 @@ type ClientMock struct {
 	t minimock.Tester
 
 	funcGet          func(path string, rw io.Writer) (err error)
+	inspectFuncGet   func(path string, rw io.Writer)
 	afterGetCounter  uint64
 	beforeGetCounter uint64
 	GetMock          mClientMockGet
 
 	funcPost          func(path string, body io.Reader, rw io.Writer) (err error)
+	inspectFuncPost   func(path string, body io.Reader, rw io.Writer)
 	afterPostCounter  uint64
 	beforePostCounter uint64
 	PostMock          mClientMockPost
@@ -90,6 +92,17 @@ func (mmGet *mClientMockGet) Expect(path string, rw io.Writer) *mClientMockGet {
 	return mmGet
 }
 
+// Inspect accepts an inspector function that has same arguments as the Client.Get
+func (mmGet *mClientMockGet) Inspect(f func(path string, rw io.Writer)) *mClientMockGet {
+	if mmGet.mock.inspectFuncGet != nil {
+		mmGet.mock.t.Fatalf("Inspect function is already set for ClientMock.Get")
+	}
+
+	mmGet.mock.inspectFuncGet = f
+
+	return mmGet
+}
+
 // Return sets up results that will be returned by Client.Get
 func (mmGet *mClientMockGet) Return(err error) *ClientMock {
 	if mmGet.mock.funcGet != nil {
@@ -142,6 +155,10 @@ func (e *ClientMockGetExpectation) Then(err error) *ClientMock {
 func (mmGet *ClientMock) Get(path string, rw io.Writer) (err error) {
 	mm_atomic.AddUint64(&mmGet.beforeGetCounter, 1)
 	defer mm_atomic.AddUint64(&mmGet.afterGetCounter, 1)
+
+	if mmGet.inspectFuncGet != nil {
+		mmGet.inspectFuncGet(path, rw)
+	}
 
 	params := &ClientMockGetParams{path, rw}
 
@@ -292,6 +309,17 @@ func (mmPost *mClientMockPost) Expect(path string, body io.Reader, rw io.Writer)
 	return mmPost
 }
 
+// Inspect accepts an inspector function that has same arguments as the Client.Post
+func (mmPost *mClientMockPost) Inspect(f func(path string, body io.Reader, rw io.Writer)) *mClientMockPost {
+	if mmPost.mock.inspectFuncPost != nil {
+		mmPost.mock.t.Fatalf("Inspect function is already set for ClientMock.Post")
+	}
+
+	mmPost.mock.inspectFuncPost = f
+
+	return mmPost
+}
+
 // Return sets up results that will be returned by Client.Post
 func (mmPost *mClientMockPost) Return(err error) *ClientMock {
 	if mmPost.mock.funcPost != nil {
@@ -344,6 +372,10 @@ func (e *ClientMockPostExpectation) Then(err error) *ClientMock {
 func (mmPost *ClientMock) Post(path string, body io.Reader, rw io.Writer) (err error) {
 	mm_atomic.AddUint64(&mmPost.beforePostCounter, 1)
 	defer mm_atomic.AddUint64(&mmPost.afterPostCounter, 1)
+
+	if mmPost.inspectFuncPost != nil {
+		mmPost.inspectFuncPost(path, body, rw)
+	}
 
 	params := &ClientMockPostParams{path, body, rw}
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	petrify "go.gophers.dev/cmds/petrify/v5"
+	petrify "gophers.dev/cmds/petrify/v5"
 
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/webutil"

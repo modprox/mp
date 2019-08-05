@@ -17,11 +17,13 @@ type UpstreamClientMock struct {
 	t minimock.Tester
 
 	funcGet          func(rp1 *upstream.Request) (b1 repository.Blob, err error)
+	inspectFuncGet   func(rp1 *upstream.Request)
 	afterGetCounter  uint64
 	beforeGetCounter uint64
 	GetMock          mUpstreamClientMockGet
 
 	funcProtocols          func() (sa1 []string)
+	inspectFuncProtocols   func()
 	afterProtocolsCounter  uint64
 	beforeProtocolsCounter uint64
 	ProtocolsMock          mUpstreamClientMockProtocols
@@ -90,6 +92,17 @@ func (mmGet *mUpstreamClientMockGet) Expect(rp1 *upstream.Request) *mUpstreamCli
 	return mmGet
 }
 
+// Inspect accepts an inspector function that has same arguments as the UpstreamClient.Get
+func (mmGet *mUpstreamClientMockGet) Inspect(f func(rp1 *upstream.Request)) *mUpstreamClientMockGet {
+	if mmGet.mock.inspectFuncGet != nil {
+		mmGet.mock.t.Fatalf("Inspect function is already set for UpstreamClientMock.Get")
+	}
+
+	mmGet.mock.inspectFuncGet = f
+
+	return mmGet
+}
+
 // Return sets up results that will be returned by UpstreamClient.Get
 func (mmGet *mUpstreamClientMockGet) Return(b1 repository.Blob, err error) *UpstreamClientMock {
 	if mmGet.mock.funcGet != nil {
@@ -142,6 +155,10 @@ func (e *UpstreamClientMockGetExpectation) Then(b1 repository.Blob, err error) *
 func (mmGet *UpstreamClientMock) Get(rp1 *upstream.Request) (b1 repository.Blob, err error) {
 	mm_atomic.AddUint64(&mmGet.beforeGetCounter, 1)
 	defer mm_atomic.AddUint64(&mmGet.afterGetCounter, 1)
+
+	if mmGet.inspectFuncGet != nil {
+		mmGet.inspectFuncGet(rp1)
+	}
 
 	params := &UpstreamClientMockGetParams{rp1}
 
@@ -275,6 +292,17 @@ func (mmProtocols *mUpstreamClientMockProtocols) Expect() *mUpstreamClientMockPr
 	return mmProtocols
 }
 
+// Inspect accepts an inspector function that has same arguments as the UpstreamClient.Protocols
+func (mmProtocols *mUpstreamClientMockProtocols) Inspect(f func()) *mUpstreamClientMockProtocols {
+	if mmProtocols.mock.inspectFuncProtocols != nil {
+		mmProtocols.mock.t.Fatalf("Inspect function is already set for UpstreamClientMock.Protocols")
+	}
+
+	mmProtocols.mock.inspectFuncProtocols = f
+
+	return mmProtocols
+}
+
 // Return sets up results that will be returned by UpstreamClient.Protocols
 func (mmProtocols *mUpstreamClientMockProtocols) Return(sa1 []string) *UpstreamClientMock {
 	if mmProtocols.mock.funcProtocols != nil {
@@ -306,6 +334,10 @@ func (mmProtocols *mUpstreamClientMockProtocols) Set(f func() (sa1 []string)) *U
 func (mmProtocols *UpstreamClientMock) Protocols() (sa1 []string) {
 	mm_atomic.AddUint64(&mmProtocols.beforeProtocolsCounter, 1)
 	defer mm_atomic.AddUint64(&mmProtocols.afterProtocolsCounter, 1)
+
+	if mmProtocols.inspectFuncProtocols != nil {
+		mmProtocols.inspectFuncProtocols()
+	}
 
 	if mmProtocols.ProtocolsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmProtocols.ProtocolsMock.defaultExpectation.Counter, 1)

@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/csrf"
 
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/registry/internal/tools/finder"

@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"net/http"
 
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/registry/internal/data"
 	"oss.indeed.com/go/modprox/registry/static"

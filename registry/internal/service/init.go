@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"go.gophers.dev/pkgs/repeat/x"
+	"gophers.dev/pkgs/repeat/x"
 
 	"oss.indeed.com/go/modprox/pkg/history"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/proxy/internal/modules/store"

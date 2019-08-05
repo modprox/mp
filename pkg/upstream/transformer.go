@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 )

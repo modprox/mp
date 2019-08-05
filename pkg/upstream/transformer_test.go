@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 )

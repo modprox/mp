@@ -16,6 +16,7 @@ type DownloaderMock struct {
 	t minimock.Tester
 
 	funcDownload          func(module coordinates.SerialModule) (err error)
+	inspectFuncDownload   func(module coordinates.SerialModule)
 	afterDownloadCounter  uint64
 	beforeDownloadCounter uint64
 	DownloadMock          mDownloaderMockDownload
@@ -81,6 +82,17 @@ func (mmDownload *mDownloaderMockDownload) Expect(module coordinates.SerialModul
 	return mmDownload
 }
 
+// Inspect accepts an inspector function that has same arguments as the Downloader.Download
+func (mmDownload *mDownloaderMockDownload) Inspect(f func(module coordinates.SerialModule)) *mDownloaderMockDownload {
+	if mmDownload.mock.inspectFuncDownload != nil {
+		mmDownload.mock.t.Fatalf("Inspect function is already set for DownloaderMock.Download")
+	}
+
+	mmDownload.mock.inspectFuncDownload = f
+
+	return mmDownload
+}
+
 // Return sets up results that will be returned by Downloader.Download
 func (mmDownload *mDownloaderMockDownload) Return(err error) *DownloaderMock {
 	if mmDownload.mock.funcDownload != nil {
@@ -133,6 +145,10 @@ func (e *DownloaderMockDownloadExpectation) Then(err error) *DownloaderMock {
 func (mmDownload *DownloaderMock) Download(module coordinates.SerialModule) (err error) {
 	mm_atomic.AddUint64(&mmDownload.beforeDownloadCounter, 1)
 	defer mm_atomic.AddUint64(&mmDownload.afterDownloadCounter, 1)
+
+	if mmDownload.inspectFuncDownload != nil {
+		mmDownload.inspectFuncDownload(module)
+	}
 
 	params := &DownloaderMockDownloadParams{module}
 

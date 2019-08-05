@@ -15,6 +15,7 @@ type FinderMock struct {
 	t minimock.Tester
 
 	funcFind          func(s1 string) (rp1 *Result, err error)
+	inspectFuncFind   func(s1 string)
 	afterFindCounter  uint64
 	beforeFindCounter uint64
 	FindMock          mFinderMockFind
@@ -81,6 +82,17 @@ func (mmFind *mFinderMockFind) Expect(s1 string) *mFinderMockFind {
 	return mmFind
 }
 
+// Inspect accepts an inspector function that has same arguments as the Finder.Find
+func (mmFind *mFinderMockFind) Inspect(f func(s1 string)) *mFinderMockFind {
+	if mmFind.mock.inspectFuncFind != nil {
+		mmFind.mock.t.Fatalf("Inspect function is already set for FinderMock.Find")
+	}
+
+	mmFind.mock.inspectFuncFind = f
+
+	return mmFind
+}
+
 // Return sets up results that will be returned by Finder.Find
 func (mmFind *mFinderMockFind) Return(rp1 *Result, err error) *FinderMock {
 	if mmFind.mock.funcFind != nil {
@@ -133,6 +145,10 @@ func (e *FinderMockFindExpectation) Then(rp1 *Result, err error) *FinderMock {
 func (mmFind *FinderMock) Find(s1 string) (rp1 *Result, err error) {
 	mm_atomic.AddUint64(&mmFind.beforeFindCounter, 1)
 	defer mm_atomic.AddUint64(&mmFind.afterFindCounter, 1)
+
+	if mmFind.inspectFuncFind != nil {
+		mmFind.inspectFuncFind(s1)
+	}
 
 	params := &FinderMockFindParams{s1}
 

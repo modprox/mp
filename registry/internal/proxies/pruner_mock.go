@@ -16,6 +16,7 @@ type PrunerMock struct {
 	t minimock.Tester
 
 	funcPrune          func(t1 time.Time) (err error)
+	inspectFuncPrune   func(t1 time.Time)
 	afterPruneCounter  uint64
 	beforePruneCounter uint64
 	PruneMock          mPrunerMockPrune
@@ -81,6 +82,17 @@ func (mmPrune *mPrunerMockPrune) Expect(t1 time.Time) *mPrunerMockPrune {
 	return mmPrune
 }
 
+// Inspect accepts an inspector function that has same arguments as the Pruner.Prune
+func (mmPrune *mPrunerMockPrune) Inspect(f func(t1 time.Time)) *mPrunerMockPrune {
+	if mmPrune.mock.inspectFuncPrune != nil {
+		mmPrune.mock.t.Fatalf("Inspect function is already set for PrunerMock.Prune")
+	}
+
+	mmPrune.mock.inspectFuncPrune = f
+
+	return mmPrune
+}
+
 // Return sets up results that will be returned by Pruner.Prune
 func (mmPrune *mPrunerMockPrune) Return(err error) *PrunerMock {
 	if mmPrune.mock.funcPrune != nil {
@@ -133,6 +145,10 @@ func (e *PrunerMockPruneExpectation) Then(err error) *PrunerMock {
 func (mmPrune *PrunerMock) Prune(t1 time.Time) (err error) {
 	mm_atomic.AddUint64(&mmPrune.beforePruneCounter, 1)
 	defer mm_atomic.AddUint64(&mmPrune.afterPruneCounter, 1)
+
+	if mmPrune.inspectFuncPrune != nil {
+		mmPrune.inspectFuncPrune(t1)
+	}
 
 	params := &PrunerMockPruneParams{t1}
 

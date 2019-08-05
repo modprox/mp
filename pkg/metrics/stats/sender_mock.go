@@ -16,16 +16,19 @@ type SenderMock struct {
 	t minimock.Tester
 
 	funcCount          func(metric string, i int)
+	inspectFuncCount   func(metric string, i int)
 	afterCountCounter  uint64
 	beforeCountCounter uint64
 	CountMock          mSenderMockCount
 
 	funcGauge          func(metric string, n int)
+	inspectFuncGauge   func(metric string, n int)
 	afterGaugeCounter  uint64
 	beforeGaugeCounter uint64
 	GaugeMock          mSenderMockGauge
 
 	funcGaugeMS          func(metric string, t time.Time)
+	inspectFuncGaugeMS   func(metric string, t time.Time)
 	afterGaugeMSCounter  uint64
 	beforeGaugeMSCounter uint64
 	GaugeMSMock          mSenderMockGaugeMS
@@ -93,6 +96,17 @@ func (mmCount *mSenderMockCount) Expect(metric string, i int) *mSenderMockCount 
 	return mmCount
 }
 
+// Inspect accepts an inspector function that has same arguments as the Sender.Count
+func (mmCount *mSenderMockCount) Inspect(f func(metric string, i int)) *mSenderMockCount {
+	if mmCount.mock.inspectFuncCount != nil {
+		mmCount.mock.t.Fatalf("Inspect function is already set for SenderMock.Count")
+	}
+
+	mmCount.mock.inspectFuncCount = f
+
+	return mmCount
+}
+
 // Return sets up results that will be returned by Sender.Count
 func (mmCount *mSenderMockCount) Return() *SenderMock {
 	if mmCount.mock.funcCount != nil {
@@ -124,6 +138,10 @@ func (mmCount *mSenderMockCount) Set(f func(metric string, i int)) *SenderMock {
 func (mmCount *SenderMock) Count(metric string, i int) {
 	mm_atomic.AddUint64(&mmCount.beforeCountCounter, 1)
 	defer mm_atomic.AddUint64(&mmCount.afterCountCounter, 1)
+
+	if mmCount.inspectFuncCount != nil {
+		mmCount.inspectFuncCount(metric, i)
+	}
 
 	params := &SenderMockCountParams{metric, i}
 
@@ -266,6 +284,17 @@ func (mmGauge *mSenderMockGauge) Expect(metric string, n int) *mSenderMockGauge 
 	return mmGauge
 }
 
+// Inspect accepts an inspector function that has same arguments as the Sender.Gauge
+func (mmGauge *mSenderMockGauge) Inspect(f func(metric string, n int)) *mSenderMockGauge {
+	if mmGauge.mock.inspectFuncGauge != nil {
+		mmGauge.mock.t.Fatalf("Inspect function is already set for SenderMock.Gauge")
+	}
+
+	mmGauge.mock.inspectFuncGauge = f
+
+	return mmGauge
+}
+
 // Return sets up results that will be returned by Sender.Gauge
 func (mmGauge *mSenderMockGauge) Return() *SenderMock {
 	if mmGauge.mock.funcGauge != nil {
@@ -297,6 +326,10 @@ func (mmGauge *mSenderMockGauge) Set(f func(metric string, n int)) *SenderMock {
 func (mmGauge *SenderMock) Gauge(metric string, n int) {
 	mm_atomic.AddUint64(&mmGauge.beforeGaugeCounter, 1)
 	defer mm_atomic.AddUint64(&mmGauge.afterGaugeCounter, 1)
+
+	if mmGauge.inspectFuncGauge != nil {
+		mmGauge.inspectFuncGauge(metric, n)
+	}
 
 	params := &SenderMockGaugeParams{metric, n}
 
@@ -439,6 +472,17 @@ func (mmGaugeMS *mSenderMockGaugeMS) Expect(metric string, t time.Time) *mSender
 	return mmGaugeMS
 }
 
+// Inspect accepts an inspector function that has same arguments as the Sender.GaugeMS
+func (mmGaugeMS *mSenderMockGaugeMS) Inspect(f func(metric string, t time.Time)) *mSenderMockGaugeMS {
+	if mmGaugeMS.mock.inspectFuncGaugeMS != nil {
+		mmGaugeMS.mock.t.Fatalf("Inspect function is already set for SenderMock.GaugeMS")
+	}
+
+	mmGaugeMS.mock.inspectFuncGaugeMS = f
+
+	return mmGaugeMS
+}
+
 // Return sets up results that will be returned by Sender.GaugeMS
 func (mmGaugeMS *mSenderMockGaugeMS) Return() *SenderMock {
 	if mmGaugeMS.mock.funcGaugeMS != nil {
@@ -470,6 +514,10 @@ func (mmGaugeMS *mSenderMockGaugeMS) Set(f func(metric string, t time.Time)) *Se
 func (mmGaugeMS *SenderMock) GaugeMS(metric string, t time.Time) {
 	mm_atomic.AddUint64(&mmGaugeMS.beforeGaugeMSCounter, 1)
 	defer mm_atomic.AddUint64(&mmGaugeMS.afterGaugeMSCounter, 1)
+
+	if mmGaugeMS.inspectFuncGaugeMS != nil {
+		mmGaugeMS.inspectFuncGaugeMS(metric, t)
+	}
 
 	params := &SenderMockGaugeMSParams{metric, t}
 

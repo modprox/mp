@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"time"
 
-	"go.gophers.dev/pkgs/ignore"
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/ignore"
+	"gophers.dev/pkgs/loggy"
 )
 
 func Github(baseURL string, client *http.Client) Versions {

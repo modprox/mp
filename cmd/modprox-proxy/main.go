@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/configutil"
 	"oss.indeed.com/go/modprox/proxy"

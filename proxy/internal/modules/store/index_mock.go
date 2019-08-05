@@ -17,46 +17,55 @@ type IndexMock struct {
 	t minimock.Tester
 
 	funcContains          func(m1 coordinates.Module) (b1 bool, i1 int64, err error)
+	inspectFuncContains   func(m1 coordinates.Module)
 	afterContainsCounter  uint64
 	beforeContainsCounter uint64
 	ContainsMock          mIndexMockContains
 
 	funcIDs          func() (r1 Ranges, err error)
+	inspectFuncIDs   func()
 	afterIDsCounter  uint64
 	beforeIDsCounter uint64
 	IDsMock          mIndexMockIDs
 
 	funcInfo          func(m1 coordinates.Module) (r1 repository.RevInfo, err error)
+	inspectFuncInfo   func(m1 coordinates.Module)
 	afterInfoCounter  uint64
 	beforeInfoCounter uint64
 	InfoMock          mIndexMockInfo
 
 	funcMod          func(m1 coordinates.Module) (s1 string, err error)
+	inspectFuncMod   func(m1 coordinates.Module)
 	afterModCounter  uint64
 	beforeModCounter uint64
 	ModMock          mIndexMockMod
 
 	funcPut          func(m1 ModuleAddition) (err error)
+	inspectFuncPut   func(m1 ModuleAddition)
 	afterPutCounter  uint64
 	beforePutCounter uint64
 	PutMock          mIndexMockPut
 
 	funcRemove          func(m1 coordinates.Module) (err error)
+	inspectFuncRemove   func(m1 coordinates.Module)
 	afterRemoveCounter  uint64
 	beforeRemoveCounter uint64
 	RemoveMock          mIndexMockRemove
 
 	funcSummary          func() (i1 int, i2 int, err error)
+	inspectFuncSummary   func()
 	afterSummaryCounter  uint64
 	beforeSummaryCounter uint64
 	SummaryMock          mIndexMockSummary
 
 	funcUpdateID          func(s1 coordinates.SerialModule) (err error)
+	inspectFuncUpdateID   func(s1 coordinates.SerialModule)
 	afterUpdateIDCounter  uint64
 	beforeUpdateIDCounter uint64
 	UpdateIDMock          mIndexMockUpdateID
 
 	funcVersions          func(module string) (sa1 []string, err error)
+	inspectFuncVersions   func(module string)
 	afterVersionsCounter  uint64
 	beforeVersionsCounter uint64
 	VersionsMock          mIndexMockVersions
@@ -146,6 +155,17 @@ func (mmContains *mIndexMockContains) Expect(m1 coordinates.Module) *mIndexMockC
 	return mmContains
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.Contains
+func (mmContains *mIndexMockContains) Inspect(f func(m1 coordinates.Module)) *mIndexMockContains {
+	if mmContains.mock.inspectFuncContains != nil {
+		mmContains.mock.t.Fatalf("Inspect function is already set for IndexMock.Contains")
+	}
+
+	mmContains.mock.inspectFuncContains = f
+
+	return mmContains
+}
+
 // Return sets up results that will be returned by Index.Contains
 func (mmContains *mIndexMockContains) Return(b1 bool, i1 int64, err error) *IndexMock {
 	if mmContains.mock.funcContains != nil {
@@ -198,6 +218,10 @@ func (e *IndexMockContainsExpectation) Then(b1 bool, i1 int64, err error) *Index
 func (mmContains *IndexMock) Contains(m1 coordinates.Module) (b1 bool, i1 int64, err error) {
 	mm_atomic.AddUint64(&mmContains.beforeContainsCounter, 1)
 	defer mm_atomic.AddUint64(&mmContains.afterContainsCounter, 1)
+
+	if mmContains.inspectFuncContains != nil {
+		mmContains.inspectFuncContains(m1)
+	}
 
 	params := &IndexMockContainsParams{m1}
 
@@ -332,6 +356,17 @@ func (mmIDs *mIndexMockIDs) Expect() *mIndexMockIDs {
 	return mmIDs
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.IDs
+func (mmIDs *mIndexMockIDs) Inspect(f func()) *mIndexMockIDs {
+	if mmIDs.mock.inspectFuncIDs != nil {
+		mmIDs.mock.t.Fatalf("Inspect function is already set for IndexMock.IDs")
+	}
+
+	mmIDs.mock.inspectFuncIDs = f
+
+	return mmIDs
+}
+
 // Return sets up results that will be returned by Index.IDs
 func (mmIDs *mIndexMockIDs) Return(r1 Ranges, err error) *IndexMock {
 	if mmIDs.mock.funcIDs != nil {
@@ -363,6 +398,10 @@ func (mmIDs *mIndexMockIDs) Set(f func() (r1 Ranges, err error)) *IndexMock {
 func (mmIDs *IndexMock) IDs() (r1 Ranges, err error) {
 	mm_atomic.AddUint64(&mmIDs.beforeIDsCounter, 1)
 	defer mm_atomic.AddUint64(&mmIDs.afterIDsCounter, 1)
+
+	if mmIDs.inspectFuncIDs != nil {
+		mmIDs.inspectFuncIDs()
+	}
 
 	if mmIDs.IDsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmIDs.IDsMock.defaultExpectation.Counter, 1)
@@ -476,6 +515,17 @@ func (mmInfo *mIndexMockInfo) Expect(m1 coordinates.Module) *mIndexMockInfo {
 	return mmInfo
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.Info
+func (mmInfo *mIndexMockInfo) Inspect(f func(m1 coordinates.Module)) *mIndexMockInfo {
+	if mmInfo.mock.inspectFuncInfo != nil {
+		mmInfo.mock.t.Fatalf("Inspect function is already set for IndexMock.Info")
+	}
+
+	mmInfo.mock.inspectFuncInfo = f
+
+	return mmInfo
+}
+
 // Return sets up results that will be returned by Index.Info
 func (mmInfo *mIndexMockInfo) Return(r1 repository.RevInfo, err error) *IndexMock {
 	if mmInfo.mock.funcInfo != nil {
@@ -528,6 +578,10 @@ func (e *IndexMockInfoExpectation) Then(r1 repository.RevInfo, err error) *Index
 func (mmInfo *IndexMock) Info(m1 coordinates.Module) (r1 repository.RevInfo, err error) {
 	mm_atomic.AddUint64(&mmInfo.beforeInfoCounter, 1)
 	defer mm_atomic.AddUint64(&mmInfo.afterInfoCounter, 1)
+
+	if mmInfo.inspectFuncInfo != nil {
+		mmInfo.inspectFuncInfo(m1)
+	}
 
 	params := &IndexMockInfoParams{m1}
 
@@ -677,6 +731,17 @@ func (mmMod *mIndexMockMod) Expect(m1 coordinates.Module) *mIndexMockMod {
 	return mmMod
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.Mod
+func (mmMod *mIndexMockMod) Inspect(f func(m1 coordinates.Module)) *mIndexMockMod {
+	if mmMod.mock.inspectFuncMod != nil {
+		mmMod.mock.t.Fatalf("Inspect function is already set for IndexMock.Mod")
+	}
+
+	mmMod.mock.inspectFuncMod = f
+
+	return mmMod
+}
+
 // Return sets up results that will be returned by Index.Mod
 func (mmMod *mIndexMockMod) Return(s1 string, err error) *IndexMock {
 	if mmMod.mock.funcMod != nil {
@@ -729,6 +794,10 @@ func (e *IndexMockModExpectation) Then(s1 string, err error) *IndexMock {
 func (mmMod *IndexMock) Mod(m1 coordinates.Module) (s1 string, err error) {
 	mm_atomic.AddUint64(&mmMod.beforeModCounter, 1)
 	defer mm_atomic.AddUint64(&mmMod.afterModCounter, 1)
+
+	if mmMod.inspectFuncMod != nil {
+		mmMod.inspectFuncMod(m1)
+	}
 
 	params := &IndexMockModParams{m1}
 
@@ -877,6 +946,17 @@ func (mmPut *mIndexMockPut) Expect(m1 ModuleAddition) *mIndexMockPut {
 	return mmPut
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.Put
+func (mmPut *mIndexMockPut) Inspect(f func(m1 ModuleAddition)) *mIndexMockPut {
+	if mmPut.mock.inspectFuncPut != nil {
+		mmPut.mock.t.Fatalf("Inspect function is already set for IndexMock.Put")
+	}
+
+	mmPut.mock.inspectFuncPut = f
+
+	return mmPut
+}
+
 // Return sets up results that will be returned by Index.Put
 func (mmPut *mIndexMockPut) Return(err error) *IndexMock {
 	if mmPut.mock.funcPut != nil {
@@ -929,6 +1009,10 @@ func (e *IndexMockPutExpectation) Then(err error) *IndexMock {
 func (mmPut *IndexMock) Put(m1 ModuleAddition) (err error) {
 	mm_atomic.AddUint64(&mmPut.beforePutCounter, 1)
 	defer mm_atomic.AddUint64(&mmPut.afterPutCounter, 1)
+
+	if mmPut.inspectFuncPut != nil {
+		mmPut.inspectFuncPut(m1)
+	}
 
 	params := &IndexMockPutParams{m1}
 
@@ -1077,6 +1161,17 @@ func (mmRemove *mIndexMockRemove) Expect(m1 coordinates.Module) *mIndexMockRemov
 	return mmRemove
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.Remove
+func (mmRemove *mIndexMockRemove) Inspect(f func(m1 coordinates.Module)) *mIndexMockRemove {
+	if mmRemove.mock.inspectFuncRemove != nil {
+		mmRemove.mock.t.Fatalf("Inspect function is already set for IndexMock.Remove")
+	}
+
+	mmRemove.mock.inspectFuncRemove = f
+
+	return mmRemove
+}
+
 // Return sets up results that will be returned by Index.Remove
 func (mmRemove *mIndexMockRemove) Return(err error) *IndexMock {
 	if mmRemove.mock.funcRemove != nil {
@@ -1129,6 +1224,10 @@ func (e *IndexMockRemoveExpectation) Then(err error) *IndexMock {
 func (mmRemove *IndexMock) Remove(m1 coordinates.Module) (err error) {
 	mm_atomic.AddUint64(&mmRemove.beforeRemoveCounter, 1)
 	defer mm_atomic.AddUint64(&mmRemove.afterRemoveCounter, 1)
+
+	if mmRemove.inspectFuncRemove != nil {
+		mmRemove.inspectFuncRemove(m1)
+	}
 
 	params := &IndexMockRemoveParams{m1}
 
@@ -1264,6 +1363,17 @@ func (mmSummary *mIndexMockSummary) Expect() *mIndexMockSummary {
 	return mmSummary
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.Summary
+func (mmSummary *mIndexMockSummary) Inspect(f func()) *mIndexMockSummary {
+	if mmSummary.mock.inspectFuncSummary != nil {
+		mmSummary.mock.t.Fatalf("Inspect function is already set for IndexMock.Summary")
+	}
+
+	mmSummary.mock.inspectFuncSummary = f
+
+	return mmSummary
+}
+
 // Return sets up results that will be returned by Index.Summary
 func (mmSummary *mIndexMockSummary) Return(i1 int, i2 int, err error) *IndexMock {
 	if mmSummary.mock.funcSummary != nil {
@@ -1295,6 +1405,10 @@ func (mmSummary *mIndexMockSummary) Set(f func() (i1 int, i2 int, err error)) *I
 func (mmSummary *IndexMock) Summary() (i1 int, i2 int, err error) {
 	mm_atomic.AddUint64(&mmSummary.beforeSummaryCounter, 1)
 	defer mm_atomic.AddUint64(&mmSummary.afterSummaryCounter, 1)
+
+	if mmSummary.inspectFuncSummary != nil {
+		mmSummary.inspectFuncSummary()
+	}
 
 	if mmSummary.SummaryMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmSummary.SummaryMock.defaultExpectation.Counter, 1)
@@ -1407,6 +1521,17 @@ func (mmUpdateID *mIndexMockUpdateID) Expect(s1 coordinates.SerialModule) *mInde
 	return mmUpdateID
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.UpdateID
+func (mmUpdateID *mIndexMockUpdateID) Inspect(f func(s1 coordinates.SerialModule)) *mIndexMockUpdateID {
+	if mmUpdateID.mock.inspectFuncUpdateID != nil {
+		mmUpdateID.mock.t.Fatalf("Inspect function is already set for IndexMock.UpdateID")
+	}
+
+	mmUpdateID.mock.inspectFuncUpdateID = f
+
+	return mmUpdateID
+}
+
 // Return sets up results that will be returned by Index.UpdateID
 func (mmUpdateID *mIndexMockUpdateID) Return(err error) *IndexMock {
 	if mmUpdateID.mock.funcUpdateID != nil {
@@ -1459,6 +1584,10 @@ func (e *IndexMockUpdateIDExpectation) Then(err error) *IndexMock {
 func (mmUpdateID *IndexMock) UpdateID(s1 coordinates.SerialModule) (err error) {
 	mm_atomic.AddUint64(&mmUpdateID.beforeUpdateIDCounter, 1)
 	defer mm_atomic.AddUint64(&mmUpdateID.afterUpdateIDCounter, 1)
+
+	if mmUpdateID.inspectFuncUpdateID != nil {
+		mmUpdateID.inspectFuncUpdateID(s1)
+	}
 
 	params := &IndexMockUpdateIDParams{s1}
 
@@ -1608,6 +1737,17 @@ func (mmVersions *mIndexMockVersions) Expect(module string) *mIndexMockVersions 
 	return mmVersions
 }
 
+// Inspect accepts an inspector function that has same arguments as the Index.Versions
+func (mmVersions *mIndexMockVersions) Inspect(f func(module string)) *mIndexMockVersions {
+	if mmVersions.mock.inspectFuncVersions != nil {
+		mmVersions.mock.t.Fatalf("Inspect function is already set for IndexMock.Versions")
+	}
+
+	mmVersions.mock.inspectFuncVersions = f
+
+	return mmVersions
+}
+
 // Return sets up results that will be returned by Index.Versions
 func (mmVersions *mIndexMockVersions) Return(sa1 []string, err error) *IndexMock {
 	if mmVersions.mock.funcVersions != nil {
@@ -1660,6 +1800,10 @@ func (e *IndexMockVersionsExpectation) Then(sa1 []string, err error) *IndexMock 
 func (mmVersions *IndexMock) Versions(module string) (sa1 []string, err error) {
 	mm_atomic.AddUint64(&mmVersions.beforeVersionsCounter, 1)
 	defer mm_atomic.AddUint64(&mmVersions.afterVersionsCounter, 1)
+
+	if mmVersions.inspectFuncVersions != nil {
+		mmVersions.inspectFuncVersions(module)
+	}
 
 	params := &IndexMockVersionsParams{module}
 

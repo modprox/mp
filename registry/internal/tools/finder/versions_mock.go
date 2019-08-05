@@ -15,6 +15,7 @@ type VersionsMock struct {
 	t minimock.Tester
 
 	funcRequest          func(source string) (rp1 *Result, err error)
+	inspectFuncRequest   func(source string)
 	afterRequestCounter  uint64
 	beforeRequestCounter uint64
 	RequestMock          mVersionsMockRequest
@@ -81,6 +82,17 @@ func (mmRequest *mVersionsMockRequest) Expect(source string) *mVersionsMockReque
 	return mmRequest
 }
 
+// Inspect accepts an inspector function that has same arguments as the Versions.Request
+func (mmRequest *mVersionsMockRequest) Inspect(f func(source string)) *mVersionsMockRequest {
+	if mmRequest.mock.inspectFuncRequest != nil {
+		mmRequest.mock.t.Fatalf("Inspect function is already set for VersionsMock.Request")
+	}
+
+	mmRequest.mock.inspectFuncRequest = f
+
+	return mmRequest
+}
+
 // Return sets up results that will be returned by Versions.Request
 func (mmRequest *mVersionsMockRequest) Return(rp1 *Result, err error) *VersionsMock {
 	if mmRequest.mock.funcRequest != nil {
@@ -133,6 +145,10 @@ func (e *VersionsMockRequestExpectation) Then(rp1 *Result, err error) *VersionsM
 func (mmRequest *VersionsMock) Request(source string) (rp1 *Result, err error) {
 	mm_atomic.AddUint64(&mmRequest.beforeRequestCounter, 1)
 	defer mm_atomic.AddUint64(&mmRequest.afterRequestCounter, 1)
+
+	if mmRequest.inspectFuncRequest != nil {
+		mmRequest.inspectFuncRequest(source)
+	}
 
 	params := &VersionsMockRequestParams{source}
 

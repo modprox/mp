@@ -16,11 +16,13 @@ type ResolverMock struct {
 	t minimock.Tester
 
 	funcResolve          func(m1 coordinates.Module) (rp1 *Request, err error)
+	inspectFuncResolve   func(m1 coordinates.Module)
 	afterResolveCounter  uint64
 	beforeResolveCounter uint64
 	ResolveMock          mResolverMockResolve
 
 	funcUseProxy          func(m1 coordinates.Module) (b1 bool, err error)
+	inspectFuncUseProxy   func(m1 coordinates.Module)
 	afterUseProxyCounter  uint64
 	beforeUseProxyCounter uint64
 	UseProxyMock          mResolverMockUseProxy
@@ -90,6 +92,17 @@ func (mmResolve *mResolverMockResolve) Expect(m1 coordinates.Module) *mResolverM
 	return mmResolve
 }
 
+// Inspect accepts an inspector function that has same arguments as the Resolver.Resolve
+func (mmResolve *mResolverMockResolve) Inspect(f func(m1 coordinates.Module)) *mResolverMockResolve {
+	if mmResolve.mock.inspectFuncResolve != nil {
+		mmResolve.mock.t.Fatalf("Inspect function is already set for ResolverMock.Resolve")
+	}
+
+	mmResolve.mock.inspectFuncResolve = f
+
+	return mmResolve
+}
+
 // Return sets up results that will be returned by Resolver.Resolve
 func (mmResolve *mResolverMockResolve) Return(rp1 *Request, err error) *ResolverMock {
 	if mmResolve.mock.funcResolve != nil {
@@ -142,6 +155,10 @@ func (e *ResolverMockResolveExpectation) Then(rp1 *Request, err error) *Resolver
 func (mmResolve *ResolverMock) Resolve(m1 coordinates.Module) (rp1 *Request, err error) {
 	mm_atomic.AddUint64(&mmResolve.beforeResolveCounter, 1)
 	defer mm_atomic.AddUint64(&mmResolve.afterResolveCounter, 1)
+
+	if mmResolve.inspectFuncResolve != nil {
+		mmResolve.inspectFuncResolve(m1)
+	}
 
 	params := &ResolverMockResolveParams{m1}
 
@@ -291,6 +308,17 @@ func (mmUseProxy *mResolverMockUseProxy) Expect(m1 coordinates.Module) *mResolve
 	return mmUseProxy
 }
 
+// Inspect accepts an inspector function that has same arguments as the Resolver.UseProxy
+func (mmUseProxy *mResolverMockUseProxy) Inspect(f func(m1 coordinates.Module)) *mResolverMockUseProxy {
+	if mmUseProxy.mock.inspectFuncUseProxy != nil {
+		mmUseProxy.mock.t.Fatalf("Inspect function is already set for ResolverMock.UseProxy")
+	}
+
+	mmUseProxy.mock.inspectFuncUseProxy = f
+
+	return mmUseProxy
+}
+
 // Return sets up results that will be returned by Resolver.UseProxy
 func (mmUseProxy *mResolverMockUseProxy) Return(b1 bool, err error) *ResolverMock {
 	if mmUseProxy.mock.funcUseProxy != nil {
@@ -343,6 +371,10 @@ func (e *ResolverMockUseProxyExpectation) Then(b1 bool, err error) *ResolverMock
 func (mmUseProxy *ResolverMock) UseProxy(m1 coordinates.Module) (b1 bool, err error) {
 	mm_atomic.AddUint64(&mmUseProxy.beforeUseProxyCounter, 1)
 	defer mm_atomic.AddUint64(&mmUseProxy.afterUseProxyCounter, 1)
+
+	if mmUseProxy.inspectFuncUseProxy != nil {
+		mmUseProxy.inspectFuncUseProxy(m1)
+	}
 
 	params := &ResolverMockUseProxyParams{m1}
 

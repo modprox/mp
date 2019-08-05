@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/loggy"
 
 	"oss.indeed.com/go/modprox/pkg/configutil"
 	"oss.indeed.com/go/modprox/registry"
@@ -11,7 +11,7 @@ import (
 )
 
 // generate webpage statics
-//go:generate go run go.gophers.dev/cmds/petrify/v5/cmd/petrify -prefix ../../registry -o ../../registry/static/generated.go -pkg static ../../registry/static/...
+//go:generate go run gophers.dev/cmds/petrify/v5/cmd/petrify -prefix ../../registry -o ../../registry/static/generated.go -pkg static ../../registry/static/...
 
 func main() {
 	log := loggy.New("modprox-registry")

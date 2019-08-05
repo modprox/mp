@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"go.gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/loggy"
 )
 
 type Result struct {

@@ -17,16 +17,19 @@ type ZipStoreMock struct {
 	t minimock.Tester
 
 	funcDelZip          func(m1 coordinates.Module) (err error)
+	inspectFuncDelZip   func(m1 coordinates.Module)
 	afterDelZipCounter  uint64
 	beforeDelZipCounter uint64
 	DelZipMock          mZipStoreMockDelZip
 
 	funcGetZip          func(m1 coordinates.Module) (b1 repository.Blob, err error)
+	inspectFuncGetZip   func(m1 coordinates.Module)
 	afterGetZipCounter  uint64
 	beforeGetZipCounter uint64
 	GetZipMock          mZipStoreMockGetZip
 
 	funcPutZip          func(m1 coordinates.Module, b1 repository.Blob) (err error)
+	inspectFuncPutZip   func(m1 coordinates.Module, b1 repository.Blob)
 	afterPutZipCounter  uint64
 	beforePutZipCounter uint64
 	PutZipMock          mZipStoreMockPutZip
@@ -98,6 +101,17 @@ func (mmDelZip *mZipStoreMockDelZip) Expect(m1 coordinates.Module) *mZipStoreMoc
 	return mmDelZip
 }
 
+// Inspect accepts an inspector function that has same arguments as the ZipStore.DelZip
+func (mmDelZip *mZipStoreMockDelZip) Inspect(f func(m1 coordinates.Module)) *mZipStoreMockDelZip {
+	if mmDelZip.mock.inspectFuncDelZip != nil {
+		mmDelZip.mock.t.Fatalf("Inspect function is already set for ZipStoreMock.DelZip")
+	}
+
+	mmDelZip.mock.inspectFuncDelZip = f
+
+	return mmDelZip
+}
+
 // Return sets up results that will be returned by ZipStore.DelZip
 func (mmDelZip *mZipStoreMockDelZip) Return(err error) *ZipStoreMock {
 	if mmDelZip.mock.funcDelZip != nil {
@@ -150,6 +164,10 @@ func (e *ZipStoreMockDelZipExpectation) Then(err error) *ZipStoreMock {
 func (mmDelZip *ZipStoreMock) DelZip(m1 coordinates.Module) (err error) {
 	mm_atomic.AddUint64(&mmDelZip.beforeDelZipCounter, 1)
 	defer mm_atomic.AddUint64(&mmDelZip.afterDelZipCounter, 1)
+
+	if mmDelZip.inspectFuncDelZip != nil {
+		mmDelZip.inspectFuncDelZip(m1)
+	}
 
 	params := &ZipStoreMockDelZipParams{m1}
 
@@ -299,6 +317,17 @@ func (mmGetZip *mZipStoreMockGetZip) Expect(m1 coordinates.Module) *mZipStoreMoc
 	return mmGetZip
 }
 
+// Inspect accepts an inspector function that has same arguments as the ZipStore.GetZip
+func (mmGetZip *mZipStoreMockGetZip) Inspect(f func(m1 coordinates.Module)) *mZipStoreMockGetZip {
+	if mmGetZip.mock.inspectFuncGetZip != nil {
+		mmGetZip.mock.t.Fatalf("Inspect function is already set for ZipStoreMock.GetZip")
+	}
+
+	mmGetZip.mock.inspectFuncGetZip = f
+
+	return mmGetZip
+}
+
 // Return sets up results that will be returned by ZipStore.GetZip
 func (mmGetZip *mZipStoreMockGetZip) Return(b1 repository.Blob, err error) *ZipStoreMock {
 	if mmGetZip.mock.funcGetZip != nil {
@@ -351,6 +380,10 @@ func (e *ZipStoreMockGetZipExpectation) Then(b1 repository.Blob, err error) *Zip
 func (mmGetZip *ZipStoreMock) GetZip(m1 coordinates.Module) (b1 repository.Blob, err error) {
 	mm_atomic.AddUint64(&mmGetZip.beforeGetZipCounter, 1)
 	defer mm_atomic.AddUint64(&mmGetZip.afterGetZipCounter, 1)
+
+	if mmGetZip.inspectFuncGetZip != nil {
+		mmGetZip.inspectFuncGetZip(m1)
+	}
 
 	params := &ZipStoreMockGetZipParams{m1}
 
@@ -500,6 +533,17 @@ func (mmPutZip *mZipStoreMockPutZip) Expect(m1 coordinates.Module, b1 repository
 	return mmPutZip
 }
 
+// Inspect accepts an inspector function that has same arguments as the ZipStore.PutZip
+func (mmPutZip *mZipStoreMockPutZip) Inspect(f func(m1 coordinates.Module, b1 repository.Blob)) *mZipStoreMockPutZip {
+	if mmPutZip.mock.inspectFuncPutZip != nil {
+		mmPutZip.mock.t.Fatalf("Inspect function is already set for ZipStoreMock.PutZip")
+	}
+
+	mmPutZip.mock.inspectFuncPutZip = f
+
+	return mmPutZip
+}
+
 // Return sets up results that will be returned by ZipStore.PutZip
 func (mmPutZip *mZipStoreMockPutZip) Return(err error) *ZipStoreMock {
 	if mmPutZip.mock.funcPutZip != nil {
@@ -552,6 +596,10 @@ func (e *ZipStoreMockPutZipExpectation) Then(err error) *ZipStoreMock {
 func (mmPutZip *ZipStoreMock) PutZip(m1 coordinates.Module, b1 repository.Blob) (err error) {
 	mm_atomic.AddUint64(&mmPutZip.beforePutZipCounter, 1)
 	defer mm_atomic.AddUint64(&mmPutZip.afterPutZipCounter, 1)
+
+	if mmPutZip.inspectFuncPutZip != nil {
+		mmPutZip.inspectFuncPutZip(m1, b1)
+	}
 
 	params := &ZipStoreMockPutZipParams{m1, b1}
 

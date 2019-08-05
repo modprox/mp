@@ -16,16 +16,19 @@ type TrackerMock struct {
 	t minimock.Tester
 
 	funcProblem          func(module coordinates.Module) (p1 Problem, b1 bool)
+	inspectFuncProblem   func(module coordinates.Module)
 	afterProblemCounter  uint64
 	beforeProblemCounter uint64
 	ProblemMock          mTrackerMockProblem
 
 	funcProblems          func() (pa1 []Problem)
+	inspectFuncProblems   func()
 	afterProblemsCounter  uint64
 	beforeProblemsCounter uint64
 	ProblemsMock          mTrackerMockProblems
 
 	funcSet          func(p1 Problem)
+	inspectFuncSet   func(p1 Problem)
 	afterSetCounter  uint64
 	beforeSetCounter uint64
 	SetMock          mTrackerMockSet
@@ -97,6 +100,17 @@ func (mmProblem *mTrackerMockProblem) Expect(module coordinates.Module) *mTracke
 	return mmProblem
 }
 
+// Inspect accepts an inspector function that has same arguments as the Tracker.Problem
+func (mmProblem *mTrackerMockProblem) Inspect(f func(module coordinates.Module)) *mTrackerMockProblem {
+	if mmProblem.mock.inspectFuncProblem != nil {
+		mmProblem.mock.t.Fatalf("Inspect function is already set for TrackerMock.Problem")
+	}
+
+	mmProblem.mock.inspectFuncProblem = f
+
+	return mmProblem
+}
+
 // Return sets up results that will be returned by Tracker.Problem
 func (mmProblem *mTrackerMockProblem) Return(p1 Problem, b1 bool) *TrackerMock {
 	if mmProblem.mock.funcProblem != nil {
@@ -149,6 +163,10 @@ func (e *TrackerMockProblemExpectation) Then(p1 Problem, b1 bool) *TrackerMock {
 func (mmProblem *TrackerMock) Problem(module coordinates.Module) (p1 Problem, b1 bool) {
 	mm_atomic.AddUint64(&mmProblem.beforeProblemCounter, 1)
 	defer mm_atomic.AddUint64(&mmProblem.afterProblemCounter, 1)
+
+	if mmProblem.inspectFuncProblem != nil {
+		mmProblem.inspectFuncProblem(module)
+	}
 
 	params := &TrackerMockProblemParams{module}
 
@@ -282,6 +300,17 @@ func (mmProblems *mTrackerMockProblems) Expect() *mTrackerMockProblems {
 	return mmProblems
 }
 
+// Inspect accepts an inspector function that has same arguments as the Tracker.Problems
+func (mmProblems *mTrackerMockProblems) Inspect(f func()) *mTrackerMockProblems {
+	if mmProblems.mock.inspectFuncProblems != nil {
+		mmProblems.mock.t.Fatalf("Inspect function is already set for TrackerMock.Problems")
+	}
+
+	mmProblems.mock.inspectFuncProblems = f
+
+	return mmProblems
+}
+
 // Return sets up results that will be returned by Tracker.Problems
 func (mmProblems *mTrackerMockProblems) Return(pa1 []Problem) *TrackerMock {
 	if mmProblems.mock.funcProblems != nil {
@@ -313,6 +342,10 @@ func (mmProblems *mTrackerMockProblems) Set(f func() (pa1 []Problem)) *TrackerMo
 func (mmProblems *TrackerMock) Problems() (pa1 []Problem) {
 	mm_atomic.AddUint64(&mmProblems.beforeProblemsCounter, 1)
 	defer mm_atomic.AddUint64(&mmProblems.afterProblemsCounter, 1)
+
+	if mmProblems.inspectFuncProblems != nil {
+		mmProblems.inspectFuncProblems()
+	}
 
 	if mmProblems.ProblemsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmProblems.ProblemsMock.defaultExpectation.Counter, 1)
@@ -420,6 +453,17 @@ func (mmSet *mTrackerMockSet) Expect(p1 Problem) *mTrackerMockSet {
 	return mmSet
 }
 
+// Inspect accepts an inspector function that has same arguments as the Tracker.Set
+func (mmSet *mTrackerMockSet) Inspect(f func(p1 Problem)) *mTrackerMockSet {
+	if mmSet.mock.inspectFuncSet != nil {
+		mmSet.mock.t.Fatalf("Inspect function is already set for TrackerMock.Set")
+	}
+
+	mmSet.mock.inspectFuncSet = f
+
+	return mmSet
+}
+
 // Return sets up results that will be returned by Tracker.Set
 func (mmSet *mTrackerMockSet) Return() *TrackerMock {
 	if mmSet.mock.funcSet != nil {
@@ -451,6 +495,10 @@ func (mmSet *mTrackerMockSet) Set(f func(p1 Problem)) *TrackerMock {
 func (mmSet *TrackerMock) Set(p1 Problem) {
 	mm_atomic.AddUint64(&mmSet.beforeSetCounter, 1)
 	defer mm_atomic.AddUint64(&mmSet.afterSetCounter, 1)
+
+	if mmSet.inspectFuncSet != nil {
+		mmSet.inspectFuncSet(p1)
+	}
 
 	params := &TrackerMockSetParams{p1}
 
