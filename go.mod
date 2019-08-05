@@ -16,6 +16,7 @@ require (
 	gophers.dev/pkgs/atomicfs v0.3.1
 	gophers.dev/pkgs/ignore v0.2.0
 	gophers.dev/pkgs/loggy v0.2.0
+	gophers.dev/pkgs/regexplus v0.2.0 // indirect
 	gophers.dev/pkgs/repeat v0.1.1
-	oss.indeed.com/go/taggit v0.5.0
+	oss.indeed.com/go/taggit v0.5.1
 )
