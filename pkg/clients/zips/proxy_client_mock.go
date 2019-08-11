@@ -7,7 +7,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
@@ -152,15 +152,15 @@ func (mmGet *ProxyClientMock) Get(m1 coordinates.Module) (b1 repository.Blob, er
 		mmGet.inspectFuncGet(m1)
 	}
 
-	params := &ProxyClientMockGetParams{m1}
+	mm_params := &ProxyClientMockGetParams{m1}
 
 	// Record call args
 	mmGet.GetMock.mutex.Lock()
-	mmGet.GetMock.callArgs = append(mmGet.GetMock.callArgs, params)
+	mmGet.GetMock.callArgs = append(mmGet.GetMock.callArgs, mm_params)
 	mmGet.GetMock.mutex.Unlock()
 
 	for _, e := range mmGet.GetMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.b1, e.results.err
 		}
@@ -168,17 +168,17 @@ func (mmGet *ProxyClientMock) Get(m1 coordinates.Module) (b1 repository.Blob, er
 
 	if mmGet.GetMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGet.GetMock.defaultExpectation.Counter, 1)
-		want := mmGet.GetMock.defaultExpectation.params
-		got := ProxyClientMockGetParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmGet.t.Errorf("ProxyClientMock.Get got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmGet.GetMock.defaultExpectation.params
+		mm_got := ProxyClientMockGetParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGet.t.Errorf("ProxyClientMock.Get got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmGet.GetMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmGet.GetMock.defaultExpectation.results
+		if mm_results == nil {
 			mmGet.t.Fatal("No results are set for the ProxyClientMock.Get")
 		}
-		return (*results).b1, (*results).err
+		return (*mm_results).b1, (*mm_results).err
 	}
 	if mmGet.funcGet != nil {
 		return mmGet.funcGet(m1)

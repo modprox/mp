@@ -7,7 +7,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 	"oss.indeed.com/go/modprox/pkg/repository"
 	"oss.indeed.com/go/modprox/pkg/upstream"
 )
@@ -160,15 +160,15 @@ func (mmGet *UpstreamClientMock) Get(rp1 *upstream.Request) (b1 repository.Blob,
 		mmGet.inspectFuncGet(rp1)
 	}
 
-	params := &UpstreamClientMockGetParams{rp1}
+	mm_params := &UpstreamClientMockGetParams{rp1}
 
 	// Record call args
 	mmGet.GetMock.mutex.Lock()
-	mmGet.GetMock.callArgs = append(mmGet.GetMock.callArgs, params)
+	mmGet.GetMock.callArgs = append(mmGet.GetMock.callArgs, mm_params)
 	mmGet.GetMock.mutex.Unlock()
 
 	for _, e := range mmGet.GetMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.b1, e.results.err
 		}
@@ -176,17 +176,17 @@ func (mmGet *UpstreamClientMock) Get(rp1 *upstream.Request) (b1 repository.Blob,
 
 	if mmGet.GetMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGet.GetMock.defaultExpectation.Counter, 1)
-		want := mmGet.GetMock.defaultExpectation.params
-		got := UpstreamClientMockGetParams{rp1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmGet.t.Errorf("UpstreamClientMock.Get got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmGet.GetMock.defaultExpectation.params
+		mm_got := UpstreamClientMockGetParams{rp1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGet.t.Errorf("UpstreamClientMock.Get got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmGet.GetMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmGet.GetMock.defaultExpectation.results
+		if mm_results == nil {
 			mmGet.t.Fatal("No results are set for the UpstreamClientMock.Get")
 		}
-		return (*results).b1, (*results).err
+		return (*mm_results).b1, (*mm_results).err
 	}
 	if mmGet.funcGet != nil {
 		return mmGet.funcGet(rp1)
@@ -342,11 +342,11 @@ func (mmProtocols *UpstreamClientMock) Protocols() (sa1 []string) {
 	if mmProtocols.ProtocolsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmProtocols.ProtocolsMock.defaultExpectation.Counter, 1)
 
-		results := mmProtocols.ProtocolsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmProtocols.ProtocolsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmProtocols.t.Fatal("No results are set for the UpstreamClientMock.Protocols")
 		}
-		return (*results).sa1
+		return (*mm_results).sa1
 	}
 	if mmProtocols.funcProtocols != nil {
 		return mmProtocols.funcProtocols()

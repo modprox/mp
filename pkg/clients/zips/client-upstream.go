@@ -7,7 +7,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/upstream"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i UpstreamClient -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i UpstreamClient -s _mock.go
 
 // UpstreamClient is used to download .zip files from an upstream origin
 // (e.g. github.com). The returned Blob is in a git archive format

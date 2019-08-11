@@ -19,7 +19,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i ProxyClient -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i ProxyClient -s _mock.go
 
 // A ProxyClient is used for making requests to a Go Module Proxy
 // which is expected to return archives already in the correct format.

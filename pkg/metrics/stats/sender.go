@@ -20,7 +20,7 @@ const (
 	Registry Service = "modprox-registry"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Sender -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Sender -s _mock.go
 
 // A Sender is used to emit statsd type metrics.
 type Sender interface {

@@ -7,7 +7,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 	"oss.indeed.com/go/modprox/pkg/clients/payloads"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/netservice"
@@ -238,15 +238,15 @@ func (mmDeleteModuleByID *StoreMock) DeleteModuleByID(id int) (err error) {
 		mmDeleteModuleByID.inspectFuncDeleteModuleByID(id)
 	}
 
-	params := &StoreMockDeleteModuleByIDParams{id}
+	mm_params := &StoreMockDeleteModuleByIDParams{id}
 
 	// Record call args
 	mmDeleteModuleByID.DeleteModuleByIDMock.mutex.Lock()
-	mmDeleteModuleByID.DeleteModuleByIDMock.callArgs = append(mmDeleteModuleByID.DeleteModuleByIDMock.callArgs, params)
+	mmDeleteModuleByID.DeleteModuleByIDMock.callArgs = append(mmDeleteModuleByID.DeleteModuleByIDMock.callArgs, mm_params)
 	mmDeleteModuleByID.DeleteModuleByIDMock.mutex.Unlock()
 
 	for _, e := range mmDeleteModuleByID.DeleteModuleByIDMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -254,17 +254,17 @@ func (mmDeleteModuleByID *StoreMock) DeleteModuleByID(id int) (err error) {
 
 	if mmDeleteModuleByID.DeleteModuleByIDMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmDeleteModuleByID.DeleteModuleByIDMock.defaultExpectation.Counter, 1)
-		want := mmDeleteModuleByID.DeleteModuleByIDMock.defaultExpectation.params
-		got := StoreMockDeleteModuleByIDParams{id}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmDeleteModuleByID.t.Errorf("StoreMock.DeleteModuleByID got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmDeleteModuleByID.DeleteModuleByIDMock.defaultExpectation.params
+		mm_got := StoreMockDeleteModuleByIDParams{id}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmDeleteModuleByID.t.Errorf("StoreMock.DeleteModuleByID got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmDeleteModuleByID.DeleteModuleByIDMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmDeleteModuleByID.DeleteModuleByIDMock.defaultExpectation.results
+		if mm_results == nil {
 			mmDeleteModuleByID.t.Fatal("No results are set for the StoreMock.DeleteModuleByID")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmDeleteModuleByID.funcDeleteModuleByID != nil {
 		return mmDeleteModuleByID.funcDeleteModuleByID(id)
@@ -454,15 +454,15 @@ func (mmInsertModules *StoreMock) InsertModules(ma1 []coordinates.Module) (i1 in
 		mmInsertModules.inspectFuncInsertModules(ma1)
 	}
 
-	params := &StoreMockInsertModulesParams{ma1}
+	mm_params := &StoreMockInsertModulesParams{ma1}
 
 	// Record call args
 	mmInsertModules.InsertModulesMock.mutex.Lock()
-	mmInsertModules.InsertModulesMock.callArgs = append(mmInsertModules.InsertModulesMock.callArgs, params)
+	mmInsertModules.InsertModulesMock.callArgs = append(mmInsertModules.InsertModulesMock.callArgs, mm_params)
 	mmInsertModules.InsertModulesMock.mutex.Unlock()
 
 	for _, e := range mmInsertModules.InsertModulesMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.i1, e.results.err
 		}
@@ -470,17 +470,17 @@ func (mmInsertModules *StoreMock) InsertModules(ma1 []coordinates.Module) (i1 in
 
 	if mmInsertModules.InsertModulesMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmInsertModules.InsertModulesMock.defaultExpectation.Counter, 1)
-		want := mmInsertModules.InsertModulesMock.defaultExpectation.params
-		got := StoreMockInsertModulesParams{ma1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmInsertModules.t.Errorf("StoreMock.InsertModules got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmInsertModules.InsertModulesMock.defaultExpectation.params
+		mm_got := StoreMockInsertModulesParams{ma1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmInsertModules.t.Errorf("StoreMock.InsertModules got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmInsertModules.InsertModulesMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmInsertModules.InsertModulesMock.defaultExpectation.results
+		if mm_results == nil {
 			mmInsertModules.t.Fatal("No results are set for the StoreMock.InsertModules")
 		}
-		return (*results).i1, (*results).err
+		return (*mm_results).i1, (*mm_results).err
 	}
 	if mmInsertModules.funcInsertModules != nil {
 		return mmInsertModules.funcInsertModules(ma1)
@@ -637,11 +637,11 @@ func (mmListHeartbeats *StoreMock) ListHeartbeats() (ha1 []payloads.Heartbeat, e
 	if mmListHeartbeats.ListHeartbeatsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListHeartbeats.ListHeartbeatsMock.defaultExpectation.Counter, 1)
 
-		results := mmListHeartbeats.ListHeartbeatsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmListHeartbeats.ListHeartbeatsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmListHeartbeats.t.Fatal("No results are set for the StoreMock.ListHeartbeats")
 		}
-		return (*results).ha1, (*results).err
+		return (*mm_results).ha1, (*mm_results).err
 	}
 	if mmListHeartbeats.funcListHeartbeats != nil {
 		return mmListHeartbeats.funcListHeartbeats()
@@ -781,11 +781,11 @@ func (mmListModuleIDs *StoreMock) ListModuleIDs() (ia1 []int64, err error) {
 	if mmListModuleIDs.ListModuleIDsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListModuleIDs.ListModuleIDsMock.defaultExpectation.Counter, 1)
 
-		results := mmListModuleIDs.ListModuleIDsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmListModuleIDs.ListModuleIDsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmListModuleIDs.t.Fatal("No results are set for the StoreMock.ListModuleIDs")
 		}
-		return (*results).ia1, (*results).err
+		return (*mm_results).ia1, (*mm_results).err
 	}
 	if mmListModuleIDs.funcListModuleIDs != nil {
 		return mmListModuleIDs.funcListModuleIDs()
@@ -925,11 +925,11 @@ func (mmListModules *StoreMock) ListModules() (sa1 []coordinates.SerialModule, e
 	if mmListModules.ListModulesMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListModules.ListModulesMock.defaultExpectation.Counter, 1)
 
-		results := mmListModules.ListModulesMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmListModules.ListModulesMock.defaultExpectation.results
+		if mm_results == nil {
 			mmListModules.t.Fatal("No results are set for the StoreMock.ListModules")
 		}
-		return (*results).sa1, (*results).err
+		return (*mm_results).sa1, (*mm_results).err
 	}
 	if mmListModules.funcListModules != nil {
 		return mmListModules.funcListModules()
@@ -1102,15 +1102,15 @@ func (mmListModulesByIDs *StoreMock) ListModulesByIDs(ids []int64) (sa1 []coordi
 		mmListModulesByIDs.inspectFuncListModulesByIDs(ids)
 	}
 
-	params := &StoreMockListModulesByIDsParams{ids}
+	mm_params := &StoreMockListModulesByIDsParams{ids}
 
 	// Record call args
 	mmListModulesByIDs.ListModulesByIDsMock.mutex.Lock()
-	mmListModulesByIDs.ListModulesByIDsMock.callArgs = append(mmListModulesByIDs.ListModulesByIDsMock.callArgs, params)
+	mmListModulesByIDs.ListModulesByIDsMock.callArgs = append(mmListModulesByIDs.ListModulesByIDsMock.callArgs, mm_params)
 	mmListModulesByIDs.ListModulesByIDsMock.mutex.Unlock()
 
 	for _, e := range mmListModulesByIDs.ListModulesByIDsMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.sa1, e.results.err
 		}
@@ -1118,17 +1118,17 @@ func (mmListModulesByIDs *StoreMock) ListModulesByIDs(ids []int64) (sa1 []coordi
 
 	if mmListModulesByIDs.ListModulesByIDsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListModulesByIDs.ListModulesByIDsMock.defaultExpectation.Counter, 1)
-		want := mmListModulesByIDs.ListModulesByIDsMock.defaultExpectation.params
-		got := StoreMockListModulesByIDsParams{ids}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmListModulesByIDs.t.Errorf("StoreMock.ListModulesByIDs got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmListModulesByIDs.ListModulesByIDsMock.defaultExpectation.params
+		mm_got := StoreMockListModulesByIDsParams{ids}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmListModulesByIDs.t.Errorf("StoreMock.ListModulesByIDs got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmListModulesByIDs.ListModulesByIDsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmListModulesByIDs.ListModulesByIDsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmListModulesByIDs.t.Fatal("No results are set for the StoreMock.ListModulesByIDs")
 		}
-		return (*results).sa1, (*results).err
+		return (*mm_results).sa1, (*mm_results).err
 	}
 	if mmListModulesByIDs.funcListModulesByIDs != nil {
 		return mmListModulesByIDs.funcListModulesByIDs(ids)
@@ -1318,15 +1318,15 @@ func (mmListModulesBySource *StoreMock) ListModulesBySource(source string) (sa1 
 		mmListModulesBySource.inspectFuncListModulesBySource(source)
 	}
 
-	params := &StoreMockListModulesBySourceParams{source}
+	mm_params := &StoreMockListModulesBySourceParams{source}
 
 	// Record call args
 	mmListModulesBySource.ListModulesBySourceMock.mutex.Lock()
-	mmListModulesBySource.ListModulesBySourceMock.callArgs = append(mmListModulesBySource.ListModulesBySourceMock.callArgs, params)
+	mmListModulesBySource.ListModulesBySourceMock.callArgs = append(mmListModulesBySource.ListModulesBySourceMock.callArgs, mm_params)
 	mmListModulesBySource.ListModulesBySourceMock.mutex.Unlock()
 
 	for _, e := range mmListModulesBySource.ListModulesBySourceMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.sa1, e.results.err
 		}
@@ -1334,17 +1334,17 @@ func (mmListModulesBySource *StoreMock) ListModulesBySource(source string) (sa1 
 
 	if mmListModulesBySource.ListModulesBySourceMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListModulesBySource.ListModulesBySourceMock.defaultExpectation.Counter, 1)
-		want := mmListModulesBySource.ListModulesBySourceMock.defaultExpectation.params
-		got := StoreMockListModulesBySourceParams{source}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmListModulesBySource.t.Errorf("StoreMock.ListModulesBySource got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmListModulesBySource.ListModulesBySourceMock.defaultExpectation.params
+		mm_got := StoreMockListModulesBySourceParams{source}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmListModulesBySource.t.Errorf("StoreMock.ListModulesBySource got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmListModulesBySource.ListModulesBySourceMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmListModulesBySource.ListModulesBySourceMock.defaultExpectation.results
+		if mm_results == nil {
 			mmListModulesBySource.t.Fatal("No results are set for the StoreMock.ListModulesBySource")
 		}
-		return (*results).sa1, (*results).err
+		return (*mm_results).sa1, (*mm_results).err
 	}
 	if mmListModulesBySource.funcListModulesBySource != nil {
 		return mmListModulesBySource.funcListModulesBySource(source)
@@ -1501,11 +1501,11 @@ func (mmListStartConfigs *StoreMock) ListStartConfigs() (ca1 []payloads.Configur
 	if mmListStartConfigs.ListStartConfigsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmListStartConfigs.ListStartConfigsMock.defaultExpectation.Counter, 1)
 
-		results := mmListStartConfigs.ListStartConfigsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmListStartConfigs.ListStartConfigsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmListStartConfigs.t.Fatal("No results are set for the StoreMock.ListStartConfigs")
 		}
-		return (*results).ca1, (*results).err
+		return (*mm_results).ca1, (*mm_results).err
 	}
 	if mmListStartConfigs.funcListStartConfigs != nil {
 		return mmListStartConfigs.funcListStartConfigs()
@@ -1677,15 +1677,15 @@ func (mmPurgeProxy *StoreMock) PurgeProxy(instance netservice.Instance) (err err
 		mmPurgeProxy.inspectFuncPurgeProxy(instance)
 	}
 
-	params := &StoreMockPurgeProxyParams{instance}
+	mm_params := &StoreMockPurgeProxyParams{instance}
 
 	// Record call args
 	mmPurgeProxy.PurgeProxyMock.mutex.Lock()
-	mmPurgeProxy.PurgeProxyMock.callArgs = append(mmPurgeProxy.PurgeProxyMock.callArgs, params)
+	mmPurgeProxy.PurgeProxyMock.callArgs = append(mmPurgeProxy.PurgeProxyMock.callArgs, mm_params)
 	mmPurgeProxy.PurgeProxyMock.mutex.Unlock()
 
 	for _, e := range mmPurgeProxy.PurgeProxyMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -1693,17 +1693,17 @@ func (mmPurgeProxy *StoreMock) PurgeProxy(instance netservice.Instance) (err err
 
 	if mmPurgeProxy.PurgeProxyMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmPurgeProxy.PurgeProxyMock.defaultExpectation.Counter, 1)
-		want := mmPurgeProxy.PurgeProxyMock.defaultExpectation.params
-		got := StoreMockPurgeProxyParams{instance}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmPurgeProxy.t.Errorf("StoreMock.PurgeProxy got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmPurgeProxy.PurgeProxyMock.defaultExpectation.params
+		mm_got := StoreMockPurgeProxyParams{instance}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmPurgeProxy.t.Errorf("StoreMock.PurgeProxy got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmPurgeProxy.PurgeProxyMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmPurgeProxy.PurgeProxyMock.defaultExpectation.results
+		if mm_results == nil {
 			mmPurgeProxy.t.Fatal("No results are set for the StoreMock.PurgeProxy")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmPurgeProxy.funcPurgeProxy != nil {
 		return mmPurgeProxy.funcPurgeProxy(instance)
@@ -1892,15 +1892,15 @@ func (mmSetHeartbeat *StoreMock) SetHeartbeat(h1 payloads.Heartbeat) (err error)
 		mmSetHeartbeat.inspectFuncSetHeartbeat(h1)
 	}
 
-	params := &StoreMockSetHeartbeatParams{h1}
+	mm_params := &StoreMockSetHeartbeatParams{h1}
 
 	// Record call args
 	mmSetHeartbeat.SetHeartbeatMock.mutex.Lock()
-	mmSetHeartbeat.SetHeartbeatMock.callArgs = append(mmSetHeartbeat.SetHeartbeatMock.callArgs, params)
+	mmSetHeartbeat.SetHeartbeatMock.callArgs = append(mmSetHeartbeat.SetHeartbeatMock.callArgs, mm_params)
 	mmSetHeartbeat.SetHeartbeatMock.mutex.Unlock()
 
 	for _, e := range mmSetHeartbeat.SetHeartbeatMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -1908,17 +1908,17 @@ func (mmSetHeartbeat *StoreMock) SetHeartbeat(h1 payloads.Heartbeat) (err error)
 
 	if mmSetHeartbeat.SetHeartbeatMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmSetHeartbeat.SetHeartbeatMock.defaultExpectation.Counter, 1)
-		want := mmSetHeartbeat.SetHeartbeatMock.defaultExpectation.params
-		got := StoreMockSetHeartbeatParams{h1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmSetHeartbeat.t.Errorf("StoreMock.SetHeartbeat got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmSetHeartbeat.SetHeartbeatMock.defaultExpectation.params
+		mm_got := StoreMockSetHeartbeatParams{h1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmSetHeartbeat.t.Errorf("StoreMock.SetHeartbeat got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmSetHeartbeat.SetHeartbeatMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmSetHeartbeat.SetHeartbeatMock.defaultExpectation.results
+		if mm_results == nil {
 			mmSetHeartbeat.t.Fatal("No results are set for the StoreMock.SetHeartbeat")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmSetHeartbeat.funcSetHeartbeat != nil {
 		return mmSetHeartbeat.funcSetHeartbeat(h1)
@@ -2107,15 +2107,15 @@ func (mmSetStartConfig *StoreMock) SetStartConfig(c1 payloads.Configuration) (er
 		mmSetStartConfig.inspectFuncSetStartConfig(c1)
 	}
 
-	params := &StoreMockSetStartConfigParams{c1}
+	mm_params := &StoreMockSetStartConfigParams{c1}
 
 	// Record call args
 	mmSetStartConfig.SetStartConfigMock.mutex.Lock()
-	mmSetStartConfig.SetStartConfigMock.callArgs = append(mmSetStartConfig.SetStartConfigMock.callArgs, params)
+	mmSetStartConfig.SetStartConfigMock.callArgs = append(mmSetStartConfig.SetStartConfigMock.callArgs, mm_params)
 	mmSetStartConfig.SetStartConfigMock.mutex.Unlock()
 
 	for _, e := range mmSetStartConfig.SetStartConfigMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -2123,17 +2123,17 @@ func (mmSetStartConfig *StoreMock) SetStartConfig(c1 payloads.Configuration) (er
 
 	if mmSetStartConfig.SetStartConfigMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmSetStartConfig.SetStartConfigMock.defaultExpectation.Counter, 1)
-		want := mmSetStartConfig.SetStartConfigMock.defaultExpectation.params
-		got := StoreMockSetStartConfigParams{c1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmSetStartConfig.t.Errorf("StoreMock.SetStartConfig got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmSetStartConfig.SetStartConfigMock.defaultExpectation.params
+		mm_got := StoreMockSetStartConfigParams{c1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmSetStartConfig.t.Errorf("StoreMock.SetStartConfig got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmSetStartConfig.SetStartConfigMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmSetStartConfig.SetStartConfigMock.defaultExpectation.results
+		if mm_results == nil {
 			mmSetStartConfig.t.Fatal("No results are set for the StoreMock.SetStartConfig")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmSetStartConfig.funcSetStartConfig != nil {
 		return mmSetStartConfig.funcSetStartConfig(c1)

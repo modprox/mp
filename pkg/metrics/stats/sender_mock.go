@@ -8,7 +8,7 @@ import (
 	"time"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 )
 
 // SenderMock implements Sender
@@ -143,15 +143,15 @@ func (mmCount *SenderMock) Count(metric string, i int) {
 		mmCount.inspectFuncCount(metric, i)
 	}
 
-	params := &SenderMockCountParams{metric, i}
+	mm_params := &SenderMockCountParams{metric, i}
 
 	// Record call args
 	mmCount.CountMock.mutex.Lock()
-	mmCount.CountMock.callArgs = append(mmCount.CountMock.callArgs, params)
+	mmCount.CountMock.callArgs = append(mmCount.CountMock.callArgs, mm_params)
 	mmCount.CountMock.mutex.Unlock()
 
 	for _, e := range mmCount.CountMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return
 		}
@@ -159,10 +159,10 @@ func (mmCount *SenderMock) Count(metric string, i int) {
 
 	if mmCount.CountMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmCount.CountMock.defaultExpectation.Counter, 1)
-		want := mmCount.CountMock.defaultExpectation.params
-		got := SenderMockCountParams{metric, i}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmCount.t.Errorf("SenderMock.Count got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmCount.CountMock.defaultExpectation.params
+		mm_got := SenderMockCountParams{metric, i}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmCount.t.Errorf("SenderMock.Count got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
 		return
@@ -331,15 +331,15 @@ func (mmGauge *SenderMock) Gauge(metric string, n int) {
 		mmGauge.inspectFuncGauge(metric, n)
 	}
 
-	params := &SenderMockGaugeParams{metric, n}
+	mm_params := &SenderMockGaugeParams{metric, n}
 
 	// Record call args
 	mmGauge.GaugeMock.mutex.Lock()
-	mmGauge.GaugeMock.callArgs = append(mmGauge.GaugeMock.callArgs, params)
+	mmGauge.GaugeMock.callArgs = append(mmGauge.GaugeMock.callArgs, mm_params)
 	mmGauge.GaugeMock.mutex.Unlock()
 
 	for _, e := range mmGauge.GaugeMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return
 		}
@@ -347,10 +347,10 @@ func (mmGauge *SenderMock) Gauge(metric string, n int) {
 
 	if mmGauge.GaugeMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGauge.GaugeMock.defaultExpectation.Counter, 1)
-		want := mmGauge.GaugeMock.defaultExpectation.params
-		got := SenderMockGaugeParams{metric, n}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmGauge.t.Errorf("SenderMock.Gauge got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmGauge.GaugeMock.defaultExpectation.params
+		mm_got := SenderMockGaugeParams{metric, n}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGauge.t.Errorf("SenderMock.Gauge got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
 		return
@@ -519,15 +519,15 @@ func (mmGaugeMS *SenderMock) GaugeMS(metric string, t time.Time) {
 		mmGaugeMS.inspectFuncGaugeMS(metric, t)
 	}
 
-	params := &SenderMockGaugeMSParams{metric, t}
+	mm_params := &SenderMockGaugeMSParams{metric, t}
 
 	// Record call args
 	mmGaugeMS.GaugeMSMock.mutex.Lock()
-	mmGaugeMS.GaugeMSMock.callArgs = append(mmGaugeMS.GaugeMSMock.callArgs, params)
+	mmGaugeMS.GaugeMSMock.callArgs = append(mmGaugeMS.GaugeMSMock.callArgs, mm_params)
 	mmGaugeMS.GaugeMSMock.mutex.Unlock()
 
 	for _, e := range mmGaugeMS.GaugeMSMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return
 		}
@@ -535,10 +535,10 @@ func (mmGaugeMS *SenderMock) GaugeMS(metric string, t time.Time) {
 
 	if mmGaugeMS.GaugeMSMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGaugeMS.GaugeMSMock.defaultExpectation.Counter, 1)
-		want := mmGaugeMS.GaugeMSMock.defaultExpectation.params
-		got := SenderMockGaugeMSParams{metric, t}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmGaugeMS.t.Errorf("SenderMock.GaugeMS got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmGaugeMS.GaugeMSMock.defaultExpectation.params
+		mm_got := SenderMockGaugeMSParams{metric, t}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGaugeMS.t.Errorf("SenderMock.GaugeMS got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
 		return

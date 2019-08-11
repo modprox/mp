@@ -26,7 +26,7 @@ type Ranges = coordinates.RangeIDs
 // Range is an alias of coordinates.RangeID for brevity.
 type Range = coordinates.RangeID
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Index -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Index -s _mock.go
 
 // The Index is used to provide:
 //  - .mod file content

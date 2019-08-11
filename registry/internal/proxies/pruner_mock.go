@@ -8,7 +8,7 @@ import (
 	"time"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 )
 
 // PrunerMock implements Pruner
@@ -150,15 +150,15 @@ func (mmPrune *PrunerMock) Prune(t1 time.Time) (err error) {
 		mmPrune.inspectFuncPrune(t1)
 	}
 
-	params := &PrunerMockPruneParams{t1}
+	mm_params := &PrunerMockPruneParams{t1}
 
 	// Record call args
 	mmPrune.PruneMock.mutex.Lock()
-	mmPrune.PruneMock.callArgs = append(mmPrune.PruneMock.callArgs, params)
+	mmPrune.PruneMock.callArgs = append(mmPrune.PruneMock.callArgs, mm_params)
 	mmPrune.PruneMock.mutex.Unlock()
 
 	for _, e := range mmPrune.PruneMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -166,17 +166,17 @@ func (mmPrune *PrunerMock) Prune(t1 time.Time) (err error) {
 
 	if mmPrune.PruneMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmPrune.PruneMock.defaultExpectation.Counter, 1)
-		want := mmPrune.PruneMock.defaultExpectation.params
-		got := PrunerMockPruneParams{t1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmPrune.t.Errorf("PrunerMock.Prune got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmPrune.PruneMock.defaultExpectation.params
+		mm_got := PrunerMockPruneParams{t1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmPrune.t.Errorf("PrunerMock.Prune got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmPrune.PruneMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmPrune.PruneMock.defaultExpectation.results
+		if mm_results == nil {
 			mmPrune.t.Fatal("No results are set for the PrunerMock.Prune")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmPrune.funcPrune != nil {
 		return mmPrune.funcPrune(t1)

@@ -7,7 +7,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
@@ -169,15 +169,15 @@ func (mmDelZip *ZipStoreMock) DelZip(m1 coordinates.Module) (err error) {
 		mmDelZip.inspectFuncDelZip(m1)
 	}
 
-	params := &ZipStoreMockDelZipParams{m1}
+	mm_params := &ZipStoreMockDelZipParams{m1}
 
 	// Record call args
 	mmDelZip.DelZipMock.mutex.Lock()
-	mmDelZip.DelZipMock.callArgs = append(mmDelZip.DelZipMock.callArgs, params)
+	mmDelZip.DelZipMock.callArgs = append(mmDelZip.DelZipMock.callArgs, mm_params)
 	mmDelZip.DelZipMock.mutex.Unlock()
 
 	for _, e := range mmDelZip.DelZipMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -185,17 +185,17 @@ func (mmDelZip *ZipStoreMock) DelZip(m1 coordinates.Module) (err error) {
 
 	if mmDelZip.DelZipMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmDelZip.DelZipMock.defaultExpectation.Counter, 1)
-		want := mmDelZip.DelZipMock.defaultExpectation.params
-		got := ZipStoreMockDelZipParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmDelZip.t.Errorf("ZipStoreMock.DelZip got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmDelZip.DelZipMock.defaultExpectation.params
+		mm_got := ZipStoreMockDelZipParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmDelZip.t.Errorf("ZipStoreMock.DelZip got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmDelZip.DelZipMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmDelZip.DelZipMock.defaultExpectation.results
+		if mm_results == nil {
 			mmDelZip.t.Fatal("No results are set for the ZipStoreMock.DelZip")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmDelZip.funcDelZip != nil {
 		return mmDelZip.funcDelZip(m1)
@@ -385,15 +385,15 @@ func (mmGetZip *ZipStoreMock) GetZip(m1 coordinates.Module) (b1 repository.Blob,
 		mmGetZip.inspectFuncGetZip(m1)
 	}
 
-	params := &ZipStoreMockGetZipParams{m1}
+	mm_params := &ZipStoreMockGetZipParams{m1}
 
 	// Record call args
 	mmGetZip.GetZipMock.mutex.Lock()
-	mmGetZip.GetZipMock.callArgs = append(mmGetZip.GetZipMock.callArgs, params)
+	mmGetZip.GetZipMock.callArgs = append(mmGetZip.GetZipMock.callArgs, mm_params)
 	mmGetZip.GetZipMock.mutex.Unlock()
 
 	for _, e := range mmGetZip.GetZipMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.b1, e.results.err
 		}
@@ -401,17 +401,17 @@ func (mmGetZip *ZipStoreMock) GetZip(m1 coordinates.Module) (b1 repository.Blob,
 
 	if mmGetZip.GetZipMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGetZip.GetZipMock.defaultExpectation.Counter, 1)
-		want := mmGetZip.GetZipMock.defaultExpectation.params
-		got := ZipStoreMockGetZipParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmGetZip.t.Errorf("ZipStoreMock.GetZip got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmGetZip.GetZipMock.defaultExpectation.params
+		mm_got := ZipStoreMockGetZipParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGetZip.t.Errorf("ZipStoreMock.GetZip got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmGetZip.GetZipMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmGetZip.GetZipMock.defaultExpectation.results
+		if mm_results == nil {
 			mmGetZip.t.Fatal("No results are set for the ZipStoreMock.GetZip")
 		}
-		return (*results).b1, (*results).err
+		return (*mm_results).b1, (*mm_results).err
 	}
 	if mmGetZip.funcGetZip != nil {
 		return mmGetZip.funcGetZip(m1)
@@ -601,15 +601,15 @@ func (mmPutZip *ZipStoreMock) PutZip(m1 coordinates.Module, b1 repository.Blob) 
 		mmPutZip.inspectFuncPutZip(m1, b1)
 	}
 
-	params := &ZipStoreMockPutZipParams{m1, b1}
+	mm_params := &ZipStoreMockPutZipParams{m1, b1}
 
 	// Record call args
 	mmPutZip.PutZipMock.mutex.Lock()
-	mmPutZip.PutZipMock.callArgs = append(mmPutZip.PutZipMock.callArgs, params)
+	mmPutZip.PutZipMock.callArgs = append(mmPutZip.PutZipMock.callArgs, mm_params)
 	mmPutZip.PutZipMock.mutex.Unlock()
 
 	for _, e := range mmPutZip.PutZipMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -617,17 +617,17 @@ func (mmPutZip *ZipStoreMock) PutZip(m1 coordinates.Module, b1 repository.Blob) 
 
 	if mmPutZip.PutZipMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmPutZip.PutZipMock.defaultExpectation.Counter, 1)
-		want := mmPutZip.PutZipMock.defaultExpectation.params
-		got := ZipStoreMockPutZipParams{m1, b1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmPutZip.t.Errorf("ZipStoreMock.PutZip got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmPutZip.PutZipMock.defaultExpectation.params
+		mm_got := ZipStoreMockPutZipParams{m1, b1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmPutZip.t.Errorf("ZipStoreMock.PutZip got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmPutZip.PutZipMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmPutZip.PutZipMock.defaultExpectation.results
+		if mm_results == nil {
 			mmPutZip.t.Fatal("No results are set for the ZipStoreMock.PutZip")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmPutZip.funcPutZip != nil {
 		return mmPutZip.funcPutZip(m1, b1)
