@@ -107,8 +107,8 @@ gophers.dev/pkgs/regexplus v0.2.0 h1:HXUUh80mVBcRKx4shSS1xIOW0t+Akz+TRo3sgUylEvI
 gophers.dev/pkgs/regexplus v0.2.0/go.mod h1:K4ctjcxPeUcN0wpFcQUavX4jygQC8pMEBLnEklP7Iio=
 gophers.dev/pkgs/repeat v0.1.1 h1:PCUTQ5oNmAumnecJ0l4YUOsUNVqnCwmlOJmfRX4Oj1g=
 gophers.dev/pkgs/repeat v0.1.1/go.mod h1:3aJovSU4uZ2GyBTpYPZtEboNxq7jP+rA2kld3CV6qjY=
+gophers.dev/pkgs/semantic v0.0.0 h1:YIA8WVR+byzwZGIbo+T5OXRBkukwLZB/WITqJ6jErww=
+gophers.dev/pkgs/semantic v0.0.0/go.mod h1:rFj7GI/UPjOhwrI9rexsuN8hcuIyJzT35TJclczHMsk=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/yaml.v2 v2.2.1/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
-oss.indeed.com/go/taggit v0.5.1 h1:ViOL/RvGDdnoPBOf4/t1J47zRT6WPZuUewM8TzfzMgQ=
-oss.indeed.com/go/taggit v0.5.1/go.mod h1:nBCT9aYFYMGxqnFzrG0pVHcPy3YFHLuMy7m0uhJJ+NU=

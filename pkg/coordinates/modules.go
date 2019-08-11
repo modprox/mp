@@ -3,7 +3,7 @@ package coordinates
 import (
 	"fmt"
 
-	"oss.indeed.com/go/taggit/tags"
+	"gophers.dev/pkgs/semantic"
 )
 
 type Module struct {
@@ -54,8 +54,8 @@ func (mods ModsByVersion) Less(x, y int) bool {
 		return false
 	}
 
-	tagX, okX := tags.Parse(modX.Version)
-	tagY, okY := tags.Parse(modY.Version)
+	tagX, okX := semantic.Parse(modX.Version)
+	tagY, okY := semantic.Parse(modY.Version)
 
 	if !okX && !okY {
 		return false
