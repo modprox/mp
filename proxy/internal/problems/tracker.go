@@ -10,7 +10,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Tracker -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Tracker -s _mock.go
 
 type Tracker interface {
 	Set(Problem)

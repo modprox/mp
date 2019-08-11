@@ -7,7 +7,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
@@ -223,15 +223,15 @@ func (mmContains *IndexMock) Contains(m1 coordinates.Module) (b1 bool, i1 int64,
 		mmContains.inspectFuncContains(m1)
 	}
 
-	params := &IndexMockContainsParams{m1}
+	mm_params := &IndexMockContainsParams{m1}
 
 	// Record call args
 	mmContains.ContainsMock.mutex.Lock()
-	mmContains.ContainsMock.callArgs = append(mmContains.ContainsMock.callArgs, params)
+	mmContains.ContainsMock.callArgs = append(mmContains.ContainsMock.callArgs, mm_params)
 	mmContains.ContainsMock.mutex.Unlock()
 
 	for _, e := range mmContains.ContainsMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.b1, e.results.i1, e.results.err
 		}
@@ -239,17 +239,17 @@ func (mmContains *IndexMock) Contains(m1 coordinates.Module) (b1 bool, i1 int64,
 
 	if mmContains.ContainsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmContains.ContainsMock.defaultExpectation.Counter, 1)
-		want := mmContains.ContainsMock.defaultExpectation.params
-		got := IndexMockContainsParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmContains.t.Errorf("IndexMock.Contains got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmContains.ContainsMock.defaultExpectation.params
+		mm_got := IndexMockContainsParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmContains.t.Errorf("IndexMock.Contains got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmContains.ContainsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmContains.ContainsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmContains.t.Fatal("No results are set for the IndexMock.Contains")
 		}
-		return (*results).b1, (*results).i1, (*results).err
+		return (*mm_results).b1, (*mm_results).i1, (*mm_results).err
 	}
 	if mmContains.funcContains != nil {
 		return mmContains.funcContains(m1)
@@ -406,11 +406,11 @@ func (mmIDs *IndexMock) IDs() (r1 Ranges, err error) {
 	if mmIDs.IDsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmIDs.IDsMock.defaultExpectation.Counter, 1)
 
-		results := mmIDs.IDsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmIDs.IDsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmIDs.t.Fatal("No results are set for the IndexMock.IDs")
 		}
-		return (*results).r1, (*results).err
+		return (*mm_results).r1, (*mm_results).err
 	}
 	if mmIDs.funcIDs != nil {
 		return mmIDs.funcIDs()
@@ -583,15 +583,15 @@ func (mmInfo *IndexMock) Info(m1 coordinates.Module) (r1 repository.RevInfo, err
 		mmInfo.inspectFuncInfo(m1)
 	}
 
-	params := &IndexMockInfoParams{m1}
+	mm_params := &IndexMockInfoParams{m1}
 
 	// Record call args
 	mmInfo.InfoMock.mutex.Lock()
-	mmInfo.InfoMock.callArgs = append(mmInfo.InfoMock.callArgs, params)
+	mmInfo.InfoMock.callArgs = append(mmInfo.InfoMock.callArgs, mm_params)
 	mmInfo.InfoMock.mutex.Unlock()
 
 	for _, e := range mmInfo.InfoMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.r1, e.results.err
 		}
@@ -599,17 +599,17 @@ func (mmInfo *IndexMock) Info(m1 coordinates.Module) (r1 repository.RevInfo, err
 
 	if mmInfo.InfoMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmInfo.InfoMock.defaultExpectation.Counter, 1)
-		want := mmInfo.InfoMock.defaultExpectation.params
-		got := IndexMockInfoParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmInfo.t.Errorf("IndexMock.Info got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmInfo.InfoMock.defaultExpectation.params
+		mm_got := IndexMockInfoParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmInfo.t.Errorf("IndexMock.Info got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmInfo.InfoMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmInfo.InfoMock.defaultExpectation.results
+		if mm_results == nil {
 			mmInfo.t.Fatal("No results are set for the IndexMock.Info")
 		}
-		return (*results).r1, (*results).err
+		return (*mm_results).r1, (*mm_results).err
 	}
 	if mmInfo.funcInfo != nil {
 		return mmInfo.funcInfo(m1)
@@ -799,15 +799,15 @@ func (mmMod *IndexMock) Mod(m1 coordinates.Module) (s1 string, err error) {
 		mmMod.inspectFuncMod(m1)
 	}
 
-	params := &IndexMockModParams{m1}
+	mm_params := &IndexMockModParams{m1}
 
 	// Record call args
 	mmMod.ModMock.mutex.Lock()
-	mmMod.ModMock.callArgs = append(mmMod.ModMock.callArgs, params)
+	mmMod.ModMock.callArgs = append(mmMod.ModMock.callArgs, mm_params)
 	mmMod.ModMock.mutex.Unlock()
 
 	for _, e := range mmMod.ModMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.s1, e.results.err
 		}
@@ -815,17 +815,17 @@ func (mmMod *IndexMock) Mod(m1 coordinates.Module) (s1 string, err error) {
 
 	if mmMod.ModMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmMod.ModMock.defaultExpectation.Counter, 1)
-		want := mmMod.ModMock.defaultExpectation.params
-		got := IndexMockModParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmMod.t.Errorf("IndexMock.Mod got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmMod.ModMock.defaultExpectation.params
+		mm_got := IndexMockModParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmMod.t.Errorf("IndexMock.Mod got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmMod.ModMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmMod.ModMock.defaultExpectation.results
+		if mm_results == nil {
 			mmMod.t.Fatal("No results are set for the IndexMock.Mod")
 		}
-		return (*results).s1, (*results).err
+		return (*mm_results).s1, (*mm_results).err
 	}
 	if mmMod.funcMod != nil {
 		return mmMod.funcMod(m1)
@@ -1014,15 +1014,15 @@ func (mmPut *IndexMock) Put(m1 ModuleAddition) (err error) {
 		mmPut.inspectFuncPut(m1)
 	}
 
-	params := &IndexMockPutParams{m1}
+	mm_params := &IndexMockPutParams{m1}
 
 	// Record call args
 	mmPut.PutMock.mutex.Lock()
-	mmPut.PutMock.callArgs = append(mmPut.PutMock.callArgs, params)
+	mmPut.PutMock.callArgs = append(mmPut.PutMock.callArgs, mm_params)
 	mmPut.PutMock.mutex.Unlock()
 
 	for _, e := range mmPut.PutMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -1030,17 +1030,17 @@ func (mmPut *IndexMock) Put(m1 ModuleAddition) (err error) {
 
 	if mmPut.PutMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmPut.PutMock.defaultExpectation.Counter, 1)
-		want := mmPut.PutMock.defaultExpectation.params
-		got := IndexMockPutParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmPut.t.Errorf("IndexMock.Put got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmPut.PutMock.defaultExpectation.params
+		mm_got := IndexMockPutParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmPut.t.Errorf("IndexMock.Put got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmPut.PutMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmPut.PutMock.defaultExpectation.results
+		if mm_results == nil {
 			mmPut.t.Fatal("No results are set for the IndexMock.Put")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmPut.funcPut != nil {
 		return mmPut.funcPut(m1)
@@ -1229,15 +1229,15 @@ func (mmRemove *IndexMock) Remove(m1 coordinates.Module) (err error) {
 		mmRemove.inspectFuncRemove(m1)
 	}
 
-	params := &IndexMockRemoveParams{m1}
+	mm_params := &IndexMockRemoveParams{m1}
 
 	// Record call args
 	mmRemove.RemoveMock.mutex.Lock()
-	mmRemove.RemoveMock.callArgs = append(mmRemove.RemoveMock.callArgs, params)
+	mmRemove.RemoveMock.callArgs = append(mmRemove.RemoveMock.callArgs, mm_params)
 	mmRemove.RemoveMock.mutex.Unlock()
 
 	for _, e := range mmRemove.RemoveMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -1245,17 +1245,17 @@ func (mmRemove *IndexMock) Remove(m1 coordinates.Module) (err error) {
 
 	if mmRemove.RemoveMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmRemove.RemoveMock.defaultExpectation.Counter, 1)
-		want := mmRemove.RemoveMock.defaultExpectation.params
-		got := IndexMockRemoveParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmRemove.t.Errorf("IndexMock.Remove got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmRemove.RemoveMock.defaultExpectation.params
+		mm_got := IndexMockRemoveParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmRemove.t.Errorf("IndexMock.Remove got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmRemove.RemoveMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmRemove.RemoveMock.defaultExpectation.results
+		if mm_results == nil {
 			mmRemove.t.Fatal("No results are set for the IndexMock.Remove")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmRemove.funcRemove != nil {
 		return mmRemove.funcRemove(m1)
@@ -1413,11 +1413,11 @@ func (mmSummary *IndexMock) Summary() (i1 int, i2 int, err error) {
 	if mmSummary.SummaryMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmSummary.SummaryMock.defaultExpectation.Counter, 1)
 
-		results := mmSummary.SummaryMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmSummary.SummaryMock.defaultExpectation.results
+		if mm_results == nil {
 			mmSummary.t.Fatal("No results are set for the IndexMock.Summary")
 		}
-		return (*results).i1, (*results).i2, (*results).err
+		return (*mm_results).i1, (*mm_results).i2, (*mm_results).err
 	}
 	if mmSummary.funcSummary != nil {
 		return mmSummary.funcSummary()
@@ -1589,15 +1589,15 @@ func (mmUpdateID *IndexMock) UpdateID(s1 coordinates.SerialModule) (err error) {
 		mmUpdateID.inspectFuncUpdateID(s1)
 	}
 
-	params := &IndexMockUpdateIDParams{s1}
+	mm_params := &IndexMockUpdateIDParams{s1}
 
 	// Record call args
 	mmUpdateID.UpdateIDMock.mutex.Lock()
-	mmUpdateID.UpdateIDMock.callArgs = append(mmUpdateID.UpdateIDMock.callArgs, params)
+	mmUpdateID.UpdateIDMock.callArgs = append(mmUpdateID.UpdateIDMock.callArgs, mm_params)
 	mmUpdateID.UpdateIDMock.mutex.Unlock()
 
 	for _, e := range mmUpdateID.UpdateIDMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -1605,17 +1605,17 @@ func (mmUpdateID *IndexMock) UpdateID(s1 coordinates.SerialModule) (err error) {
 
 	if mmUpdateID.UpdateIDMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmUpdateID.UpdateIDMock.defaultExpectation.Counter, 1)
-		want := mmUpdateID.UpdateIDMock.defaultExpectation.params
-		got := IndexMockUpdateIDParams{s1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmUpdateID.t.Errorf("IndexMock.UpdateID got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmUpdateID.UpdateIDMock.defaultExpectation.params
+		mm_got := IndexMockUpdateIDParams{s1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmUpdateID.t.Errorf("IndexMock.UpdateID got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmUpdateID.UpdateIDMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmUpdateID.UpdateIDMock.defaultExpectation.results
+		if mm_results == nil {
 			mmUpdateID.t.Fatal("No results are set for the IndexMock.UpdateID")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmUpdateID.funcUpdateID != nil {
 		return mmUpdateID.funcUpdateID(s1)
@@ -1805,15 +1805,15 @@ func (mmVersions *IndexMock) Versions(module string) (sa1 []string, err error) {
 		mmVersions.inspectFuncVersions(module)
 	}
 
-	params := &IndexMockVersionsParams{module}
+	mm_params := &IndexMockVersionsParams{module}
 
 	// Record call args
 	mmVersions.VersionsMock.mutex.Lock()
-	mmVersions.VersionsMock.callArgs = append(mmVersions.VersionsMock.callArgs, params)
+	mmVersions.VersionsMock.callArgs = append(mmVersions.VersionsMock.callArgs, mm_params)
 	mmVersions.VersionsMock.mutex.Unlock()
 
 	for _, e := range mmVersions.VersionsMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.sa1, e.results.err
 		}
@@ -1821,17 +1821,17 @@ func (mmVersions *IndexMock) Versions(module string) (sa1 []string, err error) {
 
 	if mmVersions.VersionsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmVersions.VersionsMock.defaultExpectation.Counter, 1)
-		want := mmVersions.VersionsMock.defaultExpectation.params
-		got := IndexMockVersionsParams{module}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmVersions.t.Errorf("IndexMock.Versions got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmVersions.VersionsMock.defaultExpectation.params
+		mm_got := IndexMockVersionsParams{module}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmVersions.t.Errorf("IndexMock.Versions got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmVersions.VersionsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmVersions.VersionsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmVersions.t.Fatal("No results are set for the IndexMock.Versions")
 		}
-		return (*results).sa1, (*results).err
+		return (*mm_results).sa1, (*mm_results).err
 	}
 	if mmVersions.funcVersions != nil {
 		return mmVersions.funcVersions(module)

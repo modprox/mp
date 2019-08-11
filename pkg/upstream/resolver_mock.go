@@ -7,7 +7,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
@@ -160,15 +160,15 @@ func (mmResolve *ResolverMock) Resolve(m1 coordinates.Module) (rp1 *Request, err
 		mmResolve.inspectFuncResolve(m1)
 	}
 
-	params := &ResolverMockResolveParams{m1}
+	mm_params := &ResolverMockResolveParams{m1}
 
 	// Record call args
 	mmResolve.ResolveMock.mutex.Lock()
-	mmResolve.ResolveMock.callArgs = append(mmResolve.ResolveMock.callArgs, params)
+	mmResolve.ResolveMock.callArgs = append(mmResolve.ResolveMock.callArgs, mm_params)
 	mmResolve.ResolveMock.mutex.Unlock()
 
 	for _, e := range mmResolve.ResolveMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.rp1, e.results.err
 		}
@@ -176,17 +176,17 @@ func (mmResolve *ResolverMock) Resolve(m1 coordinates.Module) (rp1 *Request, err
 
 	if mmResolve.ResolveMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmResolve.ResolveMock.defaultExpectation.Counter, 1)
-		want := mmResolve.ResolveMock.defaultExpectation.params
-		got := ResolverMockResolveParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmResolve.t.Errorf("ResolverMock.Resolve got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmResolve.ResolveMock.defaultExpectation.params
+		mm_got := ResolverMockResolveParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmResolve.t.Errorf("ResolverMock.Resolve got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmResolve.ResolveMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmResolve.ResolveMock.defaultExpectation.results
+		if mm_results == nil {
 			mmResolve.t.Fatal("No results are set for the ResolverMock.Resolve")
 		}
-		return (*results).rp1, (*results).err
+		return (*mm_results).rp1, (*mm_results).err
 	}
 	if mmResolve.funcResolve != nil {
 		return mmResolve.funcResolve(m1)
@@ -376,15 +376,15 @@ func (mmUseProxy *ResolverMock) UseProxy(m1 coordinates.Module) (b1 bool, err er
 		mmUseProxy.inspectFuncUseProxy(m1)
 	}
 
-	params := &ResolverMockUseProxyParams{m1}
+	mm_params := &ResolverMockUseProxyParams{m1}
 
 	// Record call args
 	mmUseProxy.UseProxyMock.mutex.Lock()
-	mmUseProxy.UseProxyMock.callArgs = append(mmUseProxy.UseProxyMock.callArgs, params)
+	mmUseProxy.UseProxyMock.callArgs = append(mmUseProxy.UseProxyMock.callArgs, mm_params)
 	mmUseProxy.UseProxyMock.mutex.Unlock()
 
 	for _, e := range mmUseProxy.UseProxyMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.b1, e.results.err
 		}
@@ -392,17 +392,17 @@ func (mmUseProxy *ResolverMock) UseProxy(m1 coordinates.Module) (b1 bool, err er
 
 	if mmUseProxy.UseProxyMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmUseProxy.UseProxyMock.defaultExpectation.Counter, 1)
-		want := mmUseProxy.UseProxyMock.defaultExpectation.params
-		got := ResolverMockUseProxyParams{m1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmUseProxy.t.Errorf("ResolverMock.UseProxy got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmUseProxy.UseProxyMock.defaultExpectation.params
+		mm_got := ResolverMockUseProxyParams{m1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmUseProxy.t.Errorf("ResolverMock.UseProxy got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmUseProxy.UseProxyMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmUseProxy.UseProxyMock.defaultExpectation.results
+		if mm_results == nil {
 			mmUseProxy.t.Fatal("No results are set for the ResolverMock.UseProxy")
 		}
-		return (*results).b1, (*results).err
+		return (*mm_results).b1, (*mm_results).err
 	}
 	if mmUseProxy.funcUseProxy != nil {
 		return mmUseProxy.funcUseProxy(m1)

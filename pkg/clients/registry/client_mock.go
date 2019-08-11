@@ -8,7 +8,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 )
 
 // ClientMock implements Client
@@ -160,15 +160,15 @@ func (mmGet *ClientMock) Get(path string, rw io.Writer) (err error) {
 		mmGet.inspectFuncGet(path, rw)
 	}
 
-	params := &ClientMockGetParams{path, rw}
+	mm_params := &ClientMockGetParams{path, rw}
 
 	// Record call args
 	mmGet.GetMock.mutex.Lock()
-	mmGet.GetMock.callArgs = append(mmGet.GetMock.callArgs, params)
+	mmGet.GetMock.callArgs = append(mmGet.GetMock.callArgs, mm_params)
 	mmGet.GetMock.mutex.Unlock()
 
 	for _, e := range mmGet.GetMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -176,17 +176,17 @@ func (mmGet *ClientMock) Get(path string, rw io.Writer) (err error) {
 
 	if mmGet.GetMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmGet.GetMock.defaultExpectation.Counter, 1)
-		want := mmGet.GetMock.defaultExpectation.params
-		got := ClientMockGetParams{path, rw}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmGet.t.Errorf("ClientMock.Get got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmGet.GetMock.defaultExpectation.params
+		mm_got := ClientMockGetParams{path, rw}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmGet.t.Errorf("ClientMock.Get got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmGet.GetMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmGet.GetMock.defaultExpectation.results
+		if mm_results == nil {
 			mmGet.t.Fatal("No results are set for the ClientMock.Get")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmGet.funcGet != nil {
 		return mmGet.funcGet(path, rw)
@@ -377,15 +377,15 @@ func (mmPost *ClientMock) Post(path string, body io.Reader, rw io.Writer) (err e
 		mmPost.inspectFuncPost(path, body, rw)
 	}
 
-	params := &ClientMockPostParams{path, body, rw}
+	mm_params := &ClientMockPostParams{path, body, rw}
 
 	// Record call args
 	mmPost.PostMock.mutex.Lock()
-	mmPost.PostMock.callArgs = append(mmPost.PostMock.callArgs, params)
+	mmPost.PostMock.callArgs = append(mmPost.PostMock.callArgs, mm_params)
 	mmPost.PostMock.mutex.Unlock()
 
 	for _, e := range mmPost.PostMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.err
 		}
@@ -393,17 +393,17 @@ func (mmPost *ClientMock) Post(path string, body io.Reader, rw io.Writer) (err e
 
 	if mmPost.PostMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmPost.PostMock.defaultExpectation.Counter, 1)
-		want := mmPost.PostMock.defaultExpectation.params
-		got := ClientMockPostParams{path, body, rw}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmPost.t.Errorf("ClientMock.Post got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmPost.PostMock.defaultExpectation.params
+		mm_got := ClientMockPostParams{path, body, rw}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmPost.t.Errorf("ClientMock.Post got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmPost.PostMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmPost.PostMock.defaultExpectation.results
+		if mm_results == nil {
 			mmPost.t.Fatal("No results are set for the ClientMock.Post")
 		}
-		return (*results).err
+		return (*mm_results).err
 	}
 	if mmPost.funcPost != nil {
 		return mmPost.funcPost(path, body, rw)

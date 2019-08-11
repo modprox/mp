@@ -7,7 +7,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
@@ -168,15 +168,15 @@ func (mmProblem *TrackerMock) Problem(module coordinates.Module) (p1 Problem, b1
 		mmProblem.inspectFuncProblem(module)
 	}
 
-	params := &TrackerMockProblemParams{module}
+	mm_params := &TrackerMockProblemParams{module}
 
 	// Record call args
 	mmProblem.ProblemMock.mutex.Lock()
-	mmProblem.ProblemMock.callArgs = append(mmProblem.ProblemMock.callArgs, params)
+	mmProblem.ProblemMock.callArgs = append(mmProblem.ProblemMock.callArgs, mm_params)
 	mmProblem.ProblemMock.mutex.Unlock()
 
 	for _, e := range mmProblem.ProblemMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.p1, e.results.b1
 		}
@@ -184,17 +184,17 @@ func (mmProblem *TrackerMock) Problem(module coordinates.Module) (p1 Problem, b1
 
 	if mmProblem.ProblemMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmProblem.ProblemMock.defaultExpectation.Counter, 1)
-		want := mmProblem.ProblemMock.defaultExpectation.params
-		got := TrackerMockProblemParams{module}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmProblem.t.Errorf("TrackerMock.Problem got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmProblem.ProblemMock.defaultExpectation.params
+		mm_got := TrackerMockProblemParams{module}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmProblem.t.Errorf("TrackerMock.Problem got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmProblem.ProblemMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmProblem.ProblemMock.defaultExpectation.results
+		if mm_results == nil {
 			mmProblem.t.Fatal("No results are set for the TrackerMock.Problem")
 		}
-		return (*results).p1, (*results).b1
+		return (*mm_results).p1, (*mm_results).b1
 	}
 	if mmProblem.funcProblem != nil {
 		return mmProblem.funcProblem(module)
@@ -350,11 +350,11 @@ func (mmProblems *TrackerMock) Problems() (pa1 []Problem) {
 	if mmProblems.ProblemsMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmProblems.ProblemsMock.defaultExpectation.Counter, 1)
 
-		results := mmProblems.ProblemsMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmProblems.ProblemsMock.defaultExpectation.results
+		if mm_results == nil {
 			mmProblems.t.Fatal("No results are set for the TrackerMock.Problems")
 		}
-		return (*results).pa1
+		return (*mm_results).pa1
 	}
 	if mmProblems.funcProblems != nil {
 		return mmProblems.funcProblems()
@@ -500,15 +500,15 @@ func (mmSet *TrackerMock) Set(p1 Problem) {
 		mmSet.inspectFuncSet(p1)
 	}
 
-	params := &TrackerMockSetParams{p1}
+	mm_params := &TrackerMockSetParams{p1}
 
 	// Record call args
 	mmSet.SetMock.mutex.Lock()
-	mmSet.SetMock.callArgs = append(mmSet.SetMock.callArgs, params)
+	mmSet.SetMock.callArgs = append(mmSet.SetMock.callArgs, mm_params)
 	mmSet.SetMock.mutex.Unlock()
 
 	for _, e := range mmSet.SetMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return
 		}
@@ -516,10 +516,10 @@ func (mmSet *TrackerMock) Set(p1 Problem) {
 
 	if mmSet.SetMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmSet.SetMock.defaultExpectation.Counter, 1)
-		want := mmSet.SetMock.defaultExpectation.params
-		got := TrackerMockSetParams{p1}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmSet.t.Errorf("TrackerMock.Set got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmSet.SetMock.defaultExpectation.params
+		mm_got := TrackerMockSetParams{p1}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmSet.t.Errorf("TrackerMock.Set got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
 		return

@@ -8,7 +8,7 @@ import (
 	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Pruner -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Pruner -s _mock.go
 
 type Pruner interface {
 	Prune(time.Time) error

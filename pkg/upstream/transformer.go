@@ -13,7 +13,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Resolver -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Resolver -s _mock.go
 
 // A Resolver is able to turn the globally unique identifier of
 // a Go module (which includes a Source and a Version) and applies

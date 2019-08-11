@@ -13,7 +13,7 @@ import (
 	"oss.indeed.com/go/modprox/pkg/setup"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Store -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Store -s _mock.go
 
 type Store interface {
 	// modules

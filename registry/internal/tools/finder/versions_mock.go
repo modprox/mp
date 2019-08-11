@@ -7,7 +7,7 @@ import (
 	mm_atomic "sync/atomic"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 )
 
 // VersionsMock implements Versions
@@ -150,15 +150,15 @@ func (mmRequest *VersionsMock) Request(source string) (rp1 *Result, err error) {
 		mmRequest.inspectFuncRequest(source)
 	}
 
-	params := &VersionsMockRequestParams{source}
+	mm_params := &VersionsMockRequestParams{source}
 
 	// Record call args
 	mmRequest.RequestMock.mutex.Lock()
-	mmRequest.RequestMock.callArgs = append(mmRequest.RequestMock.callArgs, params)
+	mmRequest.RequestMock.callArgs = append(mmRequest.RequestMock.callArgs, mm_params)
 	mmRequest.RequestMock.mutex.Unlock()
 
 	for _, e := range mmRequest.RequestMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.rp1, e.results.err
 		}
@@ -166,17 +166,17 @@ func (mmRequest *VersionsMock) Request(source string) (rp1 *Result, err error) {
 
 	if mmRequest.RequestMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmRequest.RequestMock.defaultExpectation.Counter, 1)
-		want := mmRequest.RequestMock.defaultExpectation.params
-		got := VersionsMockRequestParams{source}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmRequest.t.Errorf("VersionsMock.Request got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmRequest.RequestMock.defaultExpectation.params
+		mm_got := VersionsMockRequestParams{source}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmRequest.t.Errorf("VersionsMock.Request got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmRequest.RequestMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmRequest.RequestMock.defaultExpectation.results
+		if mm_results == nil {
 			mmRequest.t.Fatal("No results are set for the VersionsMock.Request")
 		}
-		return (*results).rp1, (*results).err
+		return (*mm_results).rp1, (*mm_results).err
 	}
 	if mmRequest.funcRequest != nil {
 		return mmRequest.funcRequest(source)
