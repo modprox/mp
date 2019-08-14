@@ -140,9 +140,14 @@ func (i *boltIndex) Versions(module string) ([]string, error) {
 
 	err := i.db.View(func(tx *bolt.Tx) error {
 		cursor := tx.Bucket(idBktLbl).Cursor()
-		for key, _ := cursor.Seek(prefix); key != nil && bytes.HasPrefix(key, prefix); key, _ = cursor.Next() {
-			version := versionOf(key)
-			versions = append(versions, version)
+		for iKey, _ := cursor.Seek(prefix); iKey != nil && bytes.HasPrefix(iKey, prefix); iKey, _ = cursor.Next() {
+			iModule, iVersion := splitOnAT(iKey)
+			if iModule == module {
+				// only append the version for this stored module if there is
+				// an exact match with the module name we are looking for
+				// (i.e. take into account /vN suffix)
+				versions = append(versions, iVersion)
+			}
 		}
 		return nil
 	})
@@ -153,10 +158,10 @@ func (i *boltIndex) Versions(module string) ([]string, error) {
 	return versions, err
 }
 
-func versionOf(key []byte) string {
+func splitOnAT(key []byte) (string, string) {
 	s := string(key)
 	vIdx := strings.Index(s, "@")
-	return s[vIdx+1:]
+	return s[0:vIdx], s[vIdx+1:]
 }
 
 func (i *boltIndex) Info(mod coordinates.Module) (repository.RevInfo, error) {
