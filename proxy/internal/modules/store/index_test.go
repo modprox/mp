@@ -122,8 +122,6 @@ func Test_Index_Put_1(t *testing.T) {
 	require.Error(t, err)
 }
 
-// todo: test were we put several in, and test version sorting
-
 func insert(t *testing.T, index Index, modName string, id int) {
 	insertV(t, index, id, modName, 0, 0, id)
 }
@@ -356,4 +354,39 @@ func Test_Versions_multi(t *testing.T) {
 	versionsV2, err := index.Versions("gophers.dev/cmds/petrify/v2")
 	require.NoError(t, err)
 	require.Equal(t, 0, len(versionsV2))
+}
+
+func Test_Versions_sort(t *testing.T) {
+	tmpDir, index := setupIndex(t)
+	defer cleanupIndex(t, tmpDir)
+	checkSummary(t, index, 0, 0)
+
+	insertV(t, index, 0, "gophers.dev/cmds/petrify", 1, 0, 10)
+	insertV(t, index, 1, "gophers.dev/cmds/petrify", 0, 0, 1)
+	insertV(t, index, 2, "gophers.dev/cmds/petrify", 0, 0, 1000)
+	insertV(t, index, 3, "gophers.dev/cmds/petrify", 0, 1, 1)
+	insertV(t, index, 4, "gophers.dev/cmds/petrify", 0, 0, 10)
+	insertV(t, index, 5, "gophers.dev/cmds/petrify", 0, 0, 2)
+	insertV(t, index, 6, "gophers.dev/cmds/petrify", 0, 1, 0)
+	insertV(t, index, 7, "gophers.dev/cmds/petrify", 0, 0, 100)
+	insertV(t, index, 8, "gophers.dev/cmds/petrify", 1, 0, 1)
+	insertV(t, index, 9, "gophers.dev/cmds/petrify", 1, 100, 0)
+	insertV(t, index, 10, "gophers.dev/cmds/petrify", 1, 2, 1)
+
+	checkSummary(t, index, 1, 11)
+	versions, err := index.Versions("gophers.dev/cmds/petrify")
+	require.NoError(t, err)
+	require.Equal(t, []string{
+		"v0.0.1",
+		"v0.0.2",
+		"v0.0.10",
+		"v0.0.100",
+		"v0.0.1000",
+		"v0.1.0",
+		"v0.1.1",
+		"v1.0.1",
+		"v1.0.10",
+		"v1.2.1",
+		"v1.100.0",
+	}, versions)
 }
