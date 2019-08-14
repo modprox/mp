@@ -8,6 +8,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"gophers.dev/pkgs/semantic"
+
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
@@ -122,13 +124,17 @@ func Test_Index_Put_1(t *testing.T) {
 
 // todo: test were we put several in, and test version sorting
 
-func insert(t *testing.T, index Index, pkg string, id int) {
+func insert(t *testing.T, index Index, modName string, id int) {
+	insertV(t, index, id, modName, 0, 0, id)
+}
+
+func insertV(t *testing.T, index Index, id int, modName string, major, minor, patch int) {
 	err := index.Put(ModuleAddition{
 		Mod: coordinates.Module{
-			Source:  pkg,
-			Version: fmt.Sprintf("v0.0.%d", id),
+			Source:  modName,
+			Version: semantic.New(major, minor, patch).String(),
 		},
-		ModFile:  fmt.Sprintf("module %s", pkg),
+		ModFile:  fmt.Sprintf("module %s", modName),
 		UniqueID: int64(id),
 	})
 	require.NoError(t, err)
@@ -310,4 +316,44 @@ func Test_Remove(t *testing.T) {
 	require.False(t, exists)
 
 	checkSummary(t, index, 2, 8)
+}
+
+func Test_Versions_multi(t *testing.T) {
+	tmpDir, index := setupIndex(t)
+	defer cleanupIndex(t, tmpDir)
+	checkSummary(t, index, 0, 0)
+
+	// v0 and v1 (no /vN suffix)
+	insertV(t, index, 1, "gophers.dev/cmds/petrify", 0, 0, 1)
+	insertV(t, index, 2, "gophers.dev/cmds/petrify", 0, 0, 2)
+	insertV(t, index, 3, "gophers.dev/cmds/petrify", 0, 1, 3)
+	insertV(t, index, 4, "gophers.dev/cmds/petrify", 1, 0, 1)
+
+	// v3
+	insertV(t, index, 10, "gophers.dev/cmds/petrify/v3", 3, 0, 0)
+	insertV(t, index, 19, "gophers.dev/cmds/petrify/v3", 3, 1, 0)
+	insertV(t, index, 21, "gophers.dev/cmds/petrify/v3", 3, 1, 1)
+
+	// v5
+	insertV(t, index, 100, "gophers.dev/cmds/petrify/v5", 5, 0, 1)
+	insertV(t, index, 104, "gophers.dev/cmds/petrify/v5", 5, 1, 1)
+
+	checkSummary(t, index, 3, 9)
+
+	versionsV0V1, err := index.Versions("gophers.dev/cmds/petrify")
+	require.NoError(t, err)
+	require.Equal(t, 4, len(versionsV0V1))
+
+	versionsV3, err := index.Versions("gophers.dev/cmds/petrify/v3")
+	require.NoError(t, err)
+	require.Equal(t, 3, len(versionsV3))
+
+	versionsV5, err := index.Versions("gophers.dev/cmds/petrify/v5")
+	require.NoError(t, err)
+	require.Equal(t, 2, len(versionsV5))
+
+	// does not exist
+	versionsV2, err := index.Versions("gophers.dev/cmds/petrify/v2")
+	require.NoError(t, err)
+	require.Equal(t, 0, len(versionsV2))
 }
