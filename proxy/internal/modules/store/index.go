@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 
 	"gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/semantic"
 
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
@@ -152,10 +153,23 @@ func (i *boltIndex) Versions(module string) ([]string, error) {
 		return nil
 	})
 
-	// todo: sort versions using common lib
-	sort.Strings(versions) // incorrect
+	sortVersionStrings(versions)
 
 	return versions, err
+}
+
+func sortVersionStrings(versions []string) {
+	tags := make([]semantic.Tag, 0, len(versions))
+	for _, version := range versions {
+		tag, ok := semantic.Parse(version)
+		if ok {
+			tags = append(tags, tag)
+		}
+	}
+	sort.Sort(semantic.BySemver(tags))
+	for i, tag := range tags {
+		versions[i] = tag.String()
+	}
 }
 
 func splitOnAT(key []byte) (string, string) {
