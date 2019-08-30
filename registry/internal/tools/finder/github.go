@@ -114,7 +114,7 @@ func (gc githubCommit) Pseudo(tags []Tag) (string, error) {
 		return "", err
 	}
 
-	date := ts.Format("200601020300")
+	date := ts.Format("20060102150405")
 	shortSHA := gc.SHA[0:12] // what Go does
 
 	if len(tags) == 0 {
