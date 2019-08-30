@@ -29,6 +29,12 @@ type Tag struct {
 	Commit string
 }
 
+type SemVer struct {
+	Major int
+	Minor int
+	Patch int
+}
+
 //go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Versions -s _mock.go
 
 type Versions interface {
