@@ -33,6 +33,7 @@ type SemVer struct {
 	Major int
 	Minor int
 	Patch int
+	isPre bool
 }
 
 //go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Versions -s _mock.go
