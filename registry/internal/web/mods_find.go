@@ -18,6 +18,7 @@ import (
 type findPage struct {
 	CSRF  template.HTML
 	Found []findResult
+	Query string
 }
 
 type findHandler struct {
@@ -80,7 +81,7 @@ func (h *findHandler) get(r *http.Request) (int, *findPage, error) {
 }
 
 func (h *findHandler) post(r *http.Request) (int, *findPage, error) {
-	results, err := h.parseTextArea(r)
+	results, query, err := h.parseTextArea(r)
 	if err != nil {
 		return http.StatusBadRequest, nil, err
 	}
@@ -88,6 +89,7 @@ func (h *findHandler) post(r *http.Request) (int, *findPage, error) {
 	return http.StatusOK, &findPage{
 		CSRF:  csrf.TemplateField(r),
 		Found: results,
+		Query: query,
 	}, nil
 }
 
@@ -97,21 +99,21 @@ type findResult struct {
 	Err    error
 }
 
-func (h *findHandler) parseTextArea(r *http.Request) ([]findResult, error) {
+func (h *findHandler) parseTextArea(r *http.Request) ([]findResult, string, error) {
 	if err := r.ParseForm(); err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	text := r.PostForm.Get("sources-input")
 
 	lines := linesOfText(text)
 	if len(lines) == 0 {
-		return nil, errors.New("no sources listed")
+		return nil, "", errors.New("no sources listed")
 	}
 
 	results := h.processLines(lines)
 
-	return results, nil
+	return results, text, nil
 }
 
 func (h *findHandler) processLines(lines []string) []findResult {
