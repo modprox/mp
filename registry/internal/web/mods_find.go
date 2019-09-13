@@ -10,6 +10,7 @@ import (
 
 	"gophers.dev/pkgs/loggy"
 
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/registry/internal/tools/finder"
 	"oss.indeed.com/go/modprox/registry/static"
@@ -28,7 +29,7 @@ type findHandler struct {
 	log     loggy.Logger
 }
 
-func newFindHandler(emitter stats.Sender) http.Handler {
+func newFindHandler(emitter stats.Sender, proxyClient zips.ProxyClient) http.Handler {
 	html := static.MustParseTemplates(
 		"static/html/layout.html",
 		"static/html/navbar.html",
@@ -39,7 +40,8 @@ func newFindHandler(emitter stats.Sender) http.Handler {
 		html:    html,
 		emitter: emitter,
 		finder: finder.New(finder.Options{
-			Timeout: 1 * time.Minute,
+			Timeout:     1 * time.Minute,
+			ProxyClient: proxyClient,
 		}),
 		log: loggy.New("find-modules-handler"),
 	}

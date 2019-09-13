@@ -77,9 +77,9 @@
                                             </span>
                                             <br/>
                                             <span class="find-code">
-                                            <input type="checkbox" name="packages" value="{{$txt}} {{(index .Result.Tags 0).SemVer}}"
-                                                   id="{{(index .Result.Tags 0).SemVer}}">
-                                            <label for="{{(index .Result.Tags 0).SemVer}}">{{(index .Result.Tags 0).SemVer}}</label>
+                                            <input type="checkbox" name="packages" value="{{$txt}} {{(index .Result.Tags 0)}}"
+                                                   id="{{(index .Result.Tags 0)}}">
+                                            <label for="{{(index .Result.Tags 0)}}">{{(index .Result.Tags 0)}}</label>
                                             </span>
                                             <br/>
                                             {{$len := len .Result.Tags}}
@@ -91,8 +91,8 @@
                                                 <span class="find-code sm">
                                                     {{range $i, $tag := .Result.Tags}}
                                                         {{if $i}}
-                                                        <input type="checkbox" name="packages" value="{{$txt}} {{$tag.SemVer}}" id="{{$tag.SemVer}}">
-                                                        <label for="{{$tag.SemVer}}">{{$tag.SemVer}}</label>
+                                                        <input type="checkbox" name="packages" value="{{$txt}} {{$tag}}" id="{{$tag}}">
+                                                        <label for="{{$tag}}">{{$tag}}</label>
                                                         {{end}}
                                                     {{end}}
                                                 </span>

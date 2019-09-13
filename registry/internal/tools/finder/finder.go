@@ -8,12 +8,15 @@ import (
 	"github.com/pkg/errors"
 
 	"gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/semantic"
+
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
 )
 
 type Result struct {
 	Text   string
 	Latest Head
-	Tags   []Tag
+	Tags   []semantic.Tag
 }
 
 type Head struct {
@@ -27,13 +30,6 @@ type Head struct {
 type Tag struct {
 	SemVer string
 	Commit string
-}
-
-type SemVer struct {
-	Major int
-	Minor int
-	Patch int
-	isPre bool
 }
 
 //go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Versions -s _mock.go
@@ -53,8 +49,9 @@ type Finder interface {
 }
 
 type Options struct {
-	Timeout  time.Duration
-	Versions map[string]Versions
+	Timeout     time.Duration
+	Versions    map[string]Versions
+	ProxyClient zips.ProxyClient
 }
 
 func New(opts Options) Finder {
@@ -70,7 +67,7 @@ func New(opts Options) Finder {
 	versions := opts.Versions
 	if versions == nil {
 		versions = map[string]Versions{
-			"github.com": Github("", client),
+			"github.com": Github("", client, opts.ProxyClient),
 		}
 	}
 

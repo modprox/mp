@@ -8,6 +8,7 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
+	"gophers.dev/pkgs/semantic"
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
 )
@@ -21,6 +22,12 @@ type ProxyClientMock struct {
 	afterGetCounter  uint64
 	beforeGetCounter uint64
 	GetMock          mProxyClientMockGet
+
+	funcList          func(source string) (ta1 []semantic.Tag, err error)
+	inspectFuncList   func(source string)
+	afterListCounter  uint64
+	beforeListCounter uint64
+	ListMock          mProxyClientMockList
 }
 
 // NewProxyClientMock returns a mock for ProxyClient
@@ -32,6 +39,9 @@ func NewProxyClientMock(t minimock.Tester) *ProxyClientMock {
 
 	m.GetMock = mProxyClientMockGet{mock: m}
 	m.GetMock.callArgs = []*ProxyClientMockGetParams{}
+
+	m.ListMock = mProxyClientMockList{mock: m}
+	m.ListMock.callArgs = []*ProxyClientMockListParams{}
 
 	return m
 }
@@ -252,10 +262,228 @@ func (m *ProxyClientMock) MinimockGetInspect() {
 	}
 }
 
+type mProxyClientMockList struct {
+	mock               *ProxyClientMock
+	defaultExpectation *ProxyClientMockListExpectation
+	expectations       []*ProxyClientMockListExpectation
+
+	callArgs []*ProxyClientMockListParams
+	mutex    sync.RWMutex
+}
+
+// ProxyClientMockListExpectation specifies expectation struct of the ProxyClient.List
+type ProxyClientMockListExpectation struct {
+	mock    *ProxyClientMock
+	params  *ProxyClientMockListParams
+	results *ProxyClientMockListResults
+	Counter uint64
+}
+
+// ProxyClientMockListParams contains parameters of the ProxyClient.List
+type ProxyClientMockListParams struct {
+	source string
+}
+
+// ProxyClientMockListResults contains results of the ProxyClient.List
+type ProxyClientMockListResults struct {
+	ta1 []semantic.Tag
+	err error
+}
+
+// Expect sets up expected params for ProxyClient.List
+func (mmList *mProxyClientMockList) Expect(source string) *mProxyClientMockList {
+	if mmList.mock.funcList != nil {
+		mmList.mock.t.Fatalf("ProxyClientMock.List mock is already set by Set")
+	}
+
+	if mmList.defaultExpectation == nil {
+		mmList.defaultExpectation = &ProxyClientMockListExpectation{}
+	}
+
+	mmList.defaultExpectation.params = &ProxyClientMockListParams{source}
+	for _, e := range mmList.expectations {
+		if minimock.Equal(e.params, mmList.defaultExpectation.params) {
+			mmList.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmList.defaultExpectation.params)
+		}
+	}
+
+	return mmList
+}
+
+// Inspect accepts an inspector function that has same arguments as the ProxyClient.List
+func (mmList *mProxyClientMockList) Inspect(f func(source string)) *mProxyClientMockList {
+	if mmList.mock.inspectFuncList != nil {
+		mmList.mock.t.Fatalf("Inspect function is already set for ProxyClientMock.List")
+	}
+
+	mmList.mock.inspectFuncList = f
+
+	return mmList
+}
+
+// Return sets up results that will be returned by ProxyClient.List
+func (mmList *mProxyClientMockList) Return(ta1 []semantic.Tag, err error) *ProxyClientMock {
+	if mmList.mock.funcList != nil {
+		mmList.mock.t.Fatalf("ProxyClientMock.List mock is already set by Set")
+	}
+
+	if mmList.defaultExpectation == nil {
+		mmList.defaultExpectation = &ProxyClientMockListExpectation{mock: mmList.mock}
+	}
+	mmList.defaultExpectation.results = &ProxyClientMockListResults{ta1, err}
+	return mmList.mock
+}
+
+//Set uses given function f to mock the ProxyClient.List method
+func (mmList *mProxyClientMockList) Set(f func(source string) (ta1 []semantic.Tag, err error)) *ProxyClientMock {
+	if mmList.defaultExpectation != nil {
+		mmList.mock.t.Fatalf("Default expectation is already set for the ProxyClient.List method")
+	}
+
+	if len(mmList.expectations) > 0 {
+		mmList.mock.t.Fatalf("Some expectations are already set for the ProxyClient.List method")
+	}
+
+	mmList.mock.funcList = f
+	return mmList.mock
+}
+
+// When sets expectation for the ProxyClient.List which will trigger the result defined by the following
+// Then helper
+func (mmList *mProxyClientMockList) When(source string) *ProxyClientMockListExpectation {
+	if mmList.mock.funcList != nil {
+		mmList.mock.t.Fatalf("ProxyClientMock.List mock is already set by Set")
+	}
+
+	expectation := &ProxyClientMockListExpectation{
+		mock:   mmList.mock,
+		params: &ProxyClientMockListParams{source},
+	}
+	mmList.expectations = append(mmList.expectations, expectation)
+	return expectation
+}
+
+// Then sets up ProxyClient.List return parameters for the expectation previously defined by the When method
+func (e *ProxyClientMockListExpectation) Then(ta1 []semantic.Tag, err error) *ProxyClientMock {
+	e.results = &ProxyClientMockListResults{ta1, err}
+	return e.mock
+}
+
+// List implements ProxyClient
+func (mmList *ProxyClientMock) List(source string) (ta1 []semantic.Tag, err error) {
+	mm_atomic.AddUint64(&mmList.beforeListCounter, 1)
+	defer mm_atomic.AddUint64(&mmList.afterListCounter, 1)
+
+	if mmList.inspectFuncList != nil {
+		mmList.inspectFuncList(source)
+	}
+
+	mm_params := &ProxyClientMockListParams{source}
+
+	// Record call args
+	mmList.ListMock.mutex.Lock()
+	mmList.ListMock.callArgs = append(mmList.ListMock.callArgs, mm_params)
+	mmList.ListMock.mutex.Unlock()
+
+	for _, e := range mmList.ListMock.expectations {
+		if minimock.Equal(e.params, mm_params) {
+			mm_atomic.AddUint64(&e.Counter, 1)
+			return e.results.ta1, e.results.err
+		}
+	}
+
+	if mmList.ListMock.defaultExpectation != nil {
+		mm_atomic.AddUint64(&mmList.ListMock.defaultExpectation.Counter, 1)
+		mm_want := mmList.ListMock.defaultExpectation.params
+		mm_got := ProxyClientMockListParams{source}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmList.t.Errorf("ProxyClientMock.List got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
+		}
+
+		mm_results := mmList.ListMock.defaultExpectation.results
+		if mm_results == nil {
+			mmList.t.Fatal("No results are set for the ProxyClientMock.List")
+		}
+		return (*mm_results).ta1, (*mm_results).err
+	}
+	if mmList.funcList != nil {
+		return mmList.funcList(source)
+	}
+	mmList.t.Fatalf("Unexpected call to ProxyClientMock.List. %v", source)
+	return
+}
+
+// ListAfterCounter returns a count of finished ProxyClientMock.List invocations
+func (mmList *ProxyClientMock) ListAfterCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmList.afterListCounter)
+}
+
+// ListBeforeCounter returns a count of ProxyClientMock.List invocations
+func (mmList *ProxyClientMock) ListBeforeCounter() uint64 {
+	return mm_atomic.LoadUint64(&mmList.beforeListCounter)
+}
+
+// Calls returns a list of arguments used in each call to ProxyClientMock.List.
+// The list is in the same order as the calls were made (i.e. recent calls have a higher index)
+func (mmList *mProxyClientMockList) Calls() []*ProxyClientMockListParams {
+	mmList.mutex.RLock()
+
+	argCopy := make([]*ProxyClientMockListParams, len(mmList.callArgs))
+	copy(argCopy, mmList.callArgs)
+
+	mmList.mutex.RUnlock()
+
+	return argCopy
+}
+
+// MinimockListDone returns true if the count of the List invocations corresponds
+// the number of defined expectations
+func (m *ProxyClientMock) MinimockListDone() bool {
+	for _, e := range m.ListMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			return false
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.ListMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterListCounter) < 1 {
+		return false
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcList != nil && mm_atomic.LoadUint64(&m.afterListCounter) < 1 {
+		return false
+	}
+	return true
+}
+
+// MinimockListInspect logs each unmet expectation
+func (m *ProxyClientMock) MinimockListInspect() {
+	for _, e := range m.ListMock.expectations {
+		if mm_atomic.LoadUint64(&e.Counter) < 1 {
+			m.t.Errorf("Expected call to ProxyClientMock.List with params: %#v", *e.params)
+		}
+	}
+
+	// if default expectation was set then invocations count should be greater than zero
+	if m.ListMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterListCounter) < 1 {
+		if m.ListMock.defaultExpectation.params == nil {
+			m.t.Error("Expected call to ProxyClientMock.List")
+		} else {
+			m.t.Errorf("Expected call to ProxyClientMock.List with params: %#v", *m.ListMock.defaultExpectation.params)
+		}
+	}
+	// if func was set then invocations count should be greater than zero
+	if m.funcList != nil && mm_atomic.LoadUint64(&m.afterListCounter) < 1 {
+		m.t.Error("Expected call to ProxyClientMock.List")
+	}
+}
+
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *ProxyClientMock) MinimockFinish() {
 	if !m.minimockDone() {
 		m.MinimockGetInspect()
+
+		m.MinimockListInspect()
 		m.t.FailNow()
 	}
 }
@@ -279,5 +507,6 @@ func (m *ProxyClientMock) MinimockWait(timeout mm_time.Duration) {
 func (m *ProxyClientMock) minimockDone() bool {
 	done := true
 	return done &&
-		m.MinimockGetDone()
+		m.MinimockGetDone() &&
+		m.MinimockListDone()
 }

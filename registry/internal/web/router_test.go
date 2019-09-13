@@ -29,6 +29,6 @@ func makeRouter(t *testing.T) (http.Handler, mocks) {
 
 	mocks := newMocks(t)
 
-	router := NewRouter(nil, nil, mocks.store, emitter, "this is some fake history")
+	router := NewRouter(nil, nil, mocks.store, emitter, "this is some fake history", nil)
 	return router, mocks
 }

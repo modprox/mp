@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -14,6 +15,7 @@ import (
 
 	"gophers.dev/pkgs/ignore"
 	"gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/semantic"
 
 	"oss.indeed.com/go/modprox/pkg/coordinates"
 	"oss.indeed.com/go/modprox/pkg/repository"
@@ -24,11 +26,19 @@ import (
 // A ProxyClient is used for making requests to a Go Module Proxy
 // which is expected to return archives already in the correct format.
 type ProxyClient interface {
+	// Get returns the contents of the repo specified by the coordinates
 	Get(coordinates.Module) (repository.Blob, error)
+	// List returns all available versions of the repo specified by the coordinates, in descending logical order
+	List(source string) ([]semantic.Tag, error)
+}
+
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i iHTTPClient
+type iHTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
 }
 
 type proxyClient struct {
-	httpClient *http.Client
+	httpClient iHTTPClient
 	baseURL    string
 	protocol   string
 	log        loggy.Logger
@@ -65,7 +75,7 @@ func NewProxyClient(opts ProxyClientOptions) ProxyClient {
 	}
 }
 
-func (c *proxyClient) uriOf(module coordinates.Module) string {
+func (c *proxyClient) zipURIOf(module coordinates.Module) string {
 	modZipPath := mangle(fmt.Sprintf(
 		"/%s/@v/%s.zip",
 		module.Source,
@@ -76,6 +86,18 @@ func (c *proxyClient) uriOf(module coordinates.Module) string {
 		Scheme: c.protocol,
 		Host:   c.baseURL,
 		Path:   modZipPath,
+	}
+
+	return s.String()
+}
+
+func (c *proxyClient) listURIOf(source string) string {
+	modListPath := mangle(fmt.Sprintf("/%s/@v/list", source))
+
+	s := url.URL{
+		Scheme: c.protocol,
+		Host:   c.baseURL,
+		Path:   modListPath,
 	}
 
 	return s.String()
@@ -115,11 +137,51 @@ func (c *proxyClient) Get(mod coordinates.Module) (repository.Blob, error) {
 	// request looks like
 	//
 	// GET https://proxy.golang.org/oss.indeed.com/go/taggit/@v/v0.3.3.zip
-	zipURI := c.uriOf(mod)
+	zipURI := c.zipURIOf(mod)
 	c.log.Tracef("making zip proxy request to %s", zipURI)
 
+	response, err := c.sendRequest(mod.String(), zipURI)
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
+}
+
+func (c *proxyClient) List(source string) ([]semantic.Tag, error) {
+	// request looks like
+	//
+	// GET https://proxy.golang.org/oss.indeed.com/go/taggit/@v/list
+	listURI := c.listURIOf(source)
+	c.log.Tracef("making list proxy request to %s", listURI)
+
+	response, err := c.sendRequest(source, listURI)
+	if err != nil {
+		return nil, err
+	}
+
+	split := strings.Split(strings.TrimSpace(string(response)), "\n")
+	result := make([]semantic.Tag, len(split))
+	for i, version := range split {
+		tag, success := semantic.Parse(version)
+		if !success {
+			return nil, errors.Errorf("failed to parse version %s", version)
+		}
+		result[i] = tag
+	}
+	sort.Sort(semantic.BySemver(result))
+	// reverse
+	for i := len(result)/2 - 1; i >= 0; i-- {
+		opp := len(result) - 1 - i
+		result[i], result[opp] = result[opp], result[i]
+	}
+
+	return result, nil
+}
+
+func (c *proxyClient) sendRequest(subject, uri string) ([]byte, error) {
 	// create the request for the module, from the proxy
-	request, err := c.newRequest(zipURI)
+	request, err := c.newRequest(uri)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +189,7 @@ func (c *proxyClient) Get(mod coordinates.Module) (repository.Blob, error) {
 	// do the request for the module, from the proxy
 	response, err := c.httpClient.Do(request)
 	if err != nil {
-		return nil, errors.Wrapf(err, "proxy request failed for %s", mod)
+		return nil, errors.Wrapf(err, "proxy request failed for %s", subject)
 	}
 	defer ignore.Drain(response.Body)
 
