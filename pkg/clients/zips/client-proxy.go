@@ -169,12 +169,7 @@ func (c *proxyClient) List(source string) ([]semantic.Tag, error) {
 		}
 		result[i] = tag
 	}
-	sort.Sort(semantic.BySemver(result))
-	// reverse
-	for i := len(result)/2 - 1; i >= 0; i-- {
-		opp := len(result) - 1 - i
-		result[i], result[opp] = result[opp], result[i]
-	}
+	sort.Sort(sort.Reverse(semantic.BySemver(result)))
 
 	return result, nil
 }
