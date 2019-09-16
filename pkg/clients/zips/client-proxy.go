@@ -1,7 +1,9 @@
 package zips
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -144,8 +146,9 @@ func (c *proxyClient) Get(mod coordinates.Module) (repository.Blob, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer ignore.Drain(response)
 
-	return response, nil
+	return ioutil.ReadAll(response)
 }
 
 func (c *proxyClient) List(source string) ([]semantic.Tag, error) {
@@ -159,22 +162,24 @@ func (c *proxyClient) List(source string) ([]semantic.Tag, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer ignore.Drain(response)
 
-	split := strings.Split(strings.TrimSpace(string(response)), "\n")
-	result := make([]semantic.Tag, len(split))
-	for i, version := range split {
+	result := []semantic.Tag{}
+	scanner := bufio.NewScanner(response)
+	for scanner.Scan() {
+		version := scanner.Text()
 		tag, success := semantic.Parse(version)
 		if !success {
 			return nil, errors.Errorf("failed to parse version %s", version)
 		}
-		result[i] = tag
+		result = append(result, tag)
 	}
 	sort.Sort(sort.Reverse(semantic.BySemver(result)))
 
 	return result, nil
 }
 
-func (c *proxyClient) sendRequest(subject, uri string) ([]byte, error) {
+func (c *proxyClient) sendRequest(subject, uri string) (io.ReadCloser, error) {
 	// create the request for the module, from the proxy
 	request, err := c.newRequest(uri)
 	if err != nil {
@@ -186,7 +191,6 @@ func (c *proxyClient) sendRequest(subject, uri string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "proxy request failed for %s", subject)
 	}
-	defer ignore.Drain(response.Body)
 
 	// if we get a bad response code, try to read the body and log it
 	// todo: can we make this generic? copied from http.go
@@ -205,7 +209,7 @@ func (c *proxyClient) sendRequest(subject, uri string) ([]byte, error) {
 	}
 
 	// response is good, read the bytes
-	return ioutil.ReadAll(response.Body)
+	return response.Body, nil
 }
 
 func (c *proxyClient) newRequest(uri string) (*http.Request, error) {
