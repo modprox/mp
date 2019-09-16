@@ -30,5 +30,9 @@
   },
   "proxies": {
     "prune_after_s": 60
+  },
+  "proxy_client": {
+    "protocol": "https",
+    "base_url": "proxy.golang.org"
   }
 }

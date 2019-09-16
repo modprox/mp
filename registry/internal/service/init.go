@@ -11,6 +11,7 @@ import (
 
 	"gophers.dev/pkgs/repeat/x"
 
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
 	"oss.indeed.com/go/modprox/pkg/history"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/webutil"
@@ -34,6 +35,18 @@ func initSender(r *Registry) error {
 		return err
 	}
 	r.emitter = emitter
+	return nil
+}
+
+func initProxyClient(r *Registry) error {
+	r.proxyClient = zips.NewProxyClient(
+		zips.ProxyClientOptions{
+			Protocol: r.config.ProxyClient.Protocol,
+			BaseURL:  r.config.ProxyClient.BaseURL,
+			Timeout:  1 * time.Minute,
+		},
+	)
+
 	return nil
 }
 
@@ -88,6 +101,7 @@ func initWebServer(r *Registry) error {
 		r.store,
 		r.emitter,
 		r.history,
+		r.proxyClient,
 	)
 
 	server, err := r.config.WebServer.Server(mux)

@@ -18,8 +18,9 @@ import (
 )
 
 type newPage struct {
-	Mods []Parsed
-	CSRF template.HTML
+	Mods  []Parsed
+	CSRF  template.HTML
+	Query string
 }
 
 type newHandler struct {
@@ -74,14 +75,19 @@ func (h *newHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *newHandler) get(r *http.Request) (int, *newPage, error) {
+	if err := r.ParseForm(); err != nil {
+		return http.StatusBadRequest, nil, err
+	}
+	packages := r.Form["packages"]
 	return http.StatusOK, &newPage{
-		Mods: nil,
-		CSRF: csrf.TemplateField(r),
+		Mods:  nil,
+		CSRF:  csrf.TemplateField(r),
+		Query: strings.Join(packages, "\n"),
 	}, nil
 }
 
 func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
-	mods, err := h.parseTextArea(r)
+	mods, query, err := h.parseTextArea(r)
 	if err != nil {
 		return http.StatusBadRequest, nil, err
 	}
@@ -94,8 +100,9 @@ func (h *newHandler) post(r *http.Request) (int, *newPage, error) {
 	h.log.Infof("added %d new modules", modulesAdded)
 
 	return http.StatusOK, &newPage{
-		Mods: mods,
-		CSRF: csrf.TemplateField(r),
+		Mods:  mods,
+		CSRF:  csrf.TemplateField(r),
+		Query: query,
 	}, nil
 }
 
@@ -120,21 +127,21 @@ type Parsed struct {
 	Err    error
 }
 
-func (h *newHandler) parseTextArea(r *http.Request) ([]Parsed, error) {
+func (h *newHandler) parseTextArea(r *http.Request) ([]Parsed, string, error) {
 	// get the text from form and use a scanner to get each line
 	if err := r.ParseForm(); err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	text := r.PostForm.Get("modules-input")
 
 	// parse the text field into lines then module + tag
 	lines := linesOfText(text)
 	if len(lines) == 0 {
-		return nil, errors.New("no modules listed")
+		return nil, "", errors.New("no modules listed")
 	}
 	results := h.parseLines(lines)
 
-	return results, nil
+	return results, text, nil
 }
 
 func (h *newHandler) parseLines(lines []string) []Parsed {

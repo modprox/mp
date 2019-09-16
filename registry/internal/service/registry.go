@@ -5,17 +5,19 @@ import (
 
 	"gophers.dev/pkgs/loggy"
 
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/registry/config"
 	"oss.indeed.com/go/modprox/registry/internal/data"
 )
 
 type Registry struct {
-	config  config.Configuration
-	store   data.Store
-	emitter stats.Sender
-	log     loggy.Logger
-	history string
+	config      config.Configuration
+	store       data.Store
+	emitter     stats.Sender
+	log         loggy.Logger
+	history     string
+	proxyClient zips.ProxyClient
 }
 
 func NewRegistry(config config.Configuration) *Registry {
@@ -29,6 +31,7 @@ func NewRegistry(config config.Configuration) *Registry {
 		initStore,
 		initProxyPrune,
 		initHistory,
+		initProxyClient,
 		initWebServer,
 	} {
 		if err := f(r); err != nil {

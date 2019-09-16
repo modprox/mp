@@ -7,6 +7,7 @@ import (
 
 	petrify "gophers.dev/cmds/petrify/v5"
 
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
 	"oss.indeed.com/go/modprox/pkg/metrics/stats"
 	"oss.indeed.com/go/modprox/pkg/webutil"
 	"oss.indeed.com/go/modprox/registry/internal/data"
@@ -24,6 +25,7 @@ func NewRouter(
 	store data.Store,
 	emitter stats.Sender,
 	history string,
+	proxyClient zips.ProxyClient,
 ) http.Handler {
 
 	// 1) a router onto which sub-routers will be mounted
@@ -41,7 +43,7 @@ func NewRouter(
 	router.Handle("/v1/", routeAPI(middleAPI, store, emitter))
 
 	// 4) a webUI handler, is CSRF protected
-	router.Handle("/", routeWebUI(middleUI, store, emitter, history))
+	router.Handle("/", routeWebUI(middleUI, store, emitter, history, proxyClient))
 
 	return router
 }
@@ -62,12 +64,12 @@ func routeAPI(middles []webutil.Middleware, store data.Store, emitter stats.Send
 	return webutil.Chain(sub, middles...)
 }
 
-func routeWebUI(middles []webutil.Middleware, store data.Store, emitter stats.Sender, history string) http.Handler {
+func routeWebUI(middles []webutil.Middleware, store data.Store, emitter stats.Sender, history string, proxyClient zips.ProxyClient) http.Handler {
 	sub := mux.NewRouter()
 	sub.Handle("/mods/new", newAddHandler(store, emitter)).Methods(get, post)
 	sub.Handle("/mods/list", newModsListHandler(store, emitter)).Methods(get)
 	sub.Handle("/mods/show", newShowHandler(store, emitter)).Methods(get, post)
-	sub.Handle("/mods/find", newFindHandler(emitter)).Methods(get, post)
+	sub.Handle("/mods/find", newFindHandler(emitter, proxyClient)).Methods(get, post)
 	sub.Handle("/configure/about", newAboutHandler(emitter)).Methods(get)
 	sub.Handle("/configure/blocks", newBlocksHandler(emitter)).Methods(get)
 	sub.Handle("/history", newHistoryHandler(emitter, history)).Methods(get)

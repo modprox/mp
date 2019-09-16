@@ -8,6 +8,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
+	"gophers.dev/pkgs/semantic"
+
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
 )
 
 func Test_Compatible(t *testing.T) {
@@ -49,14 +53,20 @@ func Test_finder_Find(t *testing.T) {
 		Timeout: 1 * time.Second,
 	}
 
+	const source = "github.com/octocat/Hello-World"
+
+	proxyClient := zips.NewProxyClientMock(t)
+	defer proxyClient.MinimockFinish()
+	proxyClient.ListMock.Expect(source).Return([]semantic.Tag{}, nil)
+
 	f := New(Options{
 		Timeout: 1 * time.Second,
 		Versions: map[string]Versions{
-			"github.com": Github(ts.URL, client),
+			"github.com": Github(ts.URL, client, proxyClient),
 		},
 	})
 
-	result, err := f.Find("github.com/octocat/Hello-World")
+	result, err := f.Find(source)
 	require.NoError(t, err)
 
 	t.Logf("result %#v", result)

@@ -13,11 +13,17 @@ import (
 )
 
 type Configuration struct {
-	WebServer WebServer             `json:"web_server"`
-	CSRF      CSRF                  `json:"csrf"`
-	Database  setup.PersistentStore `json:"database_storage"`
-	Statsd    stats.Statsd          `json:"statsd"`
-	Proxies   Proxies               `json:"proxies"`
+	WebServer   WebServer             `json:"web_server"`
+	CSRF        CSRF                  `json:"csrf"`
+	Database    setup.PersistentStore `json:"database_storage"`
+	Statsd      stats.Statsd          `json:"statsd"`
+	Proxies     Proxies               `json:"proxies"`
+	ProxyClient ProxyClient           `json:"proxy_client"`
+}
+
+type ProxyClient struct {
+	Protocol string `json:"protocol"` // e.g. "https"
+	BaseURL  string `json:"base_url"` // e.g. "proxy.golang.org"
 }
 
 func (c Configuration) String() string {

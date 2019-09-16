@@ -8,12 +8,15 @@ import (
 	"github.com/pkg/errors"
 
 	"gophers.dev/pkgs/loggy"
+	"gophers.dev/pkgs/semantic"
+
+	"oss.indeed.com/go/modprox/pkg/clients/zips"
 )
 
 type Result struct {
 	Text   string
 	Latest Head
-	Tags   []Tag
+	Tags   []semantic.Tag
 }
 
 type Head struct {
@@ -46,8 +49,9 @@ type Finder interface {
 }
 
 type Options struct {
-	Timeout  time.Duration
-	Versions map[string]Versions
+	Timeout     time.Duration
+	Versions    map[string]Versions
+	ProxyClient zips.ProxyClient
 }
 
 func New(opts Options) Finder {
@@ -63,7 +67,7 @@ func New(opts Options) Finder {
 	versions := opts.Versions
 	if versions == nil {
 		versions = map[string]Versions{
-			"github.com": Github("", client),
+			"github.com": Github("", client, opts.ProxyClient),
 		}
 	}
 

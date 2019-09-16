@@ -19,7 +19,7 @@
                 form="find-module"
                 rows="5" cols="70"
                 placeholder="e.g. github.com/pkg/errors"
-                required autofocus></textarea>
+                required autofocus>{{.Query}}</textarea>
             <br/><br/>
             <input type="submit" form="find-module" class="btn btn-success" value="⌕ Find">
         </form>
@@ -33,15 +33,17 @@
                 no results
             </span>
         {{else}}
+        <form method="GET" id="populate-new" action="/mods/new">
         <table> <!-- outer list of things -->
             {{range .Found}}
+                {{$txt := .Text}}
                 <tr>
                     <td>
                         <table> <!-- left and right side -->
                             <tr>
                                 <td> <!-- package name -->
                                     <h4>
-                                        <a href="https://{{.Text}}" class="find-pkg" target="_blank" rel="noreferrer">
+                                        <a href="https://{{$txt}}" class="find-pkg" target="_blank" rel="noreferrer">
                                             {{.Text}}
                                         </a>
                                     </h4>
@@ -62,7 +64,9 @@
                                         </span>
                                         <br/>
                                         <span class="find-code">
-                                            {{.Result.Latest.Custom}}
+                                            <input type="checkbox" name="packages" value="{{$txt}} {{.Result.Latest.Custom}}"
+                                                   id="{{.Result.Latest.Custom}}">
+                                            <label for="{{.Result.Latest.Custom}}">{{.Result.Latest.Custom}}</label>
                                         </span>
                                         <br/>
                                         {{if not .Result.Tags}}
@@ -73,18 +77,26 @@
                                             </span>
                                             <br/>
                                             <span class="find-code">
-                                                {{(index .Result.Tags 0).SemVer}}
+                                            <input type="checkbox" name="packages" value="{{$txt}} {{(index .Result.Tags 0)}}"
+                                                   id="{{(index .Result.Tags 0)}}">
+                                            <label for="{{(index .Result.Tags 0)}}">{{(index .Result.Tags 0)}}</label>
                                             </span>
                                             <br/>
-                                            <span class="find-label">
-                                                older tags
-                                            </span>
-                                            <br/>
-                                            <span class="find-code sm">
-                                                {{range .Result.Tags}}
-                                                    {{.SemVer}}
-                                                {{end}}
-                                            </span>
+                                            {{$len := len .Result.Tags}}
+                                            {{if gt $len 1}}
+                                                <span class="find-label">
+                                                    older tags
+                                                </span>
+                                                <br/>
+                                                <span class="find-code sm">
+                                                    {{range $i, $tag := .Result.Tags}}
+                                                        {{if $i}}
+                                                        <input type="checkbox" name="packages" value="{{$txt}} {{$tag}}" id="{{$tag}}">
+                                                        <label for="{{$tag}}">{{$tag}}</label>
+                                                        {{end}}
+                                                    {{end}}
+                                                </span>
+                                            {{end}}
                                         {{end}}
                                     {{end}}
                                 </td>
@@ -95,6 +107,8 @@
                 </tr>
             {{end}}
         </table>
+        <input type="submit" form="populate-new" class="btn btn-success" value="✚ Add Selected">
+        </form>
         {{end}}
     </div>
 </div>
